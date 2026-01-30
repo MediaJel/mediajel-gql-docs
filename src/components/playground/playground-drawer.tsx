@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Play, X, CheckCircle, LogOut } from "lucide-react";
+import { Play, X, CheckCircle, LogOut, Code2, Globe } from "lucide-react";
 import { AuthForm } from "./auth-form";
 import { GraphiQLWrapper } from "./graphiql-wrapper";
+import { HttpClient } from "./http-client";
 import "graphiql/graphiql.css";
 
 const STORAGE_KEY = "mediajel_playground_auth";
@@ -13,6 +14,7 @@ interface PlaygroundDrawerProps {
   onClose: () => void;
   query?: string;
   variables?: string;
+  mode?: "graphql" | "http";
 }
 
 export function PlaygroundDrawer({
@@ -20,6 +22,7 @@ export function PlaygroundDrawer({
   onClose,
   query,
   variables,
+  mode = "graphql",
 }: PlaygroundDrawerProps) {
   const gqlEndpoint =
     process.env.NEXT_PUBLIC_GQL_ENDPOINT || "http://localhost:4000";
@@ -29,6 +32,12 @@ export function PlaygroundDrawer({
     orgId: string;
   } | null>(null);
   const [isRestoring, setIsRestoring] = useState(true);
+  const [activeTab, setActiveTab] = useState(mode);
+
+  // Sync activeTab when mode prop changes (e.g. different button clicked)
+  useEffect(() => {
+    setActiveTab(mode);
+  }, [mode]);
 
   useEffect(() => {
     try {
@@ -82,6 +91,18 @@ export function PlaygroundDrawer({
       console.error("Failed to clear session:", err);
     }
   }, []);
+
+  // Build HTTP body from query + variables
+  const httpBody = query
+    ? JSON.stringify(
+        {
+          query,
+          variables: variables ? JSON.parse(variables) : {},
+        },
+        null,
+        2
+      )
+    : undefined;
 
   return (
     <>
@@ -137,6 +158,7 @@ export function PlaygroundDrawer({
                 )
               ) : (
                 <>
+                  {/* Auth bar */}
                   <div className="flex items-center justify-between px-4 py-2 bg-green-50 border-b border-green-200 flex-shrink-0">
                     <div className="flex items-center gap-2 text-sm text-green-800">
                       <CheckCircle className="h-4 w-4" />
@@ -150,13 +172,50 @@ export function PlaygroundDrawer({
                       Sign out
                     </button>
                   </div>
-                  <div className="flex-1">
-                    <GraphiQLWrapper
-                      defaultQuery={query}
-                      defaultVariables={variables}
-                      auth={auth}
-                      gqlEndpoint={gqlEndpoint}
-                    />
+
+                  {/* Tab bar */}
+                  <div className="flex border-b border-border bg-card px-4 flex-shrink-0">
+                    <button
+                      onClick={() => setActiveTab("graphql")}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === "graphql"
+                          ? "border-primary text-foreground"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Code2 className="h-3.5 w-3.5" />
+                      GraphQL
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("http")}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === "http"
+                          ? "border-primary text-foreground"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Globe className="h-3.5 w-3.5" />
+                      HTTP Client
+                    </button>
+                  </div>
+
+                  {/* Tab panels */}
+                  <div className="flex-1 min-h-0 relative">
+                    <div className={`absolute inset-0 ${activeTab === "graphql" ? "" : "invisible pointer-events-none"}`}>
+                      <GraphiQLWrapper
+                        defaultQuery={query}
+                        defaultVariables={variables}
+                        auth={auth}
+                        gqlEndpoint={gqlEndpoint}
+                      />
+                    </div>
+                    <div className={`absolute inset-0 ${activeTab === "http" ? "" : "invisible pointer-events-none"}`}>
+                      <HttpClient
+                        auth={auth}
+                        gqlEndpoint={gqlEndpoint}
+                        defaultBody={httpBody}
+                      />
+                    </div>
                   </div>
                 </>
               )}

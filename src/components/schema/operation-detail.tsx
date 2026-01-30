@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CodeBlock } from "@/components/ui/code-block";
 import { Badge } from "@/components/ui/badge";
 import type { OperationInfo } from "@/lib/schema";
-import { Play } from "lucide-react";
+import { Play, Globe } from "lucide-react";
 import { HttpSnippets } from "./http-snippets";
 import { PlaygroundDrawer } from "@/components/playground/playground-drawer";
 
@@ -15,6 +15,7 @@ interface OperationDetailProps {
 export function OperationDetail({ operation }: OperationDetailProps) {
   const [viewMode, setViewMode] = useState<"graphql" | "http">("graphql");
   const [playgroundOpen, setPlaygroundOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<"graphql" | "http">("graphql");
   const gqlEndpoint =
     process.env.NEXT_PUBLIC_GQL_ENDPOINT || "https://api.mediajel.com";
 
@@ -119,13 +120,22 @@ export function OperationDetail({ operation }: OperationDetailProps) {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Example</h2>
-          <button
-            onClick={() => setPlaygroundOpen(true)}
-            className="flex items-center gap-1.5 text-sm text-primary hover:underline"
-          >
-            <Play className="h-3.5 w-3.5" />
-            Try in Playground
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { setDrawerMode("graphql"); setPlaygroundOpen(true); }}
+              className="flex items-center gap-1.5 text-sm text-primary hover:underline"
+            >
+              <Play className="h-3.5 w-3.5" />
+              Try in Playground
+            </button>
+            <button
+              onClick={() => { setDrawerMode("http"); setPlaygroundOpen(true); }}
+              className="flex items-center gap-1.5 text-sm text-green-600 hover:text-green-700 hover:underline"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              Try via HTTP
+            </button>
+          </div>
         </div>
 
         {/* Tab selector */}
@@ -192,6 +202,7 @@ export function OperationDetail({ operation }: OperationDetailProps) {
       <PlaygroundDrawer
         open={playgroundOpen}
         onClose={() => setPlaygroundOpen(false)}
+        mode={drawerMode}
         query={operation.exampleQuery}
         variables={
           operation.exampleVariables

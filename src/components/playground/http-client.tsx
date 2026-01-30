@@ -57,6 +57,7 @@ interface HttpResponse {
 interface HttpClientProps {
   auth: { accessToken: string; orgId: string };
   gqlEndpoint: string;
+  defaultBody?: string;
 }
 
 const DEFAULT_BODY = JSON.stringify(
@@ -68,7 +69,7 @@ const DEFAULT_BODY = JSON.stringify(
   2
 );
 
-export function HttpClient({ auth, gqlEndpoint }: HttpClientProps) {
+export function HttpClient({ auth, gqlEndpoint, defaultBody }: HttpClientProps) {
   const [method, setMethod] = useState<HttpMethod>("POST");
   const [url, setUrl] = useState(gqlEndpoint);
   const [headers, setHeaders] = useState<HeaderRow[]>([
@@ -76,7 +77,7 @@ export function HttpClient({ auth, gqlEndpoint }: HttpClientProps) {
     { key: "Key", value: auth.orgId, enabled: true },
     { key: "Content-Type", value: "application/json", enabled: true },
   ]);
-  const [body, setBody] = useState(DEFAULT_BODY);
+  const [body, setBody] = useState(defaultBody || DEFAULT_BODY);
   const [response, setResponse] = useState<HttpResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

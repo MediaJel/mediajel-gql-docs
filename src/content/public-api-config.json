@@ -1,0 +1,273 @@
+{
+  "version": "1.0.0",
+  "title": "MediaJel Public API",
+  "description": "GraphQL API for managing advertising campaigns, organizations, and campaign orders on the MediaJel platform.",
+  "baseUrl": "https://api.mediajel.com",
+  "categories": [
+    {
+      "id": "auth",
+      "name": "Authentication",
+      "description": "Authenticate and obtain JWT tokens for API access.",
+      "icon": "lock"
+    },
+    {
+      "id": "organizations",
+      "name": "Organizations",
+      "description": "Query and manage advertising organizations.",
+      "icon": "building"
+    },
+    {
+      "id": "campaigns",
+      "name": "Campaigns",
+      "description": "Query advertising campaigns and their configuration.",
+      "icon": "megaphone"
+    },
+    {
+      "id": "campaign-orders",
+      "name": "Campaign Orders",
+      "description": "Query campaign orders (line items) including budgets, schedules, and status.",
+      "icon": "clipboard-list"
+    }
+  ],
+  "operations": {
+    "mutations": {
+      "authSignIn": {
+        "category": "auth",
+        "description": "Authenticate with your Cognito credentials to obtain JWT tokens. The returned `accessToken` is used in the `Authorization: Bearer <token>` header, and your organization ID is sent in the `Key` header for all subsequent requests.",
+        "exampleVariables": {
+          "data": {
+            "username": "developer@example.com",
+            "password": "your-password"
+          }
+        },
+        "exampleQuery": "mutation SignIn($data: AuthSignInInput!) {\n  authSignIn(data: $data) {\n    accessToken\n    idToken\n    refreshToken\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "authSignIn": {
+              "accessToken": "eyJraWQiOiJ...",
+              "idToken": "eyJraWQiOiJ...",
+              "refreshToken": "eyJjdHkiOiJ..."
+            }
+          }
+        }
+      }
+    },
+    "queries": {
+      "org": {
+        "category": "organizations",
+        "description": "Retrieve a single organization by its unique ID or slug. Returns organization details including name, website, logo, and hierarchy.",
+        "exampleVariables": {
+          "where": {
+            "id": "clx1234567890"
+          }
+        },
+        "exampleQuery": "query GetOrg($where: OrgWhereUniqueInput!) {\n  org(where: $where) {\n    id\n    name\n    slug\n    website\n    logoUrl\n    enabled\n    parentOrg {\n      id\n      name\n    }\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "org": {
+              "id": "clx1234567890",
+              "name": "Acme Cannabis Co",
+              "slug": "acme-cannabis",
+              "website": "https://acmecannabis.com",
+              "logoUrl": "https://cdn.mediajel.com/logos/acme.png",
+              "enabled": true,
+              "parentOrg": {
+                "id": "clx0000000001",
+                "name": "Acme Holdings"
+              }
+            }
+          }
+        }
+      },
+      "orgs": {
+        "category": "organizations",
+        "description": "List organizations with optional filtering by name, status, or parent org. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
+        "exampleVariables": {
+          "where": {
+            "enabled": true
+          },
+          "first": 10,
+          "orderBy": "name_ASC"
+        },
+        "exampleQuery": "query ListOrgs($where: OrgWhereInput, $first: Int, $orderBy: OrgOrderByInput) {\n  orgs(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    slug\n    enabled\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "orgs": [
+              {
+                "id": "clx1234567890",
+                "name": "Acme Cannabis Co",
+                "slug": "acme-cannabis",
+                "enabled": true
+              }
+            ]
+          }
+        }
+      },
+      "orgsConnection": {
+        "category": "organizations",
+        "description": "Paginated organization listing with connection metadata. Use this for cursor-based pagination with total count.",
+        "exampleVariables": {
+          "first": 10
+        },
+        "exampleQuery": "query OrgsConnection($first: Int) {\n  orgsConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "orgsConnection": {
+              "edges": [
+                {
+                  "node": { "id": "clx1234567890", "name": "Acme Cannabis Co" },
+                  "cursor": "cjx1234567890"
+                }
+              ],
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "cjx1234567890"
+              },
+              "aggregate": { "count": 42 }
+            }
+          }
+        }
+      },
+      "campaign": {
+        "category": "campaigns",
+        "description": "Retrieve a single campaign by its unique ID. Returns campaign details including status, associated organization, and campaign orders.",
+        "exampleVariables": {
+          "where": {
+            "id": "clx9876543210"
+          }
+        },
+        "exampleQuery": "query GetCampaign($where: CampaignWhereUniqueInput!) {\n  campaign(where: $where) {\n    id\n    name\n    status\n    org {\n      id\n      name\n    }\n    campaignOrders {\n      id\n      name\n      status\n    }\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "campaign": {
+              "id": "clx9876543210",
+              "name": "Summer Sale 2024",
+              "status": "ACTIVE",
+              "org": {
+                "id": "clx1234567890",
+                "name": "Acme Cannabis Co"
+              },
+              "campaignOrders": [
+                {
+                  "id": "clxAAAA000001",
+                  "name": "Display - West Coast",
+                  "status": "active"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "campaigns": {
+        "category": "campaigns",
+        "description": "List campaigns with optional filtering by name, status, or organization. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
+        "exampleVariables": {
+          "where": {
+            "status": "ACTIVE"
+          },
+          "first": 10,
+          "orderBy": "createdAt_DESC"
+        },
+        "exampleQuery": "query ListCampaigns($where: CampaignWhereInput, $first: Int, $orderBy: CampaignOrderByInput) {\n  campaigns(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    status\n    org {\n      id\n      name\n    }\n    createdAt\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "campaigns": [
+              {
+                "id": "clx9876543210",
+                "name": "Summer Sale 2024",
+                "status": "ACTIVE",
+                "org": {
+                  "id": "clx1234567890",
+                  "name": "Acme Cannabis Co"
+                },
+                "createdAt": "2024-06-01T00:00:00.000Z"
+              }
+            ]
+          }
+        }
+      },
+      "campaignOrders": {
+        "category": "campaign-orders",
+        "description": "List campaign orders (line items) with optional filtering by name, status, campaign, or organization. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
+        "exampleVariables": {
+          "where": {
+            "status": "active"
+          },
+          "first": 10,
+          "orderBy": "startDate_DESC"
+        },
+        "exampleQuery": "query ListCampaignOrders($where: CampaignOrderWhereInput, $first: Int, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrders(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    startDate\n    endDate\n    budget\n    status\n    campaign {\n      id\n      name\n    }\n    org {\n      id\n      name\n    }\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "campaignOrders": [
+              {
+                "id": "clxAAAA000001",
+                "name": "Display - West Coast",
+                "startDate": "2024-06-01T00:00:00.000Z",
+                "endDate": "2024-08-31T00:00:00.000Z",
+                "budget": 5000.0,
+                "status": "active",
+                "campaign": {
+                  "id": "clx9876543210",
+                  "name": "Summer Sale 2024"
+                },
+                "org": {
+                  "id": "clx1234567890",
+                  "name": "Acme Cannabis Co"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "campaignOrdersConnection": {
+        "category": "campaign-orders",
+        "description": "Paginated campaign orders with connection metadata. Use this for cursor-based pagination with total count.",
+        "exampleVariables": {
+          "first": 10
+        },
+        "exampleQuery": "query CampaignOrdersConnection($first: Int) {\n  campaignOrdersConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        status\n        budget\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "campaignOrdersConnection": {
+              "edges": [
+                {
+                  "node": {
+                    "id": "clxAAAA000001",
+                    "name": "Display - West Coast",
+                    "status": "active",
+                    "budget": 5000.0
+                  },
+                  "cursor": "cjxAAAA000001"
+                }
+              ],
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "cjxAAAA000001"
+              },
+              "aggregate": { "count": 128 }
+            }
+          }
+        }
+      }
+    }
+  },
+  "authentication": {
+    "type": "cognito",
+    "headers": {
+      "Authorization": "Bearer <accessToken>",
+      "Key": "<organizationId>"
+    },
+    "tokenLifetime": "1 hour",
+    "refreshStrategy": "Use refreshToken to obtain new accessToken when expired"
+  },
+  "rateLimits": {
+    "requestsPerMinute": 60,
+    "keyedBy": "Key header (organization ID)",
+    "headers": {
+      "X-RateLimit-Limit": "Maximum requests per window",
+      "X-RateLimit-Remaining": "Remaining requests in current window",
+      "X-RateLimit-Reset": "Unix timestamp when the window resets"
+    }
+  }
+}

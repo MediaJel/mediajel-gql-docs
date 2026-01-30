@@ -1,0 +1,284 @@
+# MediaJel Public API Schema
+# This is a curated subset of the full GraphQL schema exposed to external developers.
+# Only operations and types listed here are documented in the public API portal.
+
+scalar JSON
+scalar DateTime
+
+# ─── Authentication ──────────────────────────────────────────────
+
+input AuthSignInInput {
+  username: String!
+  password: String!
+}
+
+type AuthSignInPayload {
+  accessToken: String!
+  idToken: String
+  refreshToken: String
+}
+
+# ─── Pagination ──────────────────────────────────────────────────
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type AggregateOrg {
+  count: Int!
+}
+
+type OrgConnection {
+  pageInfo: PageInfo!
+  edges: [OrgEdge]!
+  aggregate: AggregateOrg!
+}
+
+type OrgEdge {
+  node: Org!
+  cursor: String!
+}
+
+type AggregateCampaignOrder {
+  count: Int!
+}
+
+type CampaignOrderConnection {
+  pageInfo: PageInfo!
+  edges: [CampaignOrderEdge]!
+  aggregate: AggregateCampaignOrder!
+}
+
+type CampaignOrderEdge {
+  node: CampaignOrder!
+  cursor: String!
+}
+
+# ─── Organization Types ─────────────────────────────────────────
+
+type Org {
+  id: ID!
+  name: String
+  slug: String
+  website: String
+  logoUrl: String
+  enabled: Boolean
+  parentOrg: Org
+  childOrgs: [Org!]
+  campaigns: [Campaign!]
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input OrgWhereUniqueInput {
+  id: ID
+  slug: String
+}
+
+input OrgWhereInput {
+  id: ID
+  id_in: [ID!]
+  name: String
+  name_contains: String
+  slug: String
+  enabled: Boolean
+  parentOrg: OrgWhereInput
+  createdAt_gte: DateTime
+  createdAt_lte: DateTime
+  updatedAt_gte: DateTime
+  updatedAt_lte: DateTime
+  AND: [OrgWhereInput!]
+  OR: [OrgWhereInput!]
+}
+
+enum OrgOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  slug_ASC
+  slug_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+# ─── Campaign Types ──────────────────────────────────────────────
+
+type Campaign {
+  id: ID!
+  name: String
+  status: CampaignStatus
+  org: Org
+  campaignOrders: [CampaignOrder!]
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+enum CampaignStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  DRAFT
+  ARCHIVED
+}
+
+input CampaignWhereUniqueInput {
+  id: ID
+}
+
+input CampaignWhereInput {
+  id: ID
+  id_in: [ID!]
+  name: String
+  name_contains: String
+  status: CampaignStatus
+  org: OrgWhereInput
+  createdAt_gte: DateTime
+  createdAt_lte: DateTime
+  updatedAt_gte: DateTime
+  updatedAt_lte: DateTime
+  AND: [CampaignWhereInput!]
+  OR: [CampaignWhereInput!]
+}
+
+enum CampaignOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  status_ASC
+  status_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+# ─── Campaign Order Types ────────────────────────────────────────
+
+type CampaignOrder {
+  id: ID!
+  name: String
+  startDate: DateTime
+  endDate: DateTime
+  budget: Float
+  status: String
+  campaign: Campaign
+  org: Org
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input CampaignOrderWhereUniqueInput {
+  id: ID
+}
+
+input CampaignOrderWhereInput {
+  id: ID
+  id_in: [ID!]
+  name: String
+  name_contains: String
+  status: String
+  campaign: CampaignWhereInput
+  org: OrgWhereInput
+  startDate_gte: DateTime
+  startDate_lte: DateTime
+  endDate_gte: DateTime
+  endDate_lte: DateTime
+  createdAt_gte: DateTime
+  createdAt_lte: DateTime
+  AND: [CampaignOrderWhereInput!]
+  OR: [CampaignOrderWhereInput!]
+}
+
+enum CampaignOrderOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  startDate_ASC
+  startDate_DESC
+  endDate_ASC
+  endDate_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+# ─── Queries ─────────────────────────────────────────────────────
+
+type Query {
+  """Retrieve a single organization by ID or slug."""
+  org(where: OrgWhereUniqueInput!): Org
+
+  """List organizations with optional filtering and pagination."""
+  orgs(
+    where: OrgWhereInput
+    orderBy: OrgOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [Org]!
+
+  """Paginated organization listing with connection metadata."""
+  orgsConnection(
+    where: OrgWhereInput
+    orderBy: OrgOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): OrgConnection!
+
+  """Retrieve a single campaign by ID."""
+  campaign(where: CampaignWhereUniqueInput!): Campaign
+
+  """List campaigns with optional filtering and pagination."""
+  campaigns(
+    where: CampaignWhereInput
+    orderBy: CampaignOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [Campaign]!
+
+  """List campaign orders with optional filtering and pagination."""
+  campaignOrders(
+    where: CampaignOrderWhereInput
+    orderBy: CampaignOrderOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [CampaignOrder]!
+
+  """Paginated campaign orders with connection metadata."""
+  campaignOrdersConnection(
+    where: CampaignOrderWhereInput
+    orderBy: CampaignOrderOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): CampaignOrderConnection!
+}
+
+# ─── Mutations ───────────────────────────────────────────────────
+
+type Mutation {
+  """Authenticate with Cognito credentials. Returns JWT tokens for API access."""
+  authSignIn(data: AuthSignInInput!): AuthSignInPayload
+}

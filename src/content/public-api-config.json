@@ -17,16 +17,22 @@
       "icon": "building"
     },
     {
-      "id": "campaigns",
-      "name": "Campaigns",
-      "description": "Query advertising campaigns and their configuration.",
-      "icon": "megaphone"
-    },
-    {
       "id": "campaign-orders",
       "name": "Campaign Orders",
       "description": "Query campaign orders (line items) including budgets, schedules, and status.",
       "icon": "clipboard-list"
+    },
+    {
+      "id": "line-items",
+      "name": "Line Items",
+      "description": "Query line items with detailed performance metrics and targeting configuration.",
+      "icon": "list"
+    },
+    {
+      "id": "campaigns",
+      "name": "Campaigns",
+      "description": "Query advertising campaigns and their configuration.",
+      "icon": "megaphone"
     }
   ],
   "operations": {
@@ -219,6 +225,63 @@
           }
         }
       },
+      "campaignOrder": {
+        "category": "campaign-orders",
+        "description": "Retrieve a single campaign order by its unique ID. Returns campaign order details including type, KPI metrics, reporting data from `pacingData` and `aggregateData`.",
+        "exampleVariables": {
+          "where": {
+            "id": "clxAAAA000001"
+          }
+        },
+        "exampleQuery": "query GetCampaignOrder($where: CampaignOrderWhereUniqueInput!) {\n  campaignOrder(where: $where) {\n    id\n    name\n    type\n    kpi\n    kpiGoal\n    advertiserName\n    startDate\n    endDate\n    budget\n    status\n    campaign {\n      id\n      name\n    }\n    org {\n      id\n      name\n    }\n    pacingData {\n      totalImpressions\n      dailyAvgImpressions\n      budgetSpent\n      budgetLeft\n      daysLeft\n      daysIntoFlight\n      pace\n      paceYesterday\n      ctr\n      roas\n    }\n    aggregateData {\n      impressions\n      clicks\n      cost\n      totalCost\n      events\n      transactions\n      totalRevenue\n    }\n    createdAt\n    updatedAt\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "campaignOrder": {
+              "id": "clxAAAA000001",
+              "name": "Display - West Coast",
+              "type": "DISPLAY",
+              "kpi": "CPM",
+              "kpiGoal": 6.5,
+              "advertiserName": "Acme Cannabis Co",
+              "startDate": "2024-06-01T00:00:00.000Z",
+              "endDate": "2024-08-31T00:00:00.000Z",
+              "budget": 5000.0,
+              "status": "active",
+              "campaign": {
+                "id": "clx9876543210",
+                "name": "Summer Sale 2024"
+              },
+              "org": {
+                "id": "clx1234567890",
+                "name": "Acme Cannabis Co"
+              },
+              "pacingData": {
+                "totalImpressions": 520000,
+                "dailyAvgImpressions": 8500,
+                "budgetSpent": 3200.0,
+                "budgetLeft": 1800.0,
+                "daysLeft": 22,
+                "daysIntoFlight": 69,
+                "pace": 1.05,
+                "paceYesterday": 1.03,
+                "ctr": 0.12,
+                "roas": 3.4
+              },
+              "aggregateData": {
+                "impressions": 520000,
+                "clicks": 624,
+                "cost": 3200.0,
+                "totalCost": 3200.0,
+                "events": 45,
+                "transactions": 12,
+                "totalRevenue": 10880.0
+              },
+              "createdAt": "2024-05-15T00:00:00.000Z",
+              "updatedAt": "2024-08-09T12:00:00.000Z"
+            }
+          }
+        }
+      },
       "campaignOrders": {
         "category": "campaign-orders",
         "description": "List campaign orders (line items) with optional filtering by name, status, campaign, or organization. Supports pagination via `first`, `skip`, `after`, and `before` parameters. Includes reporting fields like `pacingData` and `aggregateData`.",
@@ -319,6 +382,127 @@
                 "endCursor": "cjxAAAA000001"
               },
               "aggregate": { "count": 128 }
+            }
+          }
+        }
+      },
+      "lineItem": {
+        "category": "line-items",
+        "description": "Retrieve a single line item by its unique ID. Returns line item details including performance metrics and targeting data.",
+        "exampleVariables": {
+          "where": {
+            "id": "clxLINE000001"
+          }
+        },
+        "exampleQuery": "query GetLineItem($where: LineItemWhereUniqueInput!) {\n  lineItem(where: $where) {\n    id\n    name\n    campaign {\n      id\n      name\n    }\n    budgetTotal\n    startDate\n    endDate\n    status\n    cpm\n    clicks\n    impressions\n    ctr\n    aggregateData {\n      impressions\n      clicks\n      cost\n      totalCost\n      events\n      transactions\n      totalRevenue\n    }\n    createdAt\n    updatedAt\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "lineItem": {
+              "id": "clxLINE000001",
+              "name": "Display - California",
+              "campaign": {
+                "id": "clx9876543210",
+                "name": "Summer Sale 2024"
+              },
+              "budgetTotal": 2500.0,
+              "startDate": "2024-06-01T00:00:00.000Z",
+              "endDate": "2024-08-31T00:00:00.000Z",
+              "status": "ACTIVE",
+              "cpm": 6.2,
+              "clicks": 312,
+              "impressions": 260000,
+              "ctr": 0.12,
+              "aggregateData": {
+                "impressions": 260000,
+                "clicks": 312,
+                "cost": 1612.0,
+                "totalCost": 1612.0,
+                "events": 23,
+                "transactions": 6,
+                "totalRevenue": 5440.0
+              },
+              "createdAt": "2024-05-15T00:00:00.000Z",
+              "updatedAt": "2024-08-09T12:00:00.000Z"
+            }
+          }
+        }
+      },
+      "lineItems": {
+        "category": "line-items",
+        "description": "List line items with optional filtering by name, status, or campaign. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
+        "exampleVariables": {
+          "where": {
+            "status": "ACTIVE"
+          },
+          "first": 10,
+          "orderBy": "startDate_DESC"
+        },
+        "exampleQuery": "query ListLineItems($where: LineItemWhereInput, $first: Int, $orderBy: LineItemOrderByInput) {\n  lineItems(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    campaign {\n      id\n      name\n    }\n    budgetTotal\n    startDate\n    endDate\n    status\n    cpm\n    clicks\n    impressions\n    ctr\n    aggregateData {\n      impressions\n      clicks\n      cost\n      totalRevenue\n    }\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "lineItems": [
+              {
+                "id": "clxLINE000001",
+                "name": "Display - California",
+                "campaign": {
+                  "id": "clx9876543210",
+                  "name": "Summer Sale 2024"
+                },
+                "budgetTotal": 2500.0,
+                "startDate": "2024-06-01T00:00:00.000Z",
+                "endDate": "2024-08-31T00:00:00.000Z",
+                "status": "ACTIVE",
+                "cpm": 6.2,
+                "clicks": 312,
+                "impressions": 260000,
+                "ctr": 0.12,
+                "aggregateData": {
+                  "impressions": 260000,
+                  "clicks": 312,
+                  "cost": 1612.0,
+                  "totalRevenue": 5440.0
+                }
+              }
+            ]
+          }
+        }
+      },
+      "lineItemsConnection": {
+        "category": "line-items",
+        "description": "Paginated line items with connection metadata. Use this for cursor-based pagination with total count.",
+        "exampleVariables": {
+          "first": 10
+        },
+        "exampleQuery": "query LineItemsConnection($first: Int) {\n  lineItemsConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        status\n        budgetTotal\n        cpm\n        impressions\n        clicks\n        ctr\n        aggregateData {\n          impressions\n          clicks\n          cost\n          totalRevenue\n        }\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "lineItemsConnection": {
+              "edges": [
+                {
+                  "node": {
+                    "id": "clxLINE000001",
+                    "name": "Display - California",
+                    "status": "ACTIVE",
+                    "budgetTotal": 2500.0,
+                    "cpm": 6.2,
+                    "impressions": 260000,
+                    "clicks": 312,
+                    "ctr": 0.12,
+                    "aggregateData": {
+                      "impressions": 260000,
+                      "clicks": 312,
+                      "cost": 1612.0,
+                      "totalRevenue": 5440.0
+                    }
+                  },
+                  "cursor": "cjxLINE000001"
+                }
+              ],
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "cjxLINE000001"
+              },
+              "aggregate": { "count": 64 }
             }
           }
         }

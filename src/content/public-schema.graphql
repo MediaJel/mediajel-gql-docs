@@ -72,6 +72,21 @@ type CampaignOrderEdge {
   cursor: String!
 }
 
+type AggregateLineItem {
+  count: Int!
+}
+
+type LineItemConnection {
+  pageInfo: PageInfo!
+  edges: [LineItemEdge]!
+  aggregate: AggregateLineItem!
+}
+
+type LineItemEdge {
+  node: LineItem!
+  cursor: String!
+}
+
 # ─── Organization Types ─────────────────────────────────────────
 
 type Org {
@@ -275,6 +290,69 @@ enum CampaignOrderOrderByInput {
   updatedAt_DESC
 }
 
+# ─── Line Item Types ─────────────────────────────────────────────
+
+enum LineItemStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  DRAFT
+  ARCHIVED
+}
+
+type LineItem {
+  id: ID!
+  name: String
+  campaign: Campaign
+  budgetTotal: Float
+  startDate: DateTime
+  endDate: DateTime
+  status: LineItemStatus
+  cpm: Float
+  clicks: Int
+  impressions: Int
+  ctr: Float
+  aggregateData: AggregateData
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input LineItemWhereUniqueInput {
+  id: ID
+}
+
+input LineItemWhereInput {
+  id: ID
+  id_in: [ID!]
+  name: String
+  name_contains: String
+  status: LineItemStatus
+  campaign: CampaignWhereInput
+  startDate_gte: DateTime
+  startDate_lte: DateTime
+  endDate_gte: DateTime
+  endDate_lte: DateTime
+  createdAt_gte: DateTime
+  createdAt_lte: DateTime
+  AND: [LineItemWhereInput!]
+  OR: [LineItemWhereInput!]
+}
+
+enum LineItemOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  startDate_ASC
+  startDate_DESC
+  endDate_ASC
+  endDate_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
 # ─── Queries ─────────────────────────────────────────────────────
 
 type Query {
@@ -328,6 +406,9 @@ type Query {
     last: Int
   ): CampaignConnection!
 
+  """Retrieve a single campaign order by ID."""
+  campaignOrder(where: CampaignOrderWhereUniqueInput!): CampaignOrder
+
   """List campaign orders with optional filtering and pagination."""
   campaignOrders(
     where: CampaignOrderWhereInput
@@ -349,6 +430,31 @@ type Query {
     first: Int
     last: Int
   ): CampaignOrderConnection!
+
+  """Retrieve a single line item by ID."""
+  lineItem(where: LineItemWhereUniqueInput!): LineItem
+
+  """List line items with optional filtering and pagination."""
+  lineItems(
+    where: LineItemWhereInput
+    orderBy: LineItemOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [LineItem]!
+
+  """Paginated line items with connection metadata."""
+  lineItemsConnection(
+    where: LineItemWhereInput
+    orderBy: LineItemOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): LineItemConnection!
 }
 
 # ─── Mutations ───────────────────────────────────────────────────

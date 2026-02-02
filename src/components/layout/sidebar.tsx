@@ -8,6 +8,7 @@ import {
   Building2,
   Megaphone,
   ClipboardList,
+  List,
   BookOpen,
   Play,
   MessageSquare,
@@ -26,6 +27,7 @@ const iconMap: Record<string, React.ReactNode> = {
   building: <Building2 className="h-4 w-4" />,
   megaphone: <Megaphone className="h-4 w-4" />,
   "clipboard-list": <ClipboardList className="h-4 w-4" />,
+  list: <List className="h-4 w-4" />,
 };
 
 interface NavSection {
@@ -53,8 +55,9 @@ const sections: NavSection[] = [
       { label: "Schema Overview", href: "/schema", icon: <BookOpen className="h-4 w-4" /> },
       { label: "Authentication", href: "/schema/auth", icon: <Lock className="h-4 w-4" /> },
       { label: "Organizations", href: "/schema/organizations", icon: <Building2 className="h-4 w-4" /> },
-      { label: "Campaigns", href: "/schema/campaigns", icon: <Megaphone className="h-4 w-4" /> },
       { label: "Campaign Orders", href: "/schema/campaign-orders", icon: <ClipboardList className="h-4 w-4" /> },
+      { label: "Campaigns", href: "/schema/campaigns", icon: <Megaphone className="h-4 w-4" /> },
+      { label: "Line Items", href: "/schema/line-items", icon: <List className="h-4 w-4" /> },
     ],
   },
   {

@@ -78,7 +78,7 @@ function unwrapType(type: GraphQLOutputType | GraphQLInputType): string {
     return unwrapType(type.ofType) + "!";
   }
   if (isListType(type)) {
-    return "[" + unwrapType(type.ofType) + "]";
+    return "[" + unwrapType(type.ofType as GraphQLOutputType | GraphQLInputType) + "]";
   }
   return (type as GraphQLNamedType).name;
 }
@@ -87,7 +87,7 @@ function getNamedType(
   type: GraphQLOutputType | GraphQLInputType
 ): GraphQLNamedType {
   if (isNonNullType(type)) return getNamedType(type.ofType);
-  if (isListType(type)) return getNamedType(type.ofType);
+  if (isListType(type)) return getNamedType(type.ofType as GraphQLOutputType | GraphQLInputType);
   return type as GraphQLNamedType;
 }
 

@@ -186,9 +186,42 @@
           }
         }
       },
+      "campaignsConnection": {
+        "category": "campaigns",
+        "description": "Paginated campaign listing with connection metadata. Use this for cursor-based pagination with total count.",
+        "exampleVariables": {
+          "first": 10
+        },
+        "exampleQuery": "query CampaignsConnection($first: Int) {\n  campaignsConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        status\n        org {\n          id\n          name\n        }\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+        "exampleResponse": {
+          "data": {
+            "campaignsConnection": {
+              "edges": [
+                {
+                  "node": {
+                    "id": "clx9876543210",
+                    "name": "Summer Sale 2024",
+                    "status": "ACTIVE",
+                    "org": {
+                      "id": "clx1234567890",
+                      "name": "Acme Cannabis Co"
+                    }
+                  },
+                  "cursor": "cjx9876543210"
+                }
+              ],
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "cjx9876543210"
+              },
+              "aggregate": { "count": 87 }
+            }
+          }
+        }
+      },
       "campaignOrders": {
         "category": "campaign-orders",
-        "description": "List campaign orders (line items) with optional filtering by name, status, campaign, or organization. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
+        "description": "List campaign orders (line items) with optional filtering by name, status, campaign, or organization. Supports pagination via `first`, `skip`, `after`, and `before` parameters. Includes reporting fields like `pacingData` and `aggregateData`.",
         "exampleVariables": {
           "where": {
             "status": "active"
@@ -196,13 +229,17 @@
           "first": 10,
           "orderBy": "startDate_DESC"
         },
-        "exampleQuery": "query ListCampaignOrders($where: CampaignOrderWhereInput, $first: Int, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrders(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    startDate\n    endDate\n    budget\n    status\n    campaign {\n      id\n      name\n    }\n    org {\n      id\n      name\n    }\n  }\n}",
+        "exampleQuery": "query ListCampaignOrders($where: CampaignOrderWhereInput, $first: Int, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrders(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    type\n    kpi\n    kpiGoal\n    advertiserName\n    startDate\n    endDate\n    budget\n    status\n    campaign {\n      id\n      name\n    }\n    org {\n      id\n      name\n    }\n    pacingData {\n      totalImpressions\n      dailyAvgImpressions\n      budgetSpent\n      budgetLeft\n      daysLeft\n      pace\n      ctr\n      roas\n    }\n    aggregateData {\n      impressions\n      clicks\n      cost\n      totalCost\n      events\n      transactions\n      totalRevenue\n    }\n  }\n}",
         "exampleResponse": {
           "data": {
             "campaignOrders": [
               {
                 "id": "clxAAAA000001",
                 "name": "Display - West Coast",
+                "type": "DISPLAY",
+                "kpi": "CPM",
+                "kpiGoal": 6.5,
+                "advertiserName": "Acme Cannabis Co",
                 "startDate": "2024-06-01T00:00:00.000Z",
                 "endDate": "2024-08-31T00:00:00.000Z",
                 "budget": 5000.0,
@@ -214,6 +251,25 @@
                 "org": {
                   "id": "clx1234567890",
                   "name": "Acme Cannabis Co"
+                },
+                "pacingData": {
+                  "totalImpressions": 520000,
+                  "dailyAvgImpressions": 8500,
+                  "budgetSpent": 3200.0,
+                  "budgetLeft": 1800.0,
+                  "daysLeft": 22,
+                  "pace": 1.05,
+                  "ctr": 0.12,
+                  "roas": 3.4
+                },
+                "aggregateData": {
+                  "impressions": 520000,
+                  "clicks": 624,
+                  "cost": 3200.0,
+                  "totalCost": 3200.0,
+                  "events": 45,
+                  "transactions": 12,
+                  "totalRevenue": 10880.0
                 }
               }
             ]
@@ -222,11 +278,11 @@
       },
       "campaignOrdersConnection": {
         "category": "campaign-orders",
-        "description": "Paginated campaign orders with connection metadata. Use this for cursor-based pagination with total count.",
+        "description": "Paginated campaign orders with connection metadata. Use this for cursor-based pagination with total count. Includes reporting fields like `pacingData` and `aggregateData`.",
         "exampleVariables": {
           "first": 10
         },
-        "exampleQuery": "query CampaignOrdersConnection($first: Int) {\n  campaignOrdersConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        status\n        budget\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+        "exampleQuery": "query CampaignOrdersConnection($first: Int) {\n  campaignOrdersConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        type\n        kpi\n        kpiGoal\n        advertiserName\n        status\n        budget\n        pacingData {\n          totalImpressions\n          budgetSpent\n          budgetLeft\n          pace\n          ctr\n        }\n        aggregateData {\n          impressions\n          clicks\n          cost\n          totalRevenue\n        }\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
         "exampleResponse": {
           "data": {
             "campaignOrdersConnection": {
@@ -235,8 +291,25 @@
                   "node": {
                     "id": "clxAAAA000001",
                     "name": "Display - West Coast",
+                    "type": "DISPLAY",
+                    "kpi": "CPM",
+                    "kpiGoal": 6.5,
+                    "advertiserName": "Acme Cannabis Co",
                     "status": "active",
-                    "budget": 5000.0
+                    "budget": 5000.0,
+                    "pacingData": {
+                      "totalImpressions": 520000,
+                      "budgetSpent": 3200.0,
+                      "budgetLeft": 1800.0,
+                      "pace": 1.05,
+                      "ctr": 0.12
+                    },
+                    "aggregateData": {
+                      "impressions": 520000,
+                      "clicks": 624,
+                      "cost": 3200.0,
+                      "totalRevenue": 10880.0
+                    }
                   },
                   "cursor": "cjxAAAA000001"
                 }

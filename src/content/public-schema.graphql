@@ -42,6 +42,21 @@ type OrgEdge {
   cursor: String!
 }
 
+type AggregateCampaign {
+  count: Int!
+}
+
+type CampaignConnection {
+  pageInfo: PageInfo!
+  edges: [CampaignEdge]!
+  aggregate: AggregateCampaign!
+}
+
+type CampaignEdge {
+  node: Campaign!
+  cursor: String!
+}
+
 type AggregateCampaignOrder {
   count: Int!
 }
@@ -161,15 +176,64 @@ enum CampaignOrderByInput {
 
 # ─── Campaign Order Types ────────────────────────────────────────
 
+enum CampaignOrderType {
+  DISPLAY
+  VIDEO
+  SOCIAL
+  CPC
+  OOH
+  DOOH
+  NATIVE
+  PREMIUM_DISPLAY
+  RICH_MEDIA
+  TV_OTT_STANDARD
+  TV_OTT_PREMIUM
+}
+
+enum KPI {
+  CPM
+  CPC
+  CPA
+}
+
+type PacingData {
+  totalImpressions: Float
+  dailyAvgImpressions: Float
+  budgetSpent: Float
+  budgetLeft: Float
+  daysLeft: Int
+  daysIntoFlight: Int
+  pace: Float
+  paceYesterday: Float
+  ctr: Float
+  roas: Float
+}
+
+type AggregateData {
+  impressions: Float
+  clicks: Float
+  cost: Float
+  totalCost: Float
+  events: Float
+  transactions: Float
+  totalRevenue: Float
+}
+
 type CampaignOrder {
   id: ID!
   name: String
+  type: CampaignOrderType
+  kpi: KPI
+  kpiGoal: Float
+  advertiserName: String
   startDate: DateTime
   endDate: DateTime
   budget: Float
   status: String
   campaign: Campaign
   org: Org
+  pacingData: PacingData
+  aggregateData: AggregateData
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -252,6 +316,17 @@ type Query {
     first: Int
     last: Int
   ): [Campaign]!
+
+  """Paginated campaign listing with connection metadata."""
+  campaignsConnection(
+    where: CampaignWhereInput
+    orderBy: CampaignOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): CampaignConnection!
 
   """List campaign orders with optional filtering and pagination."""
   campaignOrders(

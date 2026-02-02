@@ -160,6 +160,18 @@ function PlaygroundContent() {
 
   console.log("[PlaygroundContent] showing: Authenticated playground");
 
+  // Build HTTP body from query + variables for the HTTP Client tab
+  const httpBody = query
+    ? JSON.stringify(
+        {
+          query,
+          variables: variables ? JSON.parse(variables) : {},
+        },
+        null,
+        2
+      )
+    : undefined;
+
   return (
     <div className="flex flex-col h-full">
       {/* Auth status bar */}
@@ -214,7 +226,7 @@ function PlaygroundContent() {
           />
         </div>
         <div className={`absolute inset-0 ${activeTab === "http" ? "" : "invisible pointer-events-none"}`}>
-          <HttpClient auth={auth} gqlEndpoint={gqlEndpoint} />
+          <HttpClient auth={auth} gqlEndpoint={gqlEndpoint} defaultBody={httpBody} />
         </div>
       </div>
     </div>

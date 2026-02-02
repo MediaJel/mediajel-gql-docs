@@ -143,17 +143,29 @@ type Campaign {
   id: ID!
   name: String
   status: CampaignStatus
-  org: Org
-  campaignOrders: [CampaignOrder!]
+  orgs: [Org!]
+  campaignOrder: CampaignOrder
+  lineItems: [LineItem!]
   createdAt: DateTime
   updatedAt: DateTime
 }
 
 enum CampaignStatus {
-  ACTIVE
+  PENDING
+  PENDING_CLIENT
+  LIVE
+  LIVE_PENDING
+  LIVE_APPROVED
+  LAUNCHING_LIVE
+  LAUNCHING_PAUSED
+  LAUNCHING_ERROR
   PAUSED
-  COMPLETED
+  PAUSED_PENDING
+  PAUSED_APPROVED
+  APPROVED
   DRAFT
+  PAST
+  REJECTED
   ARCHIVED
 }
 
@@ -167,7 +179,7 @@ input CampaignWhereInput {
   name: String
   name_contains: String
   status: CampaignStatus
-  org: OrgWhereInput
+  orgs_some: OrgWhereInput
   createdAt_gte: DateTime
   createdAt_lte: DateTime
   updatedAt_gte: DateTime
@@ -191,7 +203,7 @@ enum CampaignOrderByInput {
 
 # ─── Campaign Order Types ────────────────────────────────────────
 
-enum CampaignOrderType {
+enum CampaignType {
   DISPLAY
   VIDEO
   SOCIAL
@@ -203,6 +215,9 @@ enum CampaignOrderType {
   RICH_MEDIA
   TV_OTT_STANDARD
   TV_OTT_PREMIUM
+  LOYALTY
+  EXTERNAL
+  DEMO
 }
 
 enum KPI {
@@ -211,8 +226,8 @@ enum KPI {
   CPA
 }
 
-type PacingData {
-  totalImpressions: Float
+type PacingDataObject {
+  totalImpressions: Int
   dailyAvgImpressions: Float
   budgetSpent: Float
   budgetLeft: Float
@@ -224,31 +239,37 @@ type PacingData {
   roas: Float
 }
 
-type AggregateData {
-  impressions: Float
-  clicks: Float
-  cost: Float
-  totalCost: Float
-  events: Float
-  transactions: Float
-  totalRevenue: Float
+type AggregateUnit {
+  aggImpressions: Int
+  aggClicks: Int
+  aggCost: Float
+  aggTotalCost: Float
+  aggEvents: JSON
+  aggVWI: Float
+  aggTransactions: Float
+  aggTotalRevenue: Float
+}
+
+type AggregateDataObject {
+  overallData: AggregateUnit
+  byDate: JSON
 }
 
 type CampaignOrder {
   id: ID!
   name: String
-  type: CampaignOrderType
+  type: CampaignType
   kpi: KPI
   kpiGoal: Float
   advertiserName: String
   startDate: DateTime
   endDate: DateTime
   budget: Float
-  status: String
-  campaign: Campaign
-  org: Org
-  pacingData: PacingData
-  aggregateData: AggregateData
+  status: CampaignStatus
+  campaigns: [Campaign!]
+  orgs: [Org!]
+  pacingData: PacingDataObject
+  aggregateData: AggregateDataObject
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -263,8 +284,8 @@ input CampaignOrderWhereInput {
   name: String
   name_contains: String
   status: String
-  campaign: CampaignWhereInput
-  org: OrgWhereInput
+  campaigns_some: CampaignWhereInput
+  orgs_some: OrgWhereInput
   startDate_gte: DateTime
   startDate_lte: DateTime
   endDate_gte: DateTime
@@ -293,11 +314,16 @@ enum CampaignOrderOrderByInput {
 # ─── Line Item Types ─────────────────────────────────────────────
 
 enum LineItemStatus {
-  ACTIVE
-  PAUSED
-  COMPLETED
-  DRAFT
+  PLAY
+  PLAY_PENDING
+  PAUSE
+  PAUSED_PENDING
+  STOP
   ARCHIVED
+  APPROVED
+  STOPENDDATE
+  STOPINTERVALSPENDINGCAP
+  STOPINTERVALIMPRESSIONCAP
 }
 
 type LineItem {
@@ -312,7 +338,7 @@ type LineItem {
   clicks: Int
   impressions: Int
   ctr: Float
-  aggregateData: AggregateData
+  aggregateData: AggregateDataObject
   createdAt: DateTime
   updatedAt: DateTime
 }

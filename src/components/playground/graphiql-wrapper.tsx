@@ -28,8 +28,8 @@ query ListOrgs {
   orgs(first: 5) {
     id
     name
-    slug
-    enabled
+    website
+    status
   }
 }
 `;

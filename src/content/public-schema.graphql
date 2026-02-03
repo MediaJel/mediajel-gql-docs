@@ -89,23 +89,32 @@ type LineItemEdge {
 
 # ─── Organization Types ─────────────────────────────────────────
 
+enum OrgStatus {
+  ACTIVE
+  DISABLED
+  ARCHIVED
+}
+
 type Org {
   id: ID!
-  name: String
-  slug: String
+  name: String!
   website: String
-  logoUrl: String
-  enabled: Boolean
-  parentOrg: Org
-  childOrgs: [Org!]
+  logo: Media
+  status: OrgStatus
+  parentOrg: [Org!]
   campaigns: [Campaign!]
-  createdAt: DateTime
-  updatedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Media {
+  id: ID!
+  name: String
+  url: String!
 }
 
 input OrgWhereUniqueInput {
   id: ID
-  slug: String
 }
 
 input OrgWhereInput {
@@ -113,9 +122,8 @@ input OrgWhereInput {
   id_in: [ID!]
   name: String
   name_contains: String
-  slug: String
-  enabled: Boolean
-  parentOrg: OrgWhereInput
+  status: OrgStatus
+  parentOrg_some: OrgWhereInput
   createdAt_gte: DateTime
   createdAt_lte: DateTime
   updatedAt_gte: DateTime

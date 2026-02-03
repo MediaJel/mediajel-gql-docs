@@ -61,26 +61,30 @@
     "queries": {
       "org": {
         "category": "organizations",
-        "description": "Retrieve a single organization by its unique ID or slug. Returns organization details including name, website, logo, and hierarchy.",
+        "description": "Retrieve a single organization by its unique ID. Returns organization details including name, website, logo, status, and parent organizations.",
         "exampleVariables": {
           "where": {
             "id": "clx1234567890"
           }
         },
-        "exampleQuery": "query GetOrg($where: OrgWhereUniqueInput!) {\n  org(where: $where) {\n    id\n    name\n    slug\n    website\n    logoUrl\n    enabled\n    parentOrg {\n      id\n      name\n    }\n  }\n}",
+        "exampleQuery": "query GetOrg($where: OrgWhereUniqueInput!) {\n  org(where: $where) {\n    id\n    name\n    website\n    logo {\n      id\n      url\n    }\n    status\n    parentOrg {\n      id\n      name\n    }\n  }\n}",
         "exampleResponse": {
           "data": {
             "org": {
               "id": "clx1234567890",
               "name": "Acme Cannabis Co",
-              "slug": "acme-cannabis",
               "website": "https://acmecannabis.com",
-              "logoUrl": "https://cdn.mediajel.com/logos/acme.png",
-              "enabled": true,
-              "parentOrg": {
-                "id": "clx0000000001",
-                "name": "Acme Holdings"
-              }
+              "logo": {
+                "id": "clxMEDIA00001",
+                "url": "https://cdn.mediajel.com/logos/acme.png"
+              },
+              "status": "ACTIVE",
+              "parentOrg": [
+                {
+                  "id": "clx0000000001",
+                  "name": "Acme Holdings"
+                }
+              ]
             }
           }
         }
@@ -90,20 +94,20 @@
         "description": "List organizations with optional filtering by name, status, or parent org. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
         "exampleVariables": {
           "where": {
-            "enabled": true
+            "status": "ACTIVE"
           },
           "first": 10,
           "orderBy": "name_ASC"
         },
-        "exampleQuery": "query ListOrgs($where: OrgWhereInput, $first: Int, $orderBy: OrgOrderByInput) {\n  orgs(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    slug\n    enabled\n  }\n}",
+        "exampleQuery": "query ListOrgs($where: OrgWhereInput, $first: Int, $orderBy: OrgOrderByInput) {\n  orgs(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    website\n    status\n  }\n}",
         "exampleResponse": {
           "data": {
             "orgs": [
               {
                 "id": "clx1234567890",
                 "name": "Acme Cannabis Co",
-                "slug": "acme-cannabis",
-                "enabled": true
+                "website": "https://acmecannabis.com",
+                "status": "ACTIVE"
               }
             ]
           }

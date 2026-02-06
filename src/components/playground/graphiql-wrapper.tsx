@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { createGraphiQLFetcher } from "@graphiql/toolkit";
 import dynamic from "next/dynamic";
 
@@ -28,11 +28,27 @@ query ListOrgs {
   orgs(first: 5) {
     id
     name
-    slug
-    enabled
+    website
+    status
   }
 }
 `;
+
+/**
+ * In-memory storage that prevents GraphiQL from reading/writing to localStorage.
+ * Without this, GraphiQL ignores `defaultQuery` whenever it finds a previously
+ * saved query in localStorage — which breaks the "Try in Playground" feature.
+ */
+function createMemoryStorage() {
+  const store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] ?? null,
+    setItem: (key: string, value: string) => { store[key] = value; },
+    removeItem: (key: string) => { delete store[key]; },
+    get length() { return Object.keys(store).length; },
+    clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
+  };
+}
 
 export function GraphiQLWrapper({
   defaultQuery,
@@ -50,12 +66,16 @@ export function GraphiQLWrapper({
     });
   }, [auth, gqlEndpoint]);
 
+  // Each mount gets its own memory storage so GraphiQL always uses defaultQuery
+  const storage = useRef(createMemoryStorage()).current;
+
   return (
     <div className="h-full">
       <GraphiQL
         fetcher={fetcher}
         defaultQuery={defaultQuery || DEFAULT_QUERY}
         variables={defaultVariables}
+        storage={storage}
       />
     </div>
   );

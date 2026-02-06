@@ -8,6 +8,7 @@ import {
   Building2,
   Megaphone,
   ClipboardList,
+  List,
   BookOpen,
   Play,
   MessageSquare,
@@ -18,15 +19,65 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronRight,
+  Search,
+  TrendingUp,
+  Users,
+  Image,
+  Target,
+  FileText,
+  User,
+  Package,
+  MapPin,
+  File,
+  Heart,
+  CreditCard,
+  Folder,
+  BarChart,
+  Link as LinkIcon,
+  Tag,
+  Settings,
+  Sliders,
 } from "lucide-react";
 import { useState } from "react";
+import apiConfig from "@/content/public-api-config.json";
 
+// Icon mapping for all category icons from public-api-config.json
 const iconMap: Record<string, React.ReactNode> = {
   lock: <Lock className="h-4 w-4" />,
   building: <Building2 className="h-4 w-4" />,
   megaphone: <Megaphone className="h-4 w-4" />,
   "clipboard-list": <ClipboardList className="h-4 w-4" />,
+  list: <List className="h-4 w-4" />,
+  search: <Search className="h-4 w-4" />,
+  "trending-up": <TrendingUp className="h-4 w-4" />,
+  users: <Users className="h-4 w-4" />,
+  image: <Image className="h-4 w-4" />,
+  target: <Target className="h-4 w-4" />,
+  "file-text": <FileText className="h-4 w-4" />,
+  user: <User className="h-4 w-4" />,
+  package: <Package className="h-4 w-4" />,
+  "map-pin": <MapPin className="h-4 w-4" />,
+  "message-square": <MessageSquare className="h-4 w-4" />,
+  file: <File className="h-4 w-4" />,
+  heart: <Heart className="h-4 w-4" />,
+  "credit-card": <CreditCard className="h-4 w-4" />,
+  folder: <Folder className="h-4 w-4" />,
+  "bar-chart": <BarChart className="h-4 w-4" />,
+  link: <LinkIcon className="h-4 w-4" />,
+  tag: <Tag className="h-4 w-4" />,
+  settings: <Settings className="h-4 w-4" />,
+  sliders: <Sliders className="h-4 w-4" />,
 };
+
+// Generate API Reference items dynamically from config
+const apiReferenceItems = [
+  { label: "Schema Overview", href: "/schema", icon: <BookOpen className="h-4 w-4" /> },
+  ...apiConfig.categories.map((category) => ({
+    label: category.name,
+    href: `/schema/${category.id}`,
+    icon: iconMap[category.icon] || <BookOpen className="h-4 w-4" />,
+  })),
+];
 
 interface NavSection {
   title: string;
@@ -49,13 +100,7 @@ const sections: NavSection[] = [
   },
   {
     title: "API Reference",
-    items: [
-      { label: "Schema Overview", href: "/schema", icon: <BookOpen className="h-4 w-4" /> },
-      { label: "Authentication", href: "/schema/auth", icon: <Lock className="h-4 w-4" /> },
-      { label: "Organizations", href: "/schema/organizations", icon: <Building2 className="h-4 w-4" /> },
-      { label: "Campaigns", href: "/schema/campaigns", icon: <Megaphone className="h-4 w-4" /> },
-      { label: "Campaign Orders", href: "/schema/campaign-orders", icon: <ClipboardList className="h-4 w-4" /> },
-    ],
+    items: apiReferenceItems,
   },
   {
     title: "Tools",

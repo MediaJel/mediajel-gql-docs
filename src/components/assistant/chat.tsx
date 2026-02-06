@@ -14,6 +14,30 @@ import ReactMarkdown from "react-markdown";
 import { CodeBlock } from "@/components/ui/code-block";
 import Link from "next/link";
 
+/**
+ * Given a message's raw markdown and a graphql code snippet,
+ * find the JSON variables block that immediately follows it.
+ */
+function findVariablesForQuery(markdown: string, queryCode: string): string | undefined {
+  const codeBlockRe = /```(\w+)\n([\s\S]*?)```/g;
+  const blocks: { language: string; code: string; index: number }[] = [];
+  let m;
+  while ((m = codeBlockRe.exec(markdown)) !== null) {
+    blocks.push({ language: m[1], code: m[2].trim(), index: m.index });
+  }
+
+  for (let i = 0; i < blocks.length; i++) {
+    if (blocks[i].language === "graphql" && blocks[i].code === queryCode.trim()) {
+      // Look for the next json block
+      if (i + 1 < blocks.length && blocks[i + 1].language === "json") {
+        return blocks[i + 1].code;
+      }
+      break;
+    }
+  }
+  return undefined;
+}
+
 const STARTER_PROMPTS = [
   "How do I authenticate with the API?",
   "Show me how to list all campaigns for an organization",
@@ -90,6 +114,13 @@ export function Chat() {
 
                           if (match) {
                             const language = match[1];
+                            const variables = language === "graphql"
+                              ? findVariablesForQuery(message.content, code)
+                              : undefined;
+                            const playgroundHref = variables
+                              ? `/playground?query=${encodeURIComponent(code)}&variables=${encodeURIComponent(variables)}`
+                              : `/playground?query=${encodeURIComponent(code)}`;
+
                             return (
                               <div className="my-3">
                                 <CodeBlock
@@ -106,9 +137,7 @@ export function Chat() {
                                 {language === "graphql" && (
                                   <div className="mt-1">
                                     <Link
-                                      href={`/playground?query=${encodeURIComponent(
-                                        code
-                                      )}`}
+                                      href={playgroundHref}
                                       className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                                     >
                                       <Play className="h-3 w-3" />

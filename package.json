@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3006",
-    "dev:watch": "concurrently \"npm run dev\" \"npm run watch:schema\"",
-    "watch:schema": "nodemon --watch ../mediajel-gql-service/src/webapp/public-api -e graphql,json --exec \"npm run sync-schema\"",
-    "build": "npm run sync-schema && next build",
+    "start:watch": "concurrently \"yarn dev\" \"yarn watch:schema\"",
+    "watch:schema": "nodemon --watch ../mediajel-gql-service/src/webapp/public-api -e graphql,json --exec \"yarn sync-schema\"",
+    "build": "yarn sync-schema && next build",
     "start": "next start",
     "lint": "next lint",
     "sync-schema": "node scripts/sync-schema.js"
@@ -37,7 +37,8 @@
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.5.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

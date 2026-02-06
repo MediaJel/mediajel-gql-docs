@@ -201,21 +201,25 @@ export function PlaygroundDrawer({
 
                   {/* Tab panels */}
                   <div className="flex-1 min-h-0 relative">
-                    <div className={`absolute inset-0 ${activeTab === "graphql" ? "" : "invisible pointer-events-none"}`}>
-                      <GraphiQLWrapper
-                        defaultQuery={query}
-                        defaultVariables={variables}
-                        auth={auth}
-                        gqlEndpoint={gqlEndpoint}
-                      />
-                    </div>
-                    <div className={`absolute inset-0 ${activeTab === "http" ? "" : "invisible pointer-events-none"}`}>
-                      <HttpClient
-                        auth={auth}
-                        gqlEndpoint={gqlEndpoint}
-                        defaultBody={httpBody}
-                      />
-                    </div>
+                    {activeTab === "graphql" && (
+                      <div className="absolute inset-0" key={`graphql-${query}-${variables}`}>
+                        <GraphiQLWrapper
+                          defaultQuery={query}
+                          defaultVariables={variables}
+                          auth={auth}
+                          gqlEndpoint={gqlEndpoint}
+                        />
+                      </div>
+                    )}
+                    {activeTab === "http" && (
+                      <div className="absolute inset-0" key={`http-${httpBody}`}>
+                        <HttpClient
+                          auth={auth}
+                          gqlEndpoint={gqlEndpoint}
+                          defaultBody={httpBody}
+                        />
+                      </div>
+                    )}
                   </div>
                 </>
               )}

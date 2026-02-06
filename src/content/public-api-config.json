@@ -11,16 +11,28 @@
       "icon": "lock"
     },
     {
-      "id": "organizations",
-      "name": "Organizations",
-      "description": "Query and manage advertising organizations.",
-      "icon": "building"
+      "id": "paid-search",
+      "name": "Paid Search",
+      "description": "Query paid search campaigns, reports, and performance data.",
+      "icon": "search"
+    },
+    {
+      "id": "seo",
+      "name": "SEO",
+      "description": "Query SEO summaries, units, and configurations.",
+      "icon": "trending-up"
     },
     {
       "id": "campaign-orders",
       "name": "Campaign Orders",
-      "description": "Query campaign orders (line items) including budgets, schedules, and status.",
+      "description": "Query campaign orders including budgets, schedules, and performance data.",
       "icon": "clipboard-list"
+    },
+    {
+      "id": "campaigns",
+      "name": "Campaigns",
+      "description": "Query advertising campaigns, checklists, and reviews.",
+      "icon": "megaphone"
     },
     {
       "id": "line-items",
@@ -29,10 +41,112 @@
       "icon": "list"
     },
     {
-      "id": "campaigns",
-      "name": "Campaigns",
-      "description": "Query advertising campaigns and their configuration.",
-      "icon": "megaphone"
+      "id": "audiences",
+      "name": "Audiences",
+      "description": "Query audience segments, hashed email lists, and demographics.",
+      "icon": "users"
+    },
+    {
+      "id": "creatives",
+      "name": "Creatives",
+      "description": "Query creative assets, ad groups, media, and ad units.",
+      "icon": "image"
+    },
+    {
+      "id": "targeting",
+      "name": "Targeting",
+      "description": "Query geographic and events-based targeting configurations.",
+      "icon": "target"
+    },
+    {
+      "id": "organizations",
+      "name": "Organizations",
+      "description": "Query and manage advertising organizations and advertisers.",
+      "icon": "building"
+    },
+    {
+      "id": "licenses",
+      "name": "Licenses",
+      "description": "Query license information and compliance data.",
+      "icon": "file-text"
+    },
+    {
+      "id": "users",
+      "name": "Users & Roles",
+      "description": "Query users, roles, and permissions.",
+      "icon": "user"
+    },
+    {
+      "id": "products",
+      "name": "Products",
+      "description": "Query products, brands, catalog items, strains, and recommendations.",
+      "icon": "package"
+    },
+    {
+      "id": "locations",
+      "name": "Locations",
+      "description": "Query location data and geographic information.",
+      "icon": "map-pin"
+    },
+    {
+      "id": "messaging",
+      "name": "Messaging",
+      "description": "Query messages, notifications, and conversations.",
+      "icon": "message-square"
+    },
+    {
+      "id": "content",
+      "name": "Content",
+      "description": "Query articles, editorials, and release reports.",
+      "icon": "file"
+    },
+    {
+      "id": "loyalty",
+      "name": "Loyalty",
+      "description": "Query loyalty campaigns and customer data.",
+      "icon": "heart"
+    },
+    {
+      "id": "billing",
+      "name": "Billing",
+      "description": "Query billing, invoices, agreements, and fee configurations.",
+      "icon": "credit-card"
+    },
+    {
+      "id": "projects",
+      "name": "Projects",
+      "description": "Query tasks, projects, and milestones.",
+      "icon": "folder"
+    },
+    {
+      "id": "analytics",
+      "name": "Analytics",
+      "description": "Query aggregated data, reports, pacing data, and analytics endpoints.",
+      "icon": "bar-chart"
+    },
+    {
+      "id": "integrations",
+      "name": "Integrations",
+      "description": "Query external service integrations (LiquidM, Onspot, AppNexus, etc.).",
+      "icon": "link"
+    },
+    {
+      "id": "tags",
+      "name": "Tags & Tracking",
+      "description": "Query tag configurations, tracking setup, and data processing.",
+      "icon": "tag"
+    },
+    {
+      "id": "system",
+      "name": "System",
+      "description": "Query system alerts, configurations, and internal tools.",
+      "icon": "settings"
+    },
+    {
+      "id": "config",
+      "name": "Configuration",
+      "description": "Query organization and system configurations.",
+      "icon": "sliders"
     }
   ],
   "operations": {
@@ -59,94 +173,346 @@
       }
     },
     "queries": {
-      "org": {
-        "category": "organizations",
-        "description": "Retrieve a single organization by its unique ID. Returns organization details including name, website, logo, status, and parent organizations.",
+      "releaseReports": {
+        "category": "content",
+        "description": "List release reports with optional filtering and pagination.",
+        "exampleQuery": "query ReleaseReports($where: ReleaseReportWhereInput, $orderBy: ReleaseReportOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  releaseReports(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
         "exampleVariables": {
           "where": {
-            "id": "clx1234567890"
-          }
-        },
-        "exampleQuery": "query GetOrg($where: OrgWhereUniqueInput!) {\n  org(where: $where) {\n    id\n    name\n    website\n    logo {\n      id\n      url\n    }\n    status\n    parentOrg {\n      id\n      name\n    }\n  }\n}",
-        "exampleResponse": {
-          "data": {
-            "org": {
-              "id": "clx1234567890",
-              "name": "Acme Cannabis Co",
-              "website": "https://acmecannabis.com",
-              "logo": {
-                "id": "clxMEDIA00001",
-                "url": "https://cdn.mediajel.com/logos/acme.png"
-              },
-              "status": "ACTIVE",
-              "parentOrg": [
-                {
-                  "id": "clx0000000001",
-                  "name": "Acme Holdings"
-                }
-              ]
-            }
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "chat": {
+        "category": "messaging",
+        "description": "List chat with optional filtering and pagination.",
+        "exampleQuery": "query Chat($from: String!) {\n  chat(from: $from) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "from": "example-value"
+        }
+      },
+      "viewGeoTargetUpdatedBase": {
+        "category": "targeting",
+        "description": "Retrieve a single view geo target updated base by ID.",
+        "exampleQuery": "query ViewGeoTargetUpdatedBase {\n  viewGeoTargetUpdatedBase {\n    id\n  }\n}"
+      },
+      "viewTaxonomy": {
+        "category": "integrations",
+        "description": "Retrieve a single view taxonomy by ID.",
+        "exampleQuery": "query ViewTaxonomy {\n  viewTaxonomy {\n    id\n  }\n}"
+      },
+      "viewMappingRecords": {
+        "category": "integrations",
+        "description": "Retrieve a single view mapping records by ID.",
+        "exampleQuery": "query ViewMappingRecords {\n  viewMappingRecords {\n    id\n  }\n}"
+      },
+      "getSegments": {
+        "category": "targeting",
+        "description": "List get segments with optional filtering and pagination.",
+        "exampleQuery": "query GetSegments($where: appNexusSegmentInput!) {\n  getSegments(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
           }
         }
       },
-      "orgs": {
-        "category": "organizations",
-        "description": "List organizations with optional filtering by name, status, or parent org. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
+      "getSegment": {
+        "category": "targeting",
+        "description": "Get Segment.",
+        "exampleQuery": "query GetSegment($where: appNexusSegmentInput!) {\n  getSegment(where: $where) {\n    id\n  }\n}",
         "exampleVariables": {
           "where": {
-            "status": "ACTIVE"
+            "id": "example-id"
+          }
+        }
+      },
+      "getSharingRecords": {
+        "category": "integrations",
+        "description": "List get sharing records with optional filtering and pagination.",
+        "exampleQuery": "query GetSharingRecords {\n  getSharingRecords {\n    id\n  }\n}"
+      },
+      "getSharingRecord": {
+        "category": "integrations",
+        "description": "Get Sharing Record.",
+        "exampleQuery": "query GetSharingRecord($where: ById!) {\n  getSharingRecord(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "internalMicroserviceAudienceSchema": {
+        "category": "audiences",
+        "description": "Retrieve a single internal microservice audience schema by ID.",
+        "exampleQuery": "query InternalMicroserviceAudienceSchema {\n  internalMicroserviceAudienceSchema {\n    id\n  }\n}"
+      },
+      "getTagsComparisonObject": {
+        "category": "tags",
+        "description": "Get Tags Comparison Object.",
+        "exampleQuery": "query GetTagsComparisonObject($input: JSON!) {\n  getTagsComparisonObject(input: $input) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "input": "example-value"
+        }
+      },
+      "getAudienceCount": {
+        "category": "audiences",
+        "description": "Get Audience Count.",
+        "exampleQuery": "query GetAudienceCount($metric: JSON!) {\n  getAudienceCount(metric: $metric) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "metric": "example-value"
+        }
+      },
+      "listFrictionlessTags": {
+        "category": "tags",
+        "description": "Retrieve a single list frictionless tags by ID.",
+        "exampleQuery": "query ListFrictionlessTags {\n  listFrictionlessTags {\n    id\n  }\n}"
+      },
+      "findFrictionlessTag": {
+        "category": "tags",
+        "description": "List find frictionless tag with optional filtering and pagination.",
+        "exampleQuery": "query FindFrictionlessTag($data: FindFrictionlessTagInput!) {\n  findFrictionlessTag(data: $data) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "data": "example-value"
+        }
+      },
+      "getCubeJsToken": {
+        "category": "integrations",
+        "description": "Get Cube Js Token.",
+        "exampleQuery": "query GetCubeJsToken {\n  getCubeJsToken {\n    id\n  }\n}"
+      },
+      "getPacingReportFilterOptions": {
+        "category": "analytics",
+        "description": "Get Pacing Report Filter Options.",
+        "exampleQuery": "query GetPacingReportFilterOptions {\n  getPacingReportFilterOptions {\n    id\n  }\n}"
+      },
+      "getCampaignOrdersSummaryByDate": {
+        "category": "campaign-orders",
+        "description": "Get Campaign Orders Summary By Date.",
+        "exampleQuery": "query GetCampaignOrdersSummaryByDate($campaignOrderIds: [String]!) {\n  getCampaignOrdersSummaryByDate(campaignOrderIds: $campaignOrderIds) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderIds": "example-value"
+        }
+      },
+      "executeCubeJsQuery": {
+        "category": "integrations",
+        "description": "Retrieve a single execute cube js query by ID.",
+        "exampleQuery": "query ExecuteCubeJsQuery($query: JSON!, $token: String!) {\n  executeCubeJsQuery(query: $query, token: $token) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "query": "example-value",
+          "token": "example-value"
+        }
+      },
+      "getAdServerToken": {
+        "category": "integrations",
+        "description": "Get Ad Server Token.",
+        "exampleQuery": "query GetAdServerToken {\n  getAdServerToken {\n    id\n  }\n}"
+      },
+      "getAdServerProfile": {
+        "category": "integrations",
+        "description": "Get Ad Server Profile.",
+        "exampleQuery": "query GetAdServerProfile($token: String!, $profileId: String!) {\n  getAdServerProfile(token: $token, profileId: $profileId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "token": "example-value",
+          "profileId": "example-value"
+        }
+      },
+      "getAdServerSegment": {
+        "category": "integrations",
+        "description": "Get Ad Server Segment.",
+        "exampleQuery": "query GetAdServerSegment($token: String!, $segmentId: String!) {\n  getAdServerSegment(token: $token, segmentId: $segmentId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "token": "example-value",
+          "segmentId": "example-value"
+        }
+      },
+      "getAdServerSegments": {
+        "category": "integrations",
+        "description": "Get Ad Server Segments.",
+        "exampleQuery": "query GetAdServerSegments($token: String!) {\n  getAdServerSegments(token: $token) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "token": "example-value"
+        }
+      },
+      "getOnspotDeviceCount": {
+        "category": "integrations",
+        "description": "Get Onspot Device Count.",
+        "exampleQuery": "query GetOnspotDeviceCount($startDate: String!, $endDate: String!, $coordinates: [[[Float]]]) {\n  getOnspotDeviceCount(startDate: $startDate, endDate: $endDate, coordinates: $coordinates) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "startDate": "example-value",
+          "endDate": "example-value",
+          "coordinates": "example-value"
+        }
+      },
+      "getOnspotDemographics": {
+        "category": "integrations",
+        "description": "Get Onspot Demographics.",
+        "exampleQuery": "query GetOnspotDemographics($start: String!, $end: String!, $coordinates: [[[Float]]]!, $demographics: [String]!, $name: String!) {\n  getOnspotDemographics(start: $start, end: $end, coordinates: $coordinates, demographics: $demographics, name: $name) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "start": "example-value",
+          "end": "example-value",
+          "coordinates": "example-value",
+          "demographics": "example-value",
+          "name": "example-value"
+        }
+      },
+      "getSegmentOnspotDemographics": {
+        "category": "targeting",
+        "description": "Get Segment Onspot Demographics.",
+        "exampleQuery": "query GetSegmentOnspotDemographics($demographics: [String]!, $segmentId: String!) {\n  getSegmentOnspotDemographics(demographics: $demographics, segmentId: $segmentId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "demographics": "example-value",
+          "segmentId": "example-value"
+        }
+      },
+      "getBatchReports": {
+        "category": "analytics",
+        "description": "Get Batch Reports.",
+        "exampleQuery": "query GetBatchReports($scopes: [String], $viewId: String!, $keyFileName: String!, $startDate: String!, $endDate: String!) {\n  getBatchReports(scopes: $scopes, viewId: $viewId, keyFileName: $keyFileName, startDate: $startDate, endDate: $endDate) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "scopes": "example-value",
+          "viewId": "example-value",
+          "keyFileName": "example-value",
+          "startDate": "example-value",
+          "endDate": "example-value"
+        }
+      },
+      "creatives": {
+        "category": "creatives",
+        "description": "List creatives with optional filtering and pagination.",
+        "exampleQuery": "query Creatives($where: CreativeWhereInput, $orderBy: CreativeOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  creatives(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
           },
-          "first": 10,
-          "orderBy": "name_ASC"
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "loyaltyCampaigns": {
+        "category": "loyalty",
+        "description": "List loyalty campaigns with optional filtering and pagination.",
+        "exampleQuery": "query LoyaltyCampaigns($where: LoyaltyCampaignWhereInput, $orderBy: LoyaltyCampaignOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  loyaltyCampaigns(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "customers": {
+        "category": "loyalty",
+        "description": "List customers with optional filtering and pagination.",
+        "exampleQuery": "query Customers($where: CustomerWhereInput, $orderBy: CustomerOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  customers(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaigns": {
+        "category": "campaigns",
+        "description": "List campaigns with optional filtering by name, status, or organization. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
+        "exampleQuery": "query Campaigns($where: CampaignWhereInput, $orderBy: CampaignOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaigns(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
         },
-        "exampleQuery": "query ListOrgs($where: OrgWhereInput, $first: Int, $orderBy: OrgOrderByInput) {\n  orgs(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    website\n    status\n  }\n}",
         "exampleResponse": {
           "data": {
-            "orgs": [
+            "campaigns": [
               {
-                "id": "clx1234567890",
-                "name": "Acme Cannabis Co",
-                "website": "https://acmecannabis.com",
-                "status": "ACTIVE"
+                "id": "clx9876543210",
+                "name": "Summer Sale 2024",
+                "status": "LIVE",
+                "orgs": [
+                  {
+                    "id": "clx1234567890",
+                    "name": "Acme Cannabis Co"
+                  }
+                ],
+                "createdAt": "2024-06-01T00:00:00.000Z"
               }
             ]
           }
         }
       },
-      "orgsConnection": {
-        "category": "organizations",
-        "description": "Paginated organization listing with connection metadata. Use this for cursor-based pagination with total count.",
+      "campaignsConnection": {
+        "category": "campaigns",
+        "description": "Paginated campaign listing with connection metadata. Use this for cursor-based pagination with total count.",
+        "exampleQuery": "query CampaignsConnection($where: CampaignWhereInput, $orderBy: CampaignOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
         "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
           "first": 10
         },
-        "exampleQuery": "query OrgsConnection($first: Int) {\n  orgsConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
         "exampleResponse": {
           "data": {
-            "orgsConnection": {
+            "campaignsConnection": {
               "edges": [
                 {
-                  "node": { "id": "clx1234567890", "name": "Acme Cannabis Co" },
-                  "cursor": "cjx1234567890"
+                  "node": {
+                    "id": "clx9876543210",
+                    "name": "Summer Sale 2024",
+                    "status": "LIVE",
+                    "orgs": [
+                      {
+                        "id": "clx1234567890",
+                        "name": "Acme Cannabis Co"
+                      }
+                    ]
+                  },
+                  "cursor": "cjx9876543210"
                 }
               ],
               "pageInfo": {
                 "hasNextPage": true,
-                "endCursor": "cjx1234567890"
+                "endCursor": "cjx9876543210"
               },
-              "aggregate": { "count": 42 }
+              "aggregate": {
+                "count": 87
+              }
             }
           }
+        }
+      },
+      "pacingDataObjectsConnection": {
+        "category": "analytics",
+        "description": "List pacing data objects connection with optional filtering and pagination.",
+        "exampleQuery": "query PacingDataObjectsConnection($where: PacingDataObjectWhereInput, $orderBy: PacingDataObjectOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  pacingDataObjectsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
         }
       },
       "campaign": {
         "category": "campaigns",
         "description": "Retrieve a single campaign by its unique ID. Returns campaign details including status, associated organizations, campaign order, and line items.",
+        "exampleQuery": "query Campaign($where: CampaignWhereUniqueInput!) {\n  campaign(where: $where) {\n    id\n  }\n}",
         "exampleVariables": {
           "where": {
-            "id": "clx9876543210"
+            "id": "example-id"
           }
         },
-        "exampleQuery": "query GetCampaign($where: CampaignWhereUniqueInput!) {\n  campaign(where: $where) {\n    id\n    name\n    status\n    orgs {\n      id\n      name\n    }\n    campaignOrder {\n      id\n      name\n      status\n    }\n    lineItems {\n      id\n      name\n      status\n    }\n  }\n}",
         "exampleResponse": {
           "data": {
             "campaign": {
@@ -175,80 +541,15 @@
           }
         }
       },
-      "campaigns": {
-        "category": "campaigns",
-        "description": "List campaigns with optional filtering by name, status, or organization. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
-        "exampleVariables": {
-          "where": {
-            "status": "LIVE"
-          },
-          "first": 10,
-          "orderBy": "createdAt_DESC"
-        },
-        "exampleQuery": "query ListCampaigns($where: CampaignWhereInput, $first: Int, $orderBy: CampaignOrderByInput) {\n  campaigns(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    status\n    orgs {\n      id\n      name\n    }\n    createdAt\n  }\n}",
-        "exampleResponse": {
-          "data": {
-            "campaigns": [
-              {
-                "id": "clx9876543210",
-                "name": "Summer Sale 2024",
-                "status": "LIVE",
-                "orgs": [
-                  {
-                    "id": "clx1234567890",
-                    "name": "Acme Cannabis Co"
-                  }
-                ],
-                "createdAt": "2024-06-01T00:00:00.000Z"
-              }
-            ]
-          }
-        }
-      },
-      "campaignsConnection": {
-        "category": "campaigns",
-        "description": "Paginated campaign listing with connection metadata. Use this for cursor-based pagination with total count.",
-        "exampleVariables": {
-          "first": 10
-        },
-        "exampleQuery": "query CampaignsConnection($first: Int) {\n  campaignsConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        status\n        orgs {\n          id\n          name\n        }\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
-        "exampleResponse": {
-          "data": {
-            "campaignsConnection": {
-              "edges": [
-                {
-                  "node": {
-                    "id": "clx9876543210",
-                    "name": "Summer Sale 2024",
-                    "status": "LIVE",
-                    "orgs": [
-                      {
-                        "id": "clx1234567890",
-                        "name": "Acme Cannabis Co"
-                      }
-                    ]
-                  },
-                  "cursor": "cjx9876543210"
-                }
-              ],
-              "pageInfo": {
-                "hasNextPage": true,
-                "endCursor": "cjx9876543210"
-              },
-              "aggregate": { "count": 87 }
-            }
-          }
-        }
-      },
       "campaignOrder": {
         "category": "campaign-orders",
         "description": "Retrieve a single campaign order by its unique ID. Returns campaign order details including type, KPI metrics, reporting data from `pacingData` and `aggregateData`.",
+        "exampleQuery": "query CampaignOrder($where: CampaignOrderWhereUniqueInput!) {\n  campaignOrder(where: $where) {\n    id\n  }\n}",
         "exampleVariables": {
           "where": {
-            "id": "clxAAAA000001"
+            "id": "example-id"
           }
         },
-        "exampleQuery": "query GetCampaignOrder($where: CampaignOrderWhereUniqueInput!) {\n  campaignOrder(where: $where) {\n    id\n    name\n    type\n    kpi\n    kpiGoal\n    advertiserName\n    startDate\n    endDate\n    budget\n    status\n    campaigns {\n      id\n      name\n    }\n    orgs {\n      id\n      name\n    }\n    pacingData {\n      totalImpressions\n      dailyAvgImpressions\n      budgetSpent\n      budgetLeft\n      daysLeft\n      daysIntoFlight\n      pace\n      paceYesterday\n      ctr\n      roas\n    }\n    aggregateData {\n      overallData {\n        aggImpressions\n        aggClicks\n        aggCost\n        aggTotalCost\n        aggEvents\n        aggTransactions\n        aggTotalRevenue\n      }\n      byDate\n    }\n    createdAt\n    updatedAt\n  }\n}",
         "exampleResponse": {
           "data": {
             "campaignOrder": {
@@ -260,7 +561,7 @@
               "advertiserName": "Acme Cannabis Co",
               "startDate": "2024-06-01T00:00:00.000Z",
               "endDate": "2024-08-31T00:00:00.000Z",
-              "budget": 5000.0,
+              "budget": 5000,
               "status": "LIVE",
               "campaigns": [
                 {
@@ -277,8 +578,8 @@
               "pacingData": {
                 "totalImpressions": 520000,
                 "dailyAvgImpressions": 8500,
-                "budgetSpent": 3200.0,
-                "budgetLeft": 1800.0,
+                "budgetSpent": 3200,
+                "budgetLeft": 1800,
                 "daysLeft": 22,
                 "daysIntoFlight": 69,
                 "pace": 1.05,
@@ -290,11 +591,13 @@
                 "overallData": {
                   "aggImpressions": 520000,
                   "aggClicks": 624,
-                  "aggCost": 3200.0,
-                  "aggTotalCost": 3200.0,
-                  "aggEvents": { "purchase": 45 },
+                  "aggCost": 3200,
+                  "aggTotalCost": 3200,
+                  "aggEvents": {
+                    "purchase": 45
+                  },
                   "aggTransactions": 12,
-                  "aggTotalRevenue": 10880.0
+                  "aggTotalRevenue": 10880
                 },
                 "byDate": null
               },
@@ -307,14 +610,15 @@
       "campaignOrders": {
         "category": "campaign-orders",
         "description": "List campaign orders (line items) with optional filtering by name, status, campaign, or organization. Supports pagination via `first`, `skip`, `after`, and `before` parameters. Includes reporting fields like `pacingData` and `aggregateData`.",
+        "exampleQuery": "query CampaignOrders($where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrders(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
         "exampleVariables": {
           "where": {
-            "status": "LIVE"
+            "id": "example-id"
           },
-          "first": 10,
-          "orderBy": "startDate_DESC"
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
         },
-        "exampleQuery": "query ListCampaignOrders($where: CampaignOrderWhereInput, $first: Int, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrders(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    type\n    kpi\n    kpiGoal\n    advertiserName\n    startDate\n    endDate\n    budget\n    status\n    campaigns {\n      id\n      name\n    }\n    orgs {\n      id\n      name\n    }\n    pacingData {\n      totalImpressions\n      dailyAvgImpressions\n      budgetSpent\n      budgetLeft\n      daysLeft\n      pace\n      ctr\n      roas\n    }\n    aggregateData {\n      overallData {\n        aggImpressions\n        aggClicks\n        aggCost\n        aggTotalCost\n        aggEvents\n        aggTransactions\n        aggTotalRevenue\n      }\n      byDate\n    }\n  }\n}",
         "exampleResponse": {
           "data": {
             "campaignOrders": [
@@ -327,7 +631,7 @@
                 "advertiserName": "Acme Cannabis Co",
                 "startDate": "2024-06-01T00:00:00.000Z",
                 "endDate": "2024-08-31T00:00:00.000Z",
-                "budget": 5000.0,
+                "budget": 5000,
                 "status": "LIVE",
                 "campaigns": [
                   {
@@ -344,8 +648,8 @@
                 "pacingData": {
                   "totalImpressions": 520000,
                   "dailyAvgImpressions": 8500,
-                  "budgetSpent": 3200.0,
-                  "budgetLeft": 1800.0,
+                  "budgetSpent": 3200,
+                  "budgetLeft": 1800,
                   "daysLeft": 22,
                   "pace": 1.05,
                   "ctr": 0.12,
@@ -355,11 +659,13 @@
                   "overallData": {
                     "aggImpressions": 520000,
                     "aggClicks": 624,
-                    "aggCost": 3200.0,
-                    "aggTotalCost": 3200.0,
-                    "aggEvents": { "purchase": 45 },
+                    "aggCost": 3200,
+                    "aggTotalCost": 3200,
+                    "aggEvents": {
+                      "purchase": 45
+                    },
                     "aggTransactions": 12,
-                    "aggTotalRevenue": 10880.0
+                    "aggTotalRevenue": 10880
                   },
                   "byDate": null
                 }
@@ -368,13 +674,87 @@
           }
         }
       },
+      "campaignOrderIssues": {
+        "category": "campaign-orders",
+        "description": "List campaign order issues with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderIssues($where: CampaignOrderIssueWhereInput, $orderBy: CampaignOrderIssueOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderIssues(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderIssue": {
+        "category": "campaign-orders",
+        "description": "Retrieve a single campaign order issue by ID.",
+        "exampleQuery": "query CampaignOrderIssue($where: CampaignOrderIssueWhereUniqueInput!) {\n  campaignOrderIssue(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "campaignOrderSessionReport": {
+        "category": "campaign-orders",
+        "description": "Retrieve a single campaign order session report by ID.",
+        "exampleQuery": "query CampaignOrderSessionReport($where: CampaignOrderSessionReportWhereUniqueInput!) {\n  campaignOrderSessionReport(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "campaignOrderSessionsWithEvents": {
+        "category": "campaign-orders",
+        "description": "Retrieve a single campaign order sessions with events by ID.",
+        "exampleQuery": "query CampaignOrderSessionsWithEvents($where: CampaignOrderSessionsWithEventsWhereUniqueInput!) {\n  campaignOrderSessionsWithEvents(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "campaignOrderSessionsWithEventses": {
+        "category": "campaign-orders",
+        "description": "List campaign order sessions with eventses with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderSessionsWithEventses($where: CampaignOrderSessionsWithEventsWhereInput, $orderBy: CampaignOrderSessionsWithEventsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderSessionsWithEventses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderSessionsWithEventsesConnection": {
+        "category": "campaign-orders",
+        "description": "List campaign order sessions with eventses connection with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderSessionsWithEventsesConnection($where: CampaignOrderSessionsWithEventsWhereInput, $orderBy: CampaignOrderSessionsWithEventsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderSessionsWithEventsesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
       "campaignOrdersConnection": {
         "category": "campaign-orders",
         "description": "Paginated campaign orders with connection metadata. Use this for cursor-based pagination with total count. Includes reporting fields like `pacingData` and `aggregateData`.",
+        "exampleQuery": "query CampaignOrdersConnection($where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrdersConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
         "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
           "first": 10
         },
-        "exampleQuery": "query CampaignOrdersConnection($first: Int) {\n  campaignOrdersConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        type\n        kpi\n        kpiGoal\n        advertiserName\n        status\n        budget\n        pacingData {\n          totalImpressions\n          budgetSpent\n          budgetLeft\n          pace\n          ctr\n        }\n        aggregateData {\n          overallData {\n            aggImpressions\n            aggClicks\n            aggCost\n            aggTotalRevenue\n          }\n        }\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
         "exampleResponse": {
           "data": {
             "campaignOrdersConnection": {
@@ -388,11 +768,11 @@
                     "kpiGoal": 6.5,
                     "advertiserName": "Acme Cannabis Co",
                     "status": "LIVE",
-                    "budget": 5000.0,
+                    "budget": 5000,
                     "pacingData": {
                       "totalImpressions": 520000,
-                      "budgetSpent": 3200.0,
-                      "budgetLeft": 1800.0,
+                      "budgetSpent": 3200,
+                      "budgetLeft": 1800,
                       "pace": 1.05,
                       "ctr": 0.12
                     },
@@ -400,8 +780,8 @@
                       "overallData": {
                         "aggImpressions": 520000,
                         "aggClicks": 624,
-                        "aggCost": 3200.0,
-                        "aggTotalRevenue": 10880.0
+                        "aggCost": 3200,
+                        "aggTotalRevenue": 10880
                       }
                     }
                   },
@@ -412,20 +792,1628 @@
                 "hasNextPage": true,
                 "endCursor": "cjxAAAA000001"
               },
-              "aggregate": { "count": 128 }
+              "aggregate": {
+                "count": 128
+              }
             }
           }
+        }
+      },
+      "task": {
+        "category": "projects",
+        "description": "Retrieve a single task by ID.",
+        "exampleQuery": "query Task($where: TaskWhereUniqueInput!) {\n  task(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "tasksConnection": {
+        "category": "projects",
+        "description": "List tasks connection with optional filtering and pagination.",
+        "exampleQuery": "query TasksConnection($where: TaskWhereInput, $orderBy: TaskOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  tasksConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "project": {
+        "category": "projects",
+        "description": "Retrieve a single project by ID.",
+        "exampleQuery": "query Project($where: ProjectWhereUniqueInput!) {\n  project(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "projectsConnection": {
+        "category": "projects",
+        "description": "List projects connection with optional filtering and pagination.",
+        "exampleQuery": "query ProjectsConnection($where: ProjectWhereInput, $orderBy: ProjectOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  projectsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "milestone": {
+        "category": "projects",
+        "description": "Retrieve a single milestone by ID.",
+        "exampleQuery": "query Milestone($where: MilestoneWhereUniqueInput!) {\n  milestone(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "milestonesConnection": {
+        "category": "projects",
+        "description": "List milestones connection with optional filtering and pagination.",
+        "exampleQuery": "query MilestonesConnection($where: MilestoneWhereInput, $orderBy: MilestoneOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  milestonesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "systemAlert": {
+        "category": "system",
+        "description": "Retrieve a single system alert by ID.",
+        "exampleQuery": "query SystemAlert($where: SystemAlertWhereUniqueInput!) {\n  systemAlert(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "systemAlerts": {
+        "category": "system",
+        "description": "List system alerts with optional filtering and pagination.",
+        "exampleQuery": "query SystemAlerts($where: SystemAlertWhereInput, $orderBy: SystemAlertOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  systemAlerts(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "systemAlertsConnection": {
+        "category": "system",
+        "description": "List system alerts connection with optional filtering and pagination.",
+        "exampleQuery": "query SystemAlertsConnection($where: SystemAlertWhereInput, $orderBy: SystemAlertOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  systemAlertsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignReportsConnection": {
+        "category": "campaigns",
+        "description": "List campaign reports connection with optional filtering and pagination.",
+        "exampleQuery": "query CampaignReportsConnection($where: CampaignReportWhereInput, $orderBy: CampaignReportOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignReportsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignHistories": {
+        "category": "campaigns",
+        "description": "List campaign histories with optional filtering and pagination.",
+        "exampleQuery": "query CampaignHistories($where: CampaignHistoryWhereInput, $orderBy: CampaignHistoryOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignHistories(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "licensesConnection": {
+        "category": "licenses",
+        "description": "List licenses connection with optional filtering and pagination.",
+        "exampleQuery": "query LicensesConnection($where: LicenseWhereInput, $orderBy: LicenseOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  licensesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "licenses": {
+        "category": "licenses",
+        "description": "List licenses with optional filtering and pagination.",
+        "exampleQuery": "query Licenses($where: LicenseWhereInput, $orderBy: LicenseOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  licenses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "license": {
+        "category": "licenses",
+        "description": "Retrieve a single license by ID.",
+        "exampleQuery": "query License($where: LicenseWhereUniqueInput!) {\n  license(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "brands": {
+        "category": "products",
+        "description": "List brands with optional filtering and pagination.",
+        "exampleQuery": "query Brands($where: BrandWhereInput, $orderBy: BrandOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  brands(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "brand": {
+        "category": "products",
+        "description": "Retrieve a single brand by ID.",
+        "exampleQuery": "query Brand($where: BrandWhereUniqueInput!) {\n  brand(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "products": {
+        "category": "products",
+        "description": "List products with optional filtering and pagination.",
+        "exampleQuery": "query Products($where: ProductWhereInput, $orderBy: ProductOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  products(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "product": {
+        "category": "products",
+        "description": "Retrieve a single product by ID.",
+        "exampleQuery": "query Product($where: ProductWhereUniqueInput!) {\n  product(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "productsWithRecommendation": {
+        "category": "products",
+        "description": "List products with recommendation with optional filtering and pagination.",
+        "exampleQuery": "query ProductsWithRecommendation($where: ProductWhereInput, $orderBy: ProductOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  productsWithRecommendation(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "locations": {
+        "category": "locations",
+        "description": "List locations with optional filtering and pagination.",
+        "exampleQuery": "query Locations($where: LocationWhereInput, $orderBy: LocationOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  locations(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "location": {
+        "category": "locations",
+        "description": "Retrieve a single location by ID.",
+        "exampleQuery": "query Location($where: LocationWhereUniqueInput!) {\n  location(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "regionGroups": {
+        "category": "targeting",
+        "description": "List region groups with optional filtering and pagination.",
+        "exampleQuery": "query RegionGroups($where: RegionGroupWhereInput, $orderBy: RegionGroupOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  regionGroups(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "iABCategoryGroups": {
+        "category": "organizations",
+        "description": "List i a b category groups with optional filtering and pagination.",
+        "exampleQuery": "query IABCategoryGroups($where: IABCategoryGroupWhereInput, $orderBy: IABCategoryGroupOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  iABCategoryGroups(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "orgs": {
+        "category": "organizations",
+        "description": "List organizations with optional filtering by name, status, or parent org. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
+        "exampleQuery": "query Orgs($where: OrgWhereInput, $orderBy: OrgOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  orgs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        },
+        "exampleResponse": {
+          "data": {
+            "orgs": [
+              {
+                "id": "clx1234567890",
+                "name": "Acme Cannabis Co",
+                "website": "https://acmecannabis.com",
+                "status": "ACTIVE"
+              }
+            ]
+          }
+        }
+      },
+      "org": {
+        "category": "organizations",
+        "description": "Retrieve a single organization by its unique ID. Returns organization details including name, website, logo, status, and parent organizations.",
+        "exampleQuery": "query Org($where: OrgWhereUniqueInput!) {\n  org(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        },
+        "exampleResponse": {
+          "data": {
+            "org": {
+              "id": "clx1234567890",
+              "name": "Acme Cannabis Co",
+              "website": "https://acmecannabis.com",
+              "logo": {
+                "id": "clxMEDIA00001",
+                "url": "https://cdn.mediajel.com/logos/acme.png"
+              },
+              "status": "ACTIVE",
+              "parentOrg": [
+                {
+                  "id": "clx0000000001",
+                  "name": "Acme Holdings"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "orgsConnection": {
+        "category": "organizations",
+        "description": "Paginated organization listing with connection metadata. Use this for cursor-based pagination with total count.",
+        "exampleQuery": "query OrgsConnection($where: OrgWhereInput, $orderBy: OrgOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  orgsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        },
+        "exampleResponse": {
+          "data": {
+            "orgsConnection": {
+              "edges": [
+                {
+                  "node": {
+                    "id": "clx1234567890",
+                    "name": "Acme Cannabis Co"
+                  },
+                  "cursor": "cjx1234567890"
+                }
+              ],
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "cjx1234567890"
+              },
+              "aggregate": {
+                "count": 42
+              }
+            }
+          }
+        }
+      },
+      "paidSearchSummariesConnection": {
+        "category": "paid-search",
+        "description": "List paid search summaries connection with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchSummariesConnection($where: PaidSearchSummaryWhereInput, $orderBy: PaidSearchSummaryOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchSummariesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "catalogItems": {
+        "category": "products",
+        "description": "List catalog items with optional filtering and pagination.",
+        "exampleQuery": "query CatalogItems($where: CatalogItemWhereInput, $orderBy: CatalogItemOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  catalogItems(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "catalog": {
+        "category": "products",
+        "description": "Retrieve a single catalog by ID.",
+        "exampleQuery": "query Catalog($where: CatalogWhereUniqueInput!) {\n  catalog(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "reviews": {
+        "category": "products",
+        "description": "List reviews with optional filtering and pagination.",
+        "exampleQuery": "query Reviews($where: ReviewWhereInput, $orderBy: ReviewOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  reviews(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "strains": {
+        "category": "products",
+        "description": "List strains with optional filtering and pagination.",
+        "exampleQuery": "query Strains($where: StrainWhereInput, $orderBy: StrainOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  strains(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "strain": {
+        "category": "products",
+        "description": "Retrieve a single strain by ID.",
+        "exampleQuery": "query Strain($where: StrainWhereUniqueInput!) {\n  strain(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "cannatypes": {
+        "category": "products",
+        "description": "List cannatypes with optional filtering and pagination.",
+        "exampleQuery": "query Cannatypes($where: CannatypeWhereInput, $orderBy: CannatypeOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  cannatypes(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "getRecommendationValue": {
+        "category": "products",
+        "description": "Get Recommendation Value.",
+        "exampleQuery": "query GetRecommendationValue($productId: ID!) {\n  getRecommendationValue(productId: $productId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "productId": "example-id"
+        }
+      },
+      "getRecommendationPercent": {
+        "category": "products",
+        "description": "Get Recommendation Percent.",
+        "exampleQuery": "query GetRecommendationPercent($productId: ID!) {\n  getRecommendationPercent(productId: $productId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "productId": "example-id"
+        }
+      },
+      "getRecommendedProduct": {
+        "category": "products",
+        "description": "Get Recommended Product.",
+        "exampleQuery": "query GetRecommendedProduct($productCategory: Category!) {\n  getRecommendedProduct(productCategory: $productCategory) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "productCategory": "example-value"
+        }
+      },
+      "users": {
+        "category": "users",
+        "description": "List users with optional filtering and pagination.",
+        "exampleQuery": "query Users($where: UserWhereInput, $orderBy: UserOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  users(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "user": {
+        "category": "users",
+        "description": "Retrieve a single user by ID.",
+        "exampleQuery": "query User($where: UserWhereUniqueInput!) {\n  user(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getCampaignReportSignedURL": {
+        "category": "analytics",
+        "description": "Get Campaign Report Signed U R L.",
+        "exampleQuery": "query GetCampaignReportSignedURL($reportId: ID!) {\n  getCampaignReportSignedURL(reportId: $reportId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "reportId": "example-id"
+        }
+      },
+      "getCampaignReportSignedURLs": {
+        "category": "analytics",
+        "description": "List get campaign report signed u r ls with optional filtering and pagination.",
+        "exampleQuery": "query GetCampaignReportSignedURLs($reportId: [ID!]!) {\n  getCampaignReportSignedURLs(reportId: $reportId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "reportId": "example-value"
+        }
+      },
+      "getOrgReportSignedURL": {
+        "category": "analytics",
+        "description": "Get Org Report Signed U R L.",
+        "exampleQuery": "query GetOrgReportSignedURL($reportId: ID!) {\n  getOrgReportSignedURL(reportId: $reportId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "reportId": "example-id"
+        }
+      },
+      "getSignedURL": {
+        "category": "analytics",
+        "description": "Get Signed U R L.",
+        "exampleQuery": "query GetSignedURL($key: String!) {\n  getSignedURL(key: $key) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "key": "example-value"
+        }
+      },
+      "uglifyJS": {
+        "category": "tags",
+        "description": "Retrieve a single uglify j s by ID.",
+        "exampleQuery": "query UglifyJS($jscode: String!) {\n  uglifyJS(jscode: $jscode) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "jscode": "example-value"
+        }
+      },
+      "geoTargets": {
+        "category": "targeting",
+        "description": "List geo targets with optional filtering and pagination.",
+        "exampleQuery": "query GeoTargets($where: GeoTargetWhereInput, $orderBy: GeoTargetOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  geoTargets(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "geoTargetsConnection": {
+        "category": "targeting",
+        "description": "List geo targets connection with optional filtering and pagination.",
+        "exampleQuery": "query GeoTargetsConnection($where: GeoTargetWhereInput, $orderBy: GeoTargetOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  geoTargetsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "getSegmentsWithObservations": {
+        "category": "targeting",
+        "description": "List get segments with observations with optional filtering and pagination.",
+        "exampleQuery": "query GetSegmentsWithObservations($where: GeoTargetWhereInput, $orderBy: GeoTargetOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  getSegmentsWithObservations(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "audiences": {
+        "category": "audiences",
+        "description": "List audiences with optional filtering and pagination.",
+        "exampleQuery": "query Audiences($where: AudienceWhereInput, $orderBy: AudienceOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  audiences(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "audiencesConnection": {
+        "category": "audiences",
+        "description": "List audiences connection with optional filtering and pagination.",
+        "exampleQuery": "query AudiencesConnection($where: AudienceWhereInput, $orderBy: AudienceOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  audiencesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "audience": {
+        "category": "audiences",
+        "description": "Retrieve a single audience by ID.",
+        "exampleQuery": "query Audience($where: AudienceWhereUniqueInput!) {\n  audience(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getAudienceDevices": {
+        "category": "audiences",
+        "description": "Get Audience Devices.",
+        "exampleQuery": "query GetAudienceDevices($audienceId: String!) {\n  getAudienceDevices(audienceId: $audienceId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "audienceId": "example-value"
+        }
+      },
+      "getAudienceDevicesFromS3": {
+        "category": "audiences",
+        "description": "Get Audience Devices From S3.",
+        "exampleQuery": "query GetAudienceDevicesFromS3($audienceId: String!, $type: String!) {\n  getAudienceDevicesFromS3(audienceId: $audienceId, type: $type) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "audienceId": "example-value",
+          "type": "example-value"
+        }
+      },
+      "activateAudienceDevicesFromS3": {
+        "category": "audiences",
+        "description": "Retrieve a single activate audience devices from s3 by ID.",
+        "exampleQuery": "query ActivateAudienceDevicesFromS3($audienceId: String!, $type: String!) {\n  activateAudienceDevicesFromS3(audienceId: $audienceId, type: $type) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "audienceId": "example-value",
+          "type": "example-value"
+        }
+      },
+      "transactionsByCampaignOrder": {
+        "category": "campaign-orders",
+        "description": "Retrieve a single transactions by campaign order by ID.",
+        "exampleQuery": "query TransactionsByCampaignOrder($campaignOrderId: ID!, $appId: String!) {\n  transactionsByCampaignOrder(campaignOrderId: $campaignOrderId, appId: $appId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-id",
+          "appId": "example-value"
+        }
+      },
+      "getRetargetingDevices": {
+        "category": "targeting",
+        "description": "Get Retargeting Devices.",
+        "exampleQuery": "query GetRetargetingDevices($campaignOrderId: ID!) {\n  getRetargetingDevices(campaignOrderId: $campaignOrderId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-id"
+        }
+      },
+      "eventsTargets": {
+        "category": "targeting",
+        "description": "List events targets with optional filtering and pagination.",
+        "exampleQuery": "query EventsTargets($where: EventsTargetWhereInput, $orderBy: EventsTargetOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  eventsTargets(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "eventsTargetsConnection": {
+        "category": "targeting",
+        "description": "List events targets connection with optional filtering and pagination.",
+        "exampleQuery": "query EventsTargetsConnection($where: EventsTargetWhereInput, $orderBy: EventsTargetOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  eventsTargetsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "message": {
+        "category": "messaging",
+        "description": "Retrieve a single message by ID.",
+        "exampleQuery": "query Message($where: MessageWhereUniqueInput!) {\n  message(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "messages": {
+        "category": "messaging",
+        "description": "List messages with optional filtering and pagination.",
+        "exampleQuery": "query Messages($where: MessageWhereInput, $orderBy: MessageOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  messages(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "notification": {
+        "category": "messaging",
+        "description": "Retrieve a single notification by ID.",
+        "exampleQuery": "query Notification($where: NotificationWhereUniqueInput!) {\n  notification(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "notifications": {
+        "category": "messaging",
+        "description": "List notifications with optional filtering and pagination.",
+        "exampleQuery": "query Notifications($where: NotificationWhereInput, $orderBy: NotificationOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  notifications(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "conversation": {
+        "category": "messaging",
+        "description": "Retrieve a single conversation by ID.",
+        "exampleQuery": "query Conversation($where: ConversationWhereUniqueInput!) {\n  conversation(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "conversations": {
+        "category": "messaging",
+        "description": "List conversations with optional filtering and pagination.",
+        "exampleQuery": "query Conversations($where: ConversationWhereInput, $orderBy: ConversationOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  conversations(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "liquidMCampaigns": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m campaigns by ID.",
+        "exampleQuery": "query LiquidMCampaigns {\n  liquidMCampaigns {\n    id\n  }\n}"
+      },
+      "liquidMCampaign": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m campaign by ID.",
+        "exampleQuery": "query LiquidMCampaign($id: Int) {\n  liquidMCampaign(id: $id) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "id": 0
+        }
+      },
+      "liquidMCampaignStart": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m campaign start by ID.",
+        "exampleQuery": "query LiquidMCampaignStart($id: Int) {\n  liquidMCampaignStart(id: $id) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "id": 0
+        }
+      },
+      "liquidMCampaignPause": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m campaign pause by ID.",
+        "exampleQuery": "query LiquidMCampaignPause($id: Int) {\n  liquidMCampaignPause(id: $id) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "id": 0
+        }
+      },
+      "liquidMAccounts": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m accounts by ID.",
+        "exampleQuery": "query LiquidMAccounts {\n  liquidMAccounts {\n    id\n  }\n}"
+      },
+      "liquidMRegions": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m regions by ID.",
+        "exampleQuery": "query LiquidMRegions($filter: LiquidMRegionsFilterInput, $page: LiquidMRegionsPageInput) {\n  liquidMRegions(filter: $filter, page: $page) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "filter": "example-value",
+          "page": "example-value"
+        }
+      },
+      "liquidMAds": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m ads by ID.",
+        "exampleQuery": "query LiquidMAds($id: Int) {\n  liquidMAds(id: $id) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "id": 0
+        }
+      },
+      "liquidMAdsTargeting": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m ads targeting by ID.",
+        "exampleQuery": "query LiquidMAdsTargeting($id: Int) {\n  liquidMAdsTargeting(id: $id) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "id": 0
+        }
+      },
+      "liquidMSettings": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m settings by ID.",
+        "exampleQuery": "query LiquidMSettings {\n  liquidMSettings {\n    id\n  }\n}"
+      },
+      "liquidMSetting": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m setting by ID.",
+        "exampleQuery": "query LiquidMSetting($id: Int) {\n  liquidMSetting(id: $id) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "id": 0
+        }
+      },
+      "liquidMSupplies": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m supplies by ID.",
+        "exampleQuery": "query LiquidMSupplies($id: String, $attributes: LiquidMSupplyAttributeInput) {\n  liquidMSupplies(id: $id, attributes: $attributes) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "id": "example-value",
+          "attributes": "example-value"
+        }
+      },
+      "liquidMTrafficSets": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m traffic sets by ID.",
+        "exampleQuery": "query LiquidMTrafficSets($params: JSON) {\n  liquidMTrafficSets(params: $params) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "params": "example-value"
+        }
+      },
+      "liquidMSupply": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m supply by ID.",
+        "exampleQuery": "query LiquidMSupply($id: String, $attributes: LiquidMSupplyAttributeInput) {\n  liquidMSupply(id: $id, attributes: $attributes) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "id": "example-value",
+          "attributes": "example-value"
+        }
+      },
+      "liquidMPublishers": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m publishers by ID.",
+        "exampleQuery": "query LiquidMPublishers {\n  liquidMPublishers {\n    id\n  }\n}"
+      },
+      "liquidMPublisherSites": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m publisher sites by ID.",
+        "exampleQuery": "query LiquidMPublisherSites($page: JSON, $filter: LiquidMSitesInput) {\n  liquidMPublisherSites(page: $page, filter: $filter) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "page": "example-value",
+          "filter": "example-value"
+        }
+      },
+      "liquidMSegments": {
+        "category": "integrations",
+        "description": "Retrieve a single liquid m segments by ID.",
+        "exampleQuery": "query LiquidMSegments($page: JSON, $filter: LiquidMSegmentFilterInput, $fields: LiquidMSegmentFieldsInput) {\n  liquidMSegments(page: $page, filter: $filter, fields: $fields) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "page": "example-value",
+          "filter": "example-value",
+          "fields": "example-value"
+        }
+      },
+      "orgSummaries": {
+        "category": "organizations",
+        "description": "List org summaries with optional filtering and pagination.",
+        "exampleQuery": "query OrgSummaries($where: OrgSummaryWhereInput, $orderBy: OrgSummaryOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  orgSummaries(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "orgSummary": {
+        "category": "organizations",
+        "description": "Retrieve a single org summary by ID.",
+        "exampleQuery": "query OrgSummary($where: OrgSummaryWhereUniqueInput!) {\n  orgSummary(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "media": {
+        "category": "creatives",
+        "description": "Retrieve a single media by ID.",
+        "exampleQuery": "query Media($where: MediaWhereUniqueInput!) {\n  media(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "medias": {
+        "category": "creatives",
+        "description": "List medias with optional filtering and pagination.",
+        "exampleQuery": "query Medias($where: MediaWhereInput, $orderBy: MediaOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  medias(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "adGroupCreatives": {
+        "category": "creatives",
+        "description": "Retrieve a single ad group creatives by ID.",
+        "exampleQuery": "query AdGroupCreatives($where: AdGroupCreativesWhereUniqueInput!) {\n  adGroupCreatives(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "adGroupCreativeses": {
+        "category": "creatives",
+        "description": "List ad group creativeses with optional filtering and pagination.",
+        "exampleQuery": "query AdGroupCreativeses($where: AdGroupCreativesWhereInput, $orderBy: AdGroupCreativesOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  adGroupCreativeses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "getOrgTableConfig": {
+        "category": "config",
+        "description": "Get Org Table Config.",
+        "exampleQuery": "query GetOrgTableConfig($where: OrgWhereUniqueInput!) {\n  getOrgTableConfig(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getOrgThemeConfig": {
+        "category": "config",
+        "description": "Get Org Theme Config.",
+        "exampleQuery": "query GetOrgThemeConfig($where: OrgWhereUniqueInput!) {\n  getOrgThemeConfig(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getOrgSendEmailConfig": {
+        "category": "integrations",
+        "description": "Get Org Send Email Config.",
+        "exampleQuery": "query GetOrgSendEmailConfig($where: OrgWhereUniqueInput!) {\n  getOrgSendEmailConfig(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getBasketItems": {
+        "category": "analytics",
+        "description": "Get Basket Items.",
+        "exampleQuery": "query GetBasketItems($transactionId: String!, $appId: String!) {\n  getBasketItems(transactionId: $transactionId, appId: $appId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "transactionId": "example-value",
+          "appId": "example-value"
+        }
+      },
+      "getBasicTagActivity": {
+        "category": "tags",
+        "description": "Get Basic Tag Activity.",
+        "exampleQuery": "query GetBasicTagActivity($appId: String!, $orgId: String, $tagId: String, $retailID: String) {\n  getBasicTagActivity(appId: $appId, orgId: $orgId, tagId: $tagId, retailID: $retailID) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "appId": "example-value",
+          "orgId": "example-value",
+          "tagId": "example-value",
+          "retailID": "example-value"
+        }
+      },
+      "orgTagsConfigs": {
+        "category": "tags",
+        "description": "List org tags configs with optional filtering and pagination.",
+        "exampleQuery": "query OrgTagsConfigs($where: OrgTagsConfigWhereInput, $orderBy: OrgTagsConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  orgTagsConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchSummaries": {
+        "category": "paid-search",
+        "description": "List paid search summaries with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchSummaries($where: PaidSearchSummaryWhereInput, $orderBy: PaidSearchSummaryOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchSummaries(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchSummary": {
+        "category": "paid-search",
+        "description": "Retrieve a single paid search summary by ID.",
+        "exampleQuery": "query PaidSearchSummary($where: PaidSearchSummaryWhereUniqueInput!) {\n  paidSearchSummary(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "paidSearchCampaigns": {
+        "category": "paid-search",
+        "description": "List paid search campaigns with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchCampaigns($where: PaidSearchCampaignWhereInput, $orderBy: PaidSearchCampaignOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchCampaigns(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchCampaign": {
+        "category": "paid-search",
+        "description": "Retrieve a single paid search campaign by ID.",
+        "exampleQuery": "query PaidSearchCampaign($where: PaidSearchCampaignWhereInput) {\n  paidSearchCampaign(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getPaidSearchSummary": {
+        "category": "paid-search",
+        "description": "Get Paid Search Summary.",
+        "exampleQuery": "query GetPaidSearchSummary($where: OrgWhereUniqueInput!) {\n  getPaidSearchSummary(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getPaidSearchReports": {
+        "category": "paid-search",
+        "description": "Get Paid Search Reports.",
+        "exampleQuery": "query GetPaidSearchReports($where: OrgWhereUniqueInput!) {\n  getPaidSearchReports(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getPaidSearchLocations": {
+        "category": "paid-search",
+        "description": "Get Paid Search Locations.",
+        "exampleQuery": "query GetPaidSearchLocations($where: OrgWhereUniqueInput!) {\n  getPaidSearchLocations(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getPaidSearchKeywords": {
+        "category": "paid-search",
+        "description": "Get Paid Search Keywords.",
+        "exampleQuery": "query GetPaidSearchKeywords($where: OrgWhereUniqueInput!) {\n  getPaidSearchKeywords(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getPaidSearchCpc": {
+        "category": "paid-search",
+        "description": "Get Paid Search Cpc.",
+        "exampleQuery": "query GetPaidSearchCpc($where: OrgWhereUniqueInput!) {\n  getPaidSearchCpc(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getPaidSearchOrganic": {
+        "category": "paid-search",
+        "description": "Get Paid Search Organic.",
+        "exampleQuery": "query GetPaidSearchOrganic($where: OrgWhereUniqueInput!) {\n  getPaidSearchOrganic(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getRollUpDisplay": {
+        "category": "analytics",
+        "description": "Get Roll Up Display.",
+        "exampleQuery": "query GetRollUpDisplay($orgId: String!, $startDate: DateTime, $endDate: DateTime, $parentOrgId: String, $advertiserIds: [String], $attributionWindow: Int) {\n  getRollUpDisplay(orgId: $orgId, startDate: $startDate, endDate: $endDate, parentOrgId: $parentOrgId, advertiserIds: $advertiserIds, attributionWindow: $attributionWindow) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "startDate": "example-value",
+          "endDate": "example-value",
+          "parentOrgId": "example-value",
+          "advertiserIds": "example-value",
+          "attributionWindow": 0
+        }
+      },
+      "getRollUpPaidSearch": {
+        "category": "paid-search",
+        "description": "Get Roll Up Paid Search.",
+        "exampleQuery": "query GetRollUpPaidSearch($orgId: String!, $startDate: DateTime, $endDate: DateTime, $parentOrgId: String, $advertiserIds: [String]) {\n  getRollUpPaidSearch(orgId: $orgId, startDate: $startDate, endDate: $endDate, parentOrgId: $parentOrgId, advertiserIds: $advertiserIds) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "startDate": "example-value",
+          "endDate": "example-value",
+          "parentOrgId": "example-value",
+          "advertiserIds": "example-value"
+        }
+      },
+      "getRollUpSEO": {
+        "category": "seo",
+        "description": "Get Roll Up S E O.",
+        "exampleQuery": "query GetRollUpSEO($orgId: String!, $startDate: DateTime, $endDate: DateTime, $parentOrgId: String, $advertiserIds: [String]) {\n  getRollUpSEO(orgId: $orgId, startDate: $startDate, endDate: $endDate, parentOrgId: $parentOrgId, advertiserIds: $advertiserIds) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "startDate": "example-value",
+          "endDate": "example-value",
+          "parentOrgId": "example-value",
+          "advertiserIds": "example-value"
+        }
+      },
+      "getRollUpSEOAnalytics": {
+        "category": "seo",
+        "description": "Get Roll Up S E O Analytics.",
+        "exampleQuery": "query GetRollUpSEOAnalytics($orgId: String!, $startDate: DateTime, $endDate: DateTime, $parentOrgId: String, $advertiserIds: [String]) {\n  getRollUpSEOAnalytics(orgId: $orgId, startDate: $startDate, endDate: $endDate, parentOrgId: $parentOrgId, advertiserIds: $advertiserIds) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "startDate": "example-value",
+          "endDate": "example-value",
+          "parentOrgId": "example-value",
+          "advertiserIds": "example-value"
+        }
+      },
+      "getRollUpPaidSearchAnalytics": {
+        "category": "paid-search",
+        "description": "Get Roll Up Paid Search Analytics.",
+        "exampleQuery": "query GetRollUpPaidSearchAnalytics($orgId: String, $startDate: DateTime, $endDate: DateTime, $parentOrgId: String, $advertiserIds: [String]) {\n  getRollUpPaidSearchAnalytics(orgId: $orgId, startDate: $startDate, endDate: $endDate, parentOrgId: $parentOrgId, advertiserIds: $advertiserIds) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "startDate": "example-value",
+          "endDate": "example-value",
+          "parentOrgId": "example-value",
+          "advertiserIds": "example-value"
+        }
+      },
+      "getSummaryDeviceClicks": {
+        "category": "analytics",
+        "description": "Get Summary Device Clicks.",
+        "exampleQuery": "query GetSummaryDeviceClicks($orgId: String!, $parentOrgId: String, $advertiserIds: [String], $campaignOrderIds: [String]) {\n  getSummaryDeviceClicks(orgId: $orgId, parentOrgId: $parentOrgId, advertiserIds: $advertiserIds, campaignOrderIds: $campaignOrderIds) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "parentOrgId": "example-value",
+          "advertiserIds": "example-value",
+          "campaignOrderIds": "example-value"
+        }
+      },
+      "getTransactionImpressions": {
+        "category": "analytics",
+        "description": "Get Transaction Impressions.",
+        "exampleQuery": "query GetTransactionImpressions($campaignOrderId: String!, $reportName: String!, $transactionId: String!) {\n  getTransactionImpressions(campaignOrderId: $campaignOrderId, reportName: $reportName, transactionId: $transactionId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-value",
+          "reportName": "example-value",
+          "transactionId": "example-value"
+        }
+      },
+      "getTransactionPagination": {
+        "category": "analytics",
+        "description": "Get Transaction Pagination.",
+        "exampleQuery": "query GetTransactionPagination($campaignOrderId: String!, $reportName: String!, $index: Int!, $limit: Int!, $startDateTimestamp: Int, $endDateTimestamp: Int, $attributionWindow: Int, $attrMethod: String) {\n  getTransactionPagination(campaignOrderId: $campaignOrderId, reportName: $reportName, index: $index, limit: $limit, startDateTimestamp: $startDateTimestamp, endDateTimestamp: $endDateTimestamp, attributionWindow: $attributionWindow, attrMethod: $attrMethod) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-value",
+          "reportName": "example-value",
+          "index": 0,
+          "limit": 0,
+          "startDateTimestamp": 0,
+          "endDateTimestamp": 0,
+          "attributionWindow": 0,
+          "attrMethod": "example-value"
+        }
+      },
+      "advertiserBeacons": {
+        "category": "organizations",
+        "description": "List advertiser beacons with optional filtering and pagination.",
+        "exampleQuery": "query AdvertiserBeacons($advertiserId: ID!, $dspType: String!, $transactionTags: String, $limit: Int) {\n  advertiserBeacons(advertiserId: $advertiserId, dspType: $dspType, transactionTags: $transactionTags, limit: $limit) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "advertiserId": "example-id",
+          "dspType": "example-value",
+          "transactionTags": "example-value",
+          "limit": 0
+        }
+      },
+      "getBasketItemsPagination": {
+        "category": "analytics",
+        "description": "Get Basket Items Pagination.",
+        "exampleQuery": "query GetBasketItemsPagination($campaignOrderId: String!, $reportName: String!, $index: Int!, $searchTerm: String, $limit: Int!, $attributionWindow: Int, $startDateTimestamp: Int, $endDateTimestamp: Int) {\n  getBasketItemsPagination(campaignOrderId: $campaignOrderId, reportName: $reportName, index: $index, searchTerm: $searchTerm, limit: $limit, attributionWindow: $attributionWindow, startDateTimestamp: $startDateTimestamp, endDateTimestamp: $endDateTimestamp) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-value",
+          "reportName": "example-value",
+          "index": 0,
+          "searchTerm": "example-value",
+          "limit": 0,
+          "attributionWindow": 0,
+          "startDateTimestamp": 0,
+          "endDateTimestamp": 0
+        }
+      },
+      "getSignupImpressions": {
+        "category": "analytics",
+        "description": "Get Signup Impressions.",
+        "exampleQuery": "query GetSignupImpressions($campaignOrderId: String!, $reportName: String!, $signupId: String!) {\n  getSignupImpressions(campaignOrderId: $campaignOrderId, reportName: $reportName, signupId: $signupId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-value",
+          "reportName": "example-value",
+          "signupId": "example-value"
+        }
+      },
+      "getSignupPagination": {
+        "category": "analytics",
+        "description": "Get Signup Pagination.",
+        "exampleQuery": "query GetSignupPagination($campaignOrderId: String!, $reportName: String!, $index: Int!, $limit: Int!, $startDateTimestamp: Int, $endDateTimestamp: Int, $attributionWindow: Int) {\n  getSignupPagination(campaignOrderId: $campaignOrderId, reportName: $reportName, index: $index, limit: $limit, startDateTimestamp: $startDateTimestamp, endDateTimestamp: $endDateTimestamp, attributionWindow: $attributionWindow) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-value",
+          "reportName": "example-value",
+          "index": 0,
+          "limit": 0,
+          "startDateTimestamp": 0,
+          "endDateTimestamp": 0,
+          "attributionWindow": 0
+        }
+      },
+      "isSignupMigrationNeeded": {
+        "category": "campaign-orders",
+        "description": "Retrieve a single is signup migration needed by ID.",
+        "exampleQuery": "query IsSignupMigrationNeeded($campaignOrderId: ID!) {\n  isSignupMigrationNeeded(campaignOrderId: $campaignOrderId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-id"
+        }
+      },
+      "getSignupsV2ByDate": {
+        "category": "analytics",
+        "description": "List get signups v2 by date with optional filtering and pagination.",
+        "exampleQuery": "query GetSignupsV2ByDate($campaignOrderId: ID!, $startDate: String, $endDate: String) {\n  getSignupsV2ByDate(campaignOrderId: $campaignOrderId, startDate: $startDate, endDate: $endDate) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-id",
+          "startDate": "example-value",
+          "endDate": "example-value"
+        }
+      },
+      "getSignupsV2WithEventsPaginated": {
+        "category": "analytics",
+        "description": "Get Signups V2 With Events Paginated.",
+        "exampleQuery": "query GetSignupsV2WithEventsPaginated($campaignOrderId: ID!, $skip: Int, $first: Int, $startDate: String, $endDate: String, $attrMethod: String, $attrWindow: Int) {\n  getSignupsV2WithEventsPaginated(campaignOrderId: $campaignOrderId, skip: $skip, first: $first, startDate: $startDate, endDate: $endDate, attrMethod: $attrMethod, attrWindow: $attrWindow) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-id",
+          "skip": 0,
+          "first": 10,
+          "startDate": "example-value",
+          "endDate": "example-value",
+          "attrMethod": "example-value",
+          "attrWindow": 0
+        }
+      },
+      "getSignupsV2WithEventsExport": {
+        "category": "analytics",
+        "description": "List get signups v2 with events export with optional filtering and pagination.",
+        "exampleQuery": "query GetSignupsV2WithEventsExport($campaignOrderId: ID!, $startDate: String, $endDate: String, $attrMethod: String, $attrWindow: Int) {\n  getSignupsV2WithEventsExport(campaignOrderId: $campaignOrderId, startDate: $startDate, endDate: $endDate, attrMethod: $attrMethod, attrWindow: $attrWindow) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "campaignOrderId": "example-id",
+          "startDate": "example-value",
+          "endDate": "example-value",
+          "attrMethod": "example-value",
+          "attrWindow": 0
+        }
+      },
+      "campaignOrderSignupsWithEvents": {
+        "category": "campaign-orders",
+        "description": "Retrieve a single campaign order signups with events by ID.",
+        "exampleQuery": "query CampaignOrderSignupsWithEvents($where: CampaignOrderSignupsWithEventsWhereUniqueInput) {\n  campaignOrderSignupsWithEvents(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "orgSeoSummaries": {
+        "category": "seo",
+        "description": "List org seo summaries with optional filtering and pagination.",
+        "exampleQuery": "query OrgSeoSummaries($where: OrgSeoSummaryWhereInput, $orderBy: OrgSeoSummaryOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  orgSeoSummaries(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "orgSeoSummary": {
+        "category": "seo",
+        "description": "Retrieve a single org seo summary by ID.",
+        "exampleQuery": "query OrgSeoSummary($where: OrgSeoSummaryWhereUniqueInput!) {\n  orgSeoSummary(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "scrapeDSPCampaigns": {
+        "category": "integrations",
+        "description": "Retrieve a single scrape d s p campaigns by ID.",
+        "exampleQuery": "query ScrapeDSPCampaigns {\n  scrapeDSPCampaigns {\n    id\n  }\n}"
+      },
+      "audienceRetargeting": {
+        "category": "audiences",
+        "description": "Retrieve a single audience retargeting by ID.",
+        "exampleQuery": "query AudienceRetargeting($where: AudienceWhereUniqueInput!) {\n  audienceRetargeting(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "reprocessCampaign": {
+        "category": "system",
+        "description": "Retrieve a single reprocess campaign by ID.",
+        "exampleQuery": "query ReprocessCampaign($where: CampaignOrderWhereUniqueInput!) {\n  reprocessCampaign(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "adPublisher": {
+        "category": "creatives",
+        "description": "Retrieve a single ad publisher by ID.",
+        "exampleQuery": "query AdPublisher($where: AdPublisherWhereInput) {\n  adPublisher(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "triggerAirflowDAG": {
+        "category": "system",
+        "description": "Retrieve a single trigger airflow d a g by ID.",
+        "exampleQuery": "query TriggerAirflowDAG($where: JSON) {\n  triggerAirflowDAG(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "articleCategories": {
+        "category": "content",
+        "description": "List article categories with optional filtering and pagination.",
+        "exampleQuery": "query ArticleCategories($where: ArticleCategoryWhereInput, $orderBy: ArticleCategoryOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  articleCategories(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "articleCategory": {
+        "category": "content",
+        "description": "Retrieve a single article category by ID.",
+        "exampleQuery": "query ArticleCategory($where: ArticleCategoryWhereUniqueInput!) {\n  articleCategory(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "articles": {
+        "category": "content",
+        "description": "List articles with optional filtering and pagination.",
+        "exampleQuery": "query Articles($where: ArticleWhereInput, $orderBy: ArticleOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  articles(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "article": {
+        "category": "content",
+        "description": "Retrieve a single article by ID.",
+        "exampleQuery": "query Article($where: ArticleWhereUniqueInput!) {\n  article(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "paidSearchBingUnits": {
+        "category": "paid-search",
+        "description": "List paid search bing units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchBingUnits($where: PaidSearchBingUnitWhereInput, $orderBy: PaidSearchBingUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchBingUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchBingUnit": {
+        "category": "paid-search",
+        "description": "Retrieve a single paid search bing unit by ID.",
+        "exampleQuery": "query PaidSearchBingUnit($where: PaidSearchBingUnitWhereUniqueInput!) {\n  paidSearchBingUnit(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "paidSearchBingCampaignses": {
+        "category": "paid-search",
+        "description": "List paid search bing campaignses with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchBingCampaignses($where: PaidSearchBingCampaignsWhereInput, $orderBy: PaidSearchBingCampaignsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchBingCampaignses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "getPaidSearchPacing": {
+        "category": "paid-search",
+        "description": "List get paid search pacing with optional filtering and pagination.",
+        "exampleQuery": "query GetPaidSearchPacing($orgId: String!, $advertiserIds: [String!]!, $date: String, $status: String) {\n  getPaidSearchPacing(orgId: $orgId, advertiserIds: $advertiserIds, date: $date, status: $status) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "advertiserIds": "example-value",
+          "date": "example-value",
+          "status": "example-value"
+        }
+      },
+      "getPaidSearchPacingGoogle": {
+        "category": "paid-search",
+        "description": "List get paid search pacing google with optional filtering and pagination.",
+        "exampleQuery": "query GetPaidSearchPacingGoogle($orgId: String!, $advertiserIds: [String!]!, $date: String, $status: String) {\n  getPaidSearchPacingGoogle(orgId: $orgId, advertiserIds: $advertiserIds, date: $date, status: $status) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "advertiserIds": "example-value",
+          "date": "example-value",
+          "status": "example-value"
+        }
+      },
+      "getPaidSearchPacingBing": {
+        "category": "paid-search",
+        "description": "List get paid search pacing bing with optional filtering and pagination.",
+        "exampleQuery": "query GetPaidSearchPacingBing($orgId: String!, $advertiserIds: [String!]!, $date: String, $status: String) {\n  getPaidSearchPacingBing(orgId: $orgId, advertiserIds: $advertiserIds, date: $date, status: $status) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "advertiserIds": "example-value",
+          "date": "example-value",
+          "status": "example-value"
+        }
+      },
+      "getPaidSearchPacingCampaigns": {
+        "category": "paid-search",
+        "description": "List get paid search pacing campaigns with optional filtering and pagination.",
+        "exampleQuery": "query GetPaidSearchPacingCampaigns($orgId: String!, $advertiserIds: [String!]!, $date: String, $status: String) {\n  getPaidSearchPacingCampaigns(orgId: $orgId, advertiserIds: $advertiserIds, date: $date, status: $status) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "advertiserIds": "example-value",
+          "date": "example-value",
+          "status": "example-value"
+        }
+      },
+      "hashedEmailAddresses": {
+        "category": "audiences",
+        "description": "List hashed email addresses with optional filtering and pagination.",
+        "exampleQuery": "query HashedEmailAddresses($where: HashedEmailAddressWhereInput, $orderBy: HashedEmailAddressOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  hashedEmailAddresses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "hashedEmailLists": {
+        "category": "audiences",
+        "description": "List hashed email lists with optional filtering and pagination.",
+        "exampleQuery": "query HashedEmailLists($where: HashedEmailListWhereInput, $orderBy: HashedEmailListOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  hashedEmailLists(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "audienceDemographs": {
+        "category": "audiences",
+        "description": "List audience demographs with optional filtering and pagination.",
+        "exampleQuery": "query AudienceDemographs($where: AudienceDemographWhereInput, $orderBy: AudienceDemographOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  audienceDemographs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "reprocessStatus": {
+        "category": "system",
+        "description": "Retrieve a single reprocess status by ID.",
+        "exampleQuery": "query ReprocessStatus($where: ReprocessStatusWhereUniqueInput!) {\n  reprocessStatus(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "reprocessStatuses": {
+        "category": "system",
+        "description": "List reprocess statuses with optional filtering and pagination.",
+        "exampleQuery": "query ReprocessStatuses($where: ReprocessStatusWhereInput, $orderBy: ReprocessStatusOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  reprocessStatuses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "adTags": {
+        "category": "creatives",
+        "description": "List ad tags with optional filtering and pagination.",
+        "exampleQuery": "query AdTags($where: AdTagWhereInput, $orderBy: AdTagOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  adTags(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "transactionsConfigs": {
+        "category": "analytics",
+        "description": "List transactions configs with optional filtering and pagination.",
+        "exampleQuery": "query TransactionsConfigs($where: TransactionsConfigWhereInput, $orderBy: TransactionsConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  transactionsConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "adUnits": {
+        "category": "creatives",
+        "description": "List ad units with optional filtering and pagination.",
+        "exampleQuery": "query AdUnits($where: AdUnitWhereInput, $orderBy: AdUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  adUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
         }
       },
       "lineItem": {
         "category": "line-items",
         "description": "Retrieve a single line item by its unique ID. Returns line item details including performance metrics and targeting data.",
+        "exampleQuery": "query LineItem($where: LineItemWhereUniqueInput!) {\n  lineItem(where: $where) {\n    id\n  }\n}",
         "exampleVariables": {
           "where": {
-            "id": "clxLINE000001"
+            "id": "example-id"
           }
         },
-        "exampleQuery": "query GetLineItem($where: LineItemWhereUniqueInput!) {\n  lineItem(where: $where) {\n    id\n    name\n    campaign {\n      id\n      name\n    }\n    budgetTotal\n    startDate\n    endDate\n    status\n    cpm\n    clicks\n    impressions\n    ctr\n    aggregateData {\n      overallData {\n        aggImpressions\n        aggClicks\n        aggCost\n        aggTotalCost\n        aggEvents\n        aggTransactions\n        aggTotalRevenue\n      }\n      byDate\n    }\n    createdAt\n    updatedAt\n  }\n}",
         "exampleResponse": {
           "data": {
             "lineItem": {
@@ -435,7 +2423,7 @@
                 "id": "clx9876543210",
                 "name": "Summer Sale 2024"
               },
-              "budgetTotal": 2500.0,
+              "budgetTotal": 2500,
               "startDate": "2024-06-01T00:00:00.000Z",
               "endDate": "2024-08-31T00:00:00.000Z",
               "status": "PLAY",
@@ -447,11 +2435,13 @@
                 "overallData": {
                   "aggImpressions": 260000,
                   "aggClicks": 312,
-                  "aggCost": 1612.0,
-                  "aggTotalCost": 1612.0,
-                  "aggEvents": { "purchase": 23 },
+                  "aggCost": 1612,
+                  "aggTotalCost": 1612,
+                  "aggEvents": {
+                    "purchase": 23
+                  },
                   "aggTransactions": 6,
-                  "aggTotalRevenue": 5440.0
+                  "aggTotalRevenue": 5440
                 },
                 "byDate": null
               },
@@ -464,14 +2454,15 @@
       "lineItems": {
         "category": "line-items",
         "description": "List line items with optional filtering by name, status, or campaign. Supports pagination via `first`, `skip`, `after`, and `before` parameters.",
+        "exampleQuery": "query LineItems($where: LineItemWhereInput, $orderBy: LineItemOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  lineItems(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
         "exampleVariables": {
           "where": {
-            "status": "PLAY"
+            "id": "example-id"
           },
-          "first": 10,
-          "orderBy": "startDate_DESC"
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
         },
-        "exampleQuery": "query ListLineItems($where: LineItemWhereInput, $first: Int, $orderBy: LineItemOrderByInput) {\n  lineItems(where: $where, first: $first, orderBy: $orderBy) {\n    id\n    name\n    campaign {\n      id\n      name\n    }\n    budgetTotal\n    startDate\n    endDate\n    status\n    cpm\n    clicks\n    impressions\n    ctr\n    aggregateData {\n      overallData {\n        aggImpressions\n        aggClicks\n        aggCost\n        aggTotalRevenue\n      }\n    }\n  }\n}",
         "exampleResponse": {
           "data": {
             "lineItems": [
@@ -482,7 +2473,7 @@
                   "id": "clx9876543210",
                   "name": "Summer Sale 2024"
                 },
-                "budgetTotal": 2500.0,
+                "budgetTotal": 2500,
                 "startDate": "2024-06-01T00:00:00.000Z",
                 "endDate": "2024-08-31T00:00:00.000Z",
                 "status": "PLAY",
@@ -494,8 +2485,8 @@
                   "overallData": {
                     "aggImpressions": 260000,
                     "aggClicks": 312,
-                    "aggCost": 1612.0,
-                    "aggTotalRevenue": 5440.0
+                    "aggCost": 1612,
+                    "aggTotalRevenue": 5440
                   }
                 }
               }
@@ -506,10 +2497,15 @@
       "lineItemsConnection": {
         "category": "line-items",
         "description": "Paginated line items with connection metadata. Use this for cursor-based pagination with total count.",
+        "exampleQuery": "query LineItemsConnection($where: LineItemWhereInput, $orderBy: LineItemOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  lineItemsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
         "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
           "first": 10
         },
-        "exampleQuery": "query LineItemsConnection($first: Int) {\n  lineItemsConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        status\n        budgetTotal\n        cpm\n        impressions\n        clicks\n        ctr\n        aggregateData {\n          overallData {\n            aggImpressions\n            aggClicks\n            aggCost\n            aggTotalRevenue\n          }\n        }\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    aggregate {\n      count\n    }\n  }\n}",
         "exampleResponse": {
           "data": {
             "lineItemsConnection": {
@@ -519,7 +2515,7 @@
                     "id": "clxLINE000001",
                     "name": "Display - California",
                     "status": "PLAY",
-                    "budgetTotal": 2500.0,
+                    "budgetTotal": 2500,
                     "cpm": 6.2,
                     "impressions": 260000,
                     "clicks": 312,
@@ -528,8 +2524,8 @@
                       "overallData": {
                         "aggImpressions": 260000,
                         "aggClicks": 312,
-                        "aggCost": 1612.0,
-                        "aggTotalRevenue": 5440.0
+                        "aggCost": 1612,
+                        "aggTotalRevenue": 5440
                       }
                     }
                   },
@@ -540,9 +2536,1300 @@
                 "hasNextPage": true,
                 "endCursor": "cjxLINE000001"
               },
-              "aggregate": { "count": 64 }
+              "aggregate": {
+                "count": 64
+              }
             }
           }
+        }
+      },
+      "aggregateDataObjects": {
+        "category": "analytics",
+        "description": "List aggregate data objects with optional filtering and pagination.",
+        "exampleQuery": "query AggregateDataObjects($where: AggregateDataObjectWhereInput, $orderBy: AggregateDataObjectOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  aggregateDataObjects(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    count\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "aggregateUnits": {
+        "category": "analytics",
+        "description": "List aggregate units with optional filtering and pagination.",
+        "exampleQuery": "query AggregateUnits($where: AggregateUnitWhereInput, $orderBy: AggregateUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  aggregateUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    count\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "distributionConfigs": {
+        "category": "system",
+        "description": "List distribution configs with optional filtering and pagination.",
+        "exampleQuery": "query DistributionConfigs($where: DistributionConfigWhereInput, $orderBy: DistributionConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  distributionConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignChecklists": {
+        "category": "campaigns",
+        "description": "List campaign checklists with optional filtering and pagination.",
+        "exampleQuery": "query CampaignChecklists($where: CampaignChecklistWhereInput, $orderBy: CampaignChecklistOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignChecklists(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchUnits": {
+        "category": "paid-search",
+        "description": "List paid search units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchUnits($where: PaidSearchUnitWhereInput, $orderBy: PaidSearchUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchAggregatedUnits": {
+        "category": "paid-search",
+        "description": "List paid search aggregated units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchAggregatedUnits($where: PaidSearchAggregatedUnitWhereInput, $orderBy: PaidSearchAggregatedUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchAggregatedUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchDateUnits": {
+        "category": "paid-search",
+        "description": "List paid search date units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchDateUnits($where: PaidSearchDateUnitWhereInput, $orderBy: PaidSearchDateUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchDateUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSeachBingDateUnits": {
+        "category": "paid-search",
+        "description": "List paid seach bing date units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSeachBingDateUnits($where: PaidSeachBingDateUnitWhereInput, $orderBy: PaidSeachBingDateUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSeachBingDateUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSeachAggregatedDateUnits": {
+        "category": "paid-search",
+        "description": "List paid seach aggregated date units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSeachAggregatedDateUnits($where: PaidSeachAggregatedDateUnitWhereInput, $orderBy: PaidSeachAggregatedDateUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSeachAggregatedDateUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchCommerceUnits": {
+        "category": "paid-search",
+        "description": "List paid search commerce units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchCommerceUnits($where: PaidSearchCommerceUnitWhereInput, $orderBy: PaidSearchCommerceUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchCommerceUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchCommerceDateUnits": {
+        "category": "paid-search",
+        "description": "List paid search commerce date units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchCommerceDateUnits($where: PaidSearchCommerceDateUnitWhereInput, $orderBy: PaidSearchCommerceDateUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchCommerceDateUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchLocationUnits": {
+        "category": "paid-search",
+        "description": "List paid search location units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchLocationUnits($where: PaidSearchLocationUnitWhereInput, $orderBy: PaidSearchLocationUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchLocationUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchLocationBingUnits": {
+        "category": "paid-search",
+        "description": "List paid search location bing units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchLocationBingUnits($where: PaidSearchLocationBingUnitWhereInput, $orderBy: PaidSearchLocationBingUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchLocationBingUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchLocationDateUnits": {
+        "category": "paid-search",
+        "description": "List paid search location date units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchLocationDateUnits($where: PaidSearchLocationDateUnitWhereInput, $orderBy: PaidSearchLocationDateUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchLocationDateUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchLocationDateByDayUnits": {
+        "category": "paid-search",
+        "description": "List paid search location date by day units with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchLocationDateByDayUnits($where: PaidSearchLocationDateByDayUnitWhereInput, $orderBy: PaidSearchLocationDateByDayUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchLocationDateByDayUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "signUpConfigs": {
+        "category": "analytics",
+        "description": "List sign up configs with optional filtering and pagination.",
+        "exampleQuery": "query SignUpConfigs($where: SignUpConfigWhereInput, $orderBy: SignUpConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  signUpConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchConfigs": {
+        "category": "paid-search",
+        "description": "List paid search configs with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchConfigs($where: PaidSearchConfigWhereInput, $orderBy: PaidSearchConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchPacingDatas": {
+        "category": "paid-search",
+        "description": "List paid search pacing datas with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchPacingDatas($where: PaidSearchPacingDataWhereInput, $orderBy: PaidSearchPacingDataOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchPacingDatas(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchCampaignsPacingDatas": {
+        "category": "paid-search",
+        "description": "List paid search campaigns pacing datas with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchCampaignsPacingDatas($where: PaidSearchCampaignsPacingDataWhereInput, $orderBy: PaidSearchCampaignsPacingDataOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchCampaignsPacingDatas(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "auditHistories": {
+        "category": "system",
+        "description": "List audit histories with optional filtering and pagination.",
+        "exampleQuery": "query AuditHistories($where: AuditHistoryWhereInput, $orderBy: AuditHistoryOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  auditHistories(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignReviewProcesses": {
+        "category": "campaigns",
+        "description": "List campaign review processes with optional filtering and pagination.",
+        "exampleQuery": "query CampaignReviewProcesses($where: CampaignReviewProcessWhereInput, $orderBy: CampaignReviewProcessOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignReviewProcesses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "changes": {
+        "category": "system",
+        "description": "List changes with optional filtering and pagination.",
+        "exampleQuery": "query Changes($where: ChangeWhereInput, $orderBy: ChangeOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  changes(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "orgReports": {
+        "category": "analytics",
+        "description": "List org reports with optional filtering and pagination.",
+        "exampleQuery": "query OrgReports($where: OrgReportWhereInput, $orderBy: OrgReportOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  orgReports(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "catalogs": {
+        "category": "products",
+        "description": "List catalogs with optional filtering and pagination.",
+        "exampleQuery": "query Catalogs($where: CatalogWhereInput, $orderBy: CatalogOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  catalogs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "tests": {
+        "category": "system",
+        "description": "List tests with optional filtering and pagination.",
+        "exampleQuery": "query Tests($where: TestWhereInput, $orderBy: TestOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  tests(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "offers": {
+        "category": "products",
+        "description": "List offers with optional filtering and pagination.",
+        "exampleQuery": "query Offers($where: OfferWhereInput, $orderBy: OfferOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  offers(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "adPublishers": {
+        "category": "creatives",
+        "description": "List ad publishers with optional filtering and pagination.",
+        "exampleQuery": "query AdPublishers($where: AdPublisherWhereInput, $orderBy: AdPublisherOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  adPublishers(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "events": {
+        "category": "analytics",
+        "description": "List events with optional filtering and pagination.",
+        "exampleQuery": "query Events($where: EventWhereInput, $orderBy: EventOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  events(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "polygons": {
+        "category": "targeting",
+        "description": "List polygons with optional filtering and pagination.",
+        "exampleQuery": "query Polygons($where: PolygonWhereInput, $orderBy: PolygonOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  polygons(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "circles": {
+        "category": "targeting",
+        "description": "List circles with optional filtering and pagination.",
+        "exampleQuery": "query Circles($where: CircleWhereInput, $orderBy: CircleOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  circles(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "coordinates": {
+        "category": "targeting",
+        "description": "List coordinates with optional filtering and pagination.",
+        "exampleQuery": "query Coordinates($where: CoordinateWhereInput, $orderBy: CoordinateOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  coordinates(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "loyaltyPlacementUnits": {
+        "category": "loyalty",
+        "description": "List loyalty placement units with optional filtering and pagination.",
+        "exampleQuery": "query LoyaltyPlacementUnits($where: LoyaltyPlacementUnitWhereInput, $orderBy: LoyaltyPlacementUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  loyaltyPlacementUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "callEvents": {
+        "category": "analytics",
+        "description": "List call events with optional filtering and pagination.",
+        "exampleQuery": "query CallEvents($where: CallEventWhereInput, $orderBy: CallEventOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  callEvents(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "posConfigs": {
+        "category": "integrations",
+        "description": "List pos configs with optional filtering and pagination.",
+        "exampleQuery": "query PosConfigs($where: PosConfigWhereInput, $orderBy: PosConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  posConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "sendEmailConfigs": {
+        "category": "integrations",
+        "description": "List send email configs with optional filtering and pagination.",
+        "exampleQuery": "query SendEmailConfigs($where: SendEmailConfigWhereInput, $orderBy: SendEmailConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  sendEmailConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "orgTableConfigs": {
+        "category": "config",
+        "description": "List org table configs with optional filtering and pagination.",
+        "exampleQuery": "query OrgTableConfigs($where: OrgTableConfigWhereInput, $orderBy: OrgTableConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  orgTableConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "orgThemeConfigs": {
+        "category": "config",
+        "description": "List org theme configs with optional filtering and pagination.",
+        "exampleQuery": "query OrgThemeConfigs($where: OrgThemeConfigWhereInput, $orderBy: OrgThemeConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  orgThemeConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "orgConfigs": {
+        "category": "config",
+        "description": "List org configs with optional filtering and pagination.",
+        "exampleQuery": "query OrgConfigs($where: OrgConfigWhereInput, $orderBy: OrgConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  orgConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paymentConfigs": {
+        "category": "billing",
+        "description": "List payment configs with optional filtering and pagination.",
+        "exampleQuery": "query PaymentConfigs($where: PaymentConfigWhereInput, $orderBy: PaymentConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paymentConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "optouts": {
+        "category": "system",
+        "description": "List optouts with optional filtering and pagination.",
+        "exampleQuery": "query Optouts($where: OptoutWhereInput, $orderBy: OptoutOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  optouts(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "seoUnits": {
+        "category": "seo",
+        "description": "List seo units with optional filtering and pagination.",
+        "exampleQuery": "query SeoUnits($where: SeoUnitWhereInput, $orderBy: SeoUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  seoUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "seoConfigs": {
+        "category": "seo",
+        "description": "List seo configs with optional filtering and pagination.",
+        "exampleQuery": "query SeoConfigs($where: SeoConfigWhereInput, $orderBy: SeoConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  seoConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "displayReportDateUnits": {
+        "category": "analytics",
+        "description": "List display report date units with optional filtering and pagination.",
+        "exampleQuery": "query DisplayReportDateUnits($where: DisplayReportDateUnitWhereInput, $orderBy: DisplayReportDateUnitOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  displayReportDateUnits(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "roles": {
+        "category": "users",
+        "description": "List roles with optional filtering and pagination.",
+        "exampleQuery": "query Roles($where: RoleWhereInput, $orderBy: RoleOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  roles(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "roleItems": {
+        "category": "users",
+        "description": "List role items with optional filtering and pagination.",
+        "exampleQuery": "query RoleItems($where: RoleItemWhereInput, $orderBy: RoleItemOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  roleItems(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "userConfigs": {
+        "category": "users",
+        "description": "List user configs with optional filtering and pagination.",
+        "exampleQuery": "query UserConfigs($where: UserConfigWhereInput, $orderBy: UserConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  userConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "reportRecords": {
+        "category": "analytics",
+        "description": "List report records with optional filtering and pagination.",
+        "exampleQuery": "query ReportRecords($where: ReportRecordWhereInput, $orderBy: ReportRecordOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  reportRecords(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "seoCommerceTransactionsesConnection": {
+        "category": "seo",
+        "description": "List seo commerce transactionses connection with optional filtering and pagination.",
+        "exampleQuery": "query SeoCommerceTransactionsesConnection($where: SeoCommerceTransactionsWhereInput, $orderBy: SeoCommerceTransactionsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  seoCommerceTransactionsesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "paidSearchCommerceTransactionsesConnection": {
+        "category": "paid-search",
+        "description": "List paid search commerce transactionses connection with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchCommerceTransactionsesConnection($where: PaidSearchCommerceTransactionsWhereInput, $orderBy: PaidSearchCommerceTransactionsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchCommerceTransactionsesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "getAudiences": {
+        "category": "audiences",
+        "description": "Get Audiences.",
+        "exampleQuery": "query GetAudiences($data: JSON) {\n  getAudiences(data: $data) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "data": "example-value"
+        }
+      },
+      "getHashedEmailListWithCount": {
+        "category": "audiences",
+        "description": "Get Hashed Email List With Count.",
+        "exampleQuery": "query GetHashedEmailListWithCount($orgId: String, $searchTerm: String, $skip: Int, $first: Int) {\n  getHashedEmailListWithCount(orgId: $orgId, searchTerm: $searchTerm, skip: $skip, first: $first) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "searchTerm": "example-value",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "getFilteredHashedEmailListWithCount": {
+        "category": "audiences",
+        "description": "Get Filtered Hashed Email List With Count.",
+        "exampleQuery": "query GetFilteredHashedEmailListWithCount($orgId: String, $searchTerm: String) {\n  getFilteredHashedEmailListWithCount(orgId: $orgId, searchTerm: $searchTerm) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value",
+          "searchTerm": "example-value"
+        }
+      },
+      "getRegionGroupWithPresetList": {
+        "category": "targeting",
+        "description": "Get Region Group With Preset List.",
+        "exampleQuery": "query GetRegionGroupWithPresetList($orgId: String) {\n  getRegionGroupWithPresetList(orgId: $orgId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value"
+        }
+      },
+      "getPaidSearchCommerce": {
+        "category": "paid-search",
+        "description": "Get Paid Search Commerce.",
+        "exampleQuery": "query GetPaidSearchCommerce($where: OrgWhereUniqueInput, $whereTransactions: PaidSearchCommerceTransactionsWhereInput, $attributionWindow: Int) {\n  getPaidSearchCommerce(where: $where, whereTransactions: $whereTransactions, attributionWindow: $attributionWindow) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "whereTransactions": "example-value",
+          "attributionWindow": 0
+        }
+      },
+      "tagProcessed": {
+        "category": "tags",
+        "description": "Retrieve a single tag processed by ID.",
+        "exampleQuery": "query TagProcessed($where: TagProcessedWhereUniqueInput!) {\n  tagProcessed(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "currencyFormats": {
+        "category": "billing",
+        "description": "List currency formats with optional filtering and pagination.",
+        "exampleQuery": "query CurrencyFormats($where: CurrencyFormatWhereInput, $orderBy: CurrencyFormatOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  currencyFormats(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "segmentFileLoggers": {
+        "category": "system",
+        "description": "List segment file loggers with optional filtering and pagination.",
+        "exampleQuery": "query SegmentFileLoggers($where: SegmentFileLoggerWhereUniqueInput) {\n  segmentFileLoggers(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "segmentFileLoggersConnection": {
+        "category": "system",
+        "description": "List segment file loggers connection with optional filtering and pagination.",
+        "exampleQuery": "query SegmentFileLoggersConnection($where: SegmentFileLoggerWhereInput, $orderBy: SegmentFileLoggerOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  segmentFileLoggersConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "dealIds": {
+        "category": "targeting",
+        "description": "List deal ids with optional filtering and pagination.",
+        "exampleQuery": "query DealIds($where: DealIdWhereInput, $orderBy: DealIdOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  dealIds(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "editorials": {
+        "category": "content",
+        "description": "List editorials with optional filtering and pagination.",
+        "exampleQuery": "query Editorials($where: EditorialWhereInput, $orderBy: EditorialOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  editorials(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "editorialsConnection": {
+        "category": "content",
+        "description": "List editorials connection with optional filtering and pagination.",
+        "exampleQuery": "query EditorialsConnection($where: EditorialWhereInput, $orderBy: EditorialOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  editorialsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "editorial": {
+        "category": "content",
+        "description": "Retrieve a single editorial by ID.",
+        "exampleQuery": "query Editorial($where: EditorialWhereUniqueInput!) {\n  editorial(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getCartProviders": {
+        "category": "integrations",
+        "description": "List get cart providers with optional filtering and pagination.",
+        "exampleQuery": "query GetCartProviders {\n  getCartProviders {\n    id\n  }\n}"
+      },
+      "editorialTransactionsesConnection": {
+        "category": "content",
+        "description": "List editorial transactionses connection with optional filtering and pagination.",
+        "exampleQuery": "query EditorialTransactionsesConnection($where: EditorialTransactionsWhereInput, $orderBy: EditorialTransactionsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  editorialTransactionsesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "editorialTransactionses": {
+        "category": "content",
+        "description": "List editorial transactionses with optional filtering and pagination.",
+        "exampleQuery": "query EditorialTransactionses($where: EditorialTransactionsWhereInput, $orderBy: EditorialTransactionsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  editorialTransactionses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "billingOrgs": {
+        "category": "billing",
+        "description": "List billing orgs with optional filtering and pagination.",
+        "exampleQuery": "query BillingOrgs($where: BillingOrgWhereInput, $orderBy: BillingOrgOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  billingOrgs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "billingOrg": {
+        "category": "billing",
+        "description": "Retrieve a single billing org by ID.",
+        "exampleQuery": "query BillingOrg($where: BillingOrgWhereUniqueInput!) {\n  billingOrg(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "billingTransactions": {
+        "category": "billing",
+        "description": "List billing transactions with optional filtering and pagination.",
+        "exampleQuery": "query BillingTransactions($where: BillingTransactionWhereInput, $orderBy: BillingTransactionOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  billingTransactions(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "billingTransaction": {
+        "category": "billing",
+        "description": "Retrieve a single billing transaction by ID.",
+        "exampleQuery": "query BillingTransaction($where: BillingTransactionWhereUniqueInput!) {\n  billingTransaction(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "billingTypes": {
+        "category": "billing",
+        "description": "List billing types with optional filtering and pagination.",
+        "exampleQuery": "query BillingTypes($where: BillingTypeWhereInput, $orderBy: BillingTypeOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  billingTypes(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "billingType": {
+        "category": "billing",
+        "description": "Retrieve a single billing type by ID.",
+        "exampleQuery": "query BillingType($where: BillingTypeWhereUniqueInput!) {\n  billingType(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "paidSearchCampaignsConnection": {
+        "category": "paid-search",
+        "description": "List paid search campaigns connection with optional filtering and pagination.",
+        "exampleQuery": "query PaidSearchCampaignsConnection($where: PaidSearchCampaignWhereInput, $orderBy: PaidSearchCampaignOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  paidSearchCampaignsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "getInvoiceList": {
+        "category": "billing",
+        "description": "Get Invoice List.",
+        "exampleQuery": "query GetInvoiceList($customerId: String) {\n  getInvoiceList(customerId: $customerId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "customerId": "example-value"
+        }
+      },
+      "campaignOrderTagsActivities": {
+        "category": "campaign-orders",
+        "description": "Retrieve a single campaign order tags activities by ID.",
+        "exampleQuery": "query CampaignOrderTagsActivities($id: ID!, $orgId: ID!) {\n  campaignOrderTagsActivities(id: $id, orgId: $orgId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "id": "example-id",
+          "orgId": "example-id"
+        }
+      },
+      "eventsTarget": {
+        "category": "targeting",
+        "description": "Retrieve a single events target by ID.",
+        "exampleQuery": "query EventsTarget($where: EventsTargetWhereUniqueInput!) {\n  eventsTarget(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "campaignReports": {
+        "category": "campaigns",
+        "description": "List campaign reports with optional filtering and pagination.",
+        "exampleQuery": "query CampaignReports($where: CampaignReportWhereInput, $orderBy: CampaignReportOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignReports(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "advertiser": {
+        "category": "organizations",
+        "description": "Retrieve a single advertiser by ID.",
+        "exampleQuery": "query Advertiser($where: AdvertiserWhereUniqueInput!) {\n  advertiser(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "advertisers": {
+        "category": "organizations",
+        "description": "List advertisers with optional filtering and pagination.",
+        "exampleQuery": "query Advertisers($where: AdvertiserWhereInput, $orderBy: AdvertiserOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  advertisers(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "advertisersConnection": {
+        "category": "organizations",
+        "description": "List advertisers connection with optional filtering and pagination.",
+        "exampleQuery": "query AdvertisersConnection($where: AdvertiserWhereInput, $orderBy: AdvertiserOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  advertisersConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "getAdminIds": {
+        "category": "integrations",
+        "description": "Get Admin Ids.",
+        "exampleQuery": "query GetAdminIds {\n  getAdminIds {\n    id\n  }\n}"
+      },
+      "agreementStatuses": {
+        "category": "billing",
+        "description": "List agreement statuses with optional filtering and pagination.",
+        "exampleQuery": "query AgreementStatuses($where: AgreementStatusWhereInput, $orderBy: AgreementStatusOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  agreementStatuses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "billingInvoices": {
+        "category": "billing",
+        "description": "List billing invoices with optional filtering and pagination.",
+        "exampleQuery": "query BillingInvoices($where: BillingInvoiceWhereInput, $orderBy: BillingInvoiceOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  billingInvoices(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "billingInvoice": {
+        "category": "billing",
+        "description": "Retrieve a single billing invoice by ID.",
+        "exampleQuery": "query BillingInvoice($where: BillingInvoiceWhereUniqueInput!) {\n  billingInvoice(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "getCarts": {
+        "category": "integrations",
+        "description": "List get carts with optional filtering and pagination.",
+        "exampleQuery": "query GetCarts {\n  getCarts {\n    id\n  }\n}"
+      },
+      "getPublisherDeals": {
+        "category": "integrations",
+        "description": "Get Publisher Deals.",
+        "exampleQuery": "query GetPublisherDeals($provider: String!, $params: JSON!) {\n  getPublisherDeals(provider: $provider, params: $params) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "provider": "example-value",
+          "params": "example-value"
+        }
+      },
+      "getBillingDetails": {
+        "category": "billing",
+        "description": "Get Billing Details.",
+        "exampleQuery": "query GetBillingDetails($orgId: String) {\n  getBillingDetails(orgId: $orgId) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "orgId": "example-value"
+        }
+      },
+      "getDSP": {
+        "category": "integrations",
+        "description": "List get d s p with optional filtering and pagination.",
+        "exampleQuery": "query GetDSP {\n  getDSP {\n    id\n  }\n}"
+      },
+      "historyLogs": {
+        "category": "system",
+        "description": "List history logs with optional filtering and pagination.",
+        "exampleQuery": "query HistoryLogs($where: HistoryLogWhereInput, $orderBy: HistoryLogOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  historyLogs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "customReports": {
+        "category": "analytics",
+        "description": "List custom reports with optional filtering and pagination.",
+        "exampleQuery": "query CustomReports {\n  customReports {\n    id\n  }\n}"
+      },
+      "customReport": {
+        "category": "analytics",
+        "description": "Retrieve a single custom report by ID.",
+        "exampleQuery": "query CustomReport($input: GetCustomReportInput!) {\n  customReport(input: $input) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "input": "example-value"
+        }
+      },
+      "detectCart": {
+        "category": "integrations",
+        "description": "Retrieve a single detect cart by ID.",
+        "exampleQuery": "query DetectCart($url: String!) {\n  detectCart(url: $url) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "url": "example-value"
+        }
+      },
+      "feeMatrixes": {
+        "category": "billing",
+        "description": "List fee matrixes with optional filtering and pagination.",
+        "exampleQuery": "query FeeMatrixes($where: FeeMatrixWhereInput, $orderBy: FeeMatrixOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  feeMatrixes(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "feeMatrix": {
+        "category": "billing",
+        "description": "Retrieve a single fee matrix by ID.",
+        "exampleQuery": "query FeeMatrix($where: FeeMatrixWhereUniqueInput!) {\n  feeMatrix(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "campaignOrderTransactionReports": {
+        "category": "campaign-orders",
+        "description": "List campaign order transaction reports with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionReports($where: CampaignOrderTransactionReportWhereInput, $orderBy: CampaignOrderTransactionReportOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionReports(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "transactionReportByDates": {
+        "category": "analytics",
+        "description": "List transaction report by dates with optional filtering and pagination.",
+        "exampleQuery": "query TransactionReportByDates($where: TransactionReportByDateWhereInput, $orderBy: TransactionReportByDateOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  transactionReportByDates(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionsWithEventsesConnection": {
+        "category": "campaign-orders",
+        "description": "List campaign order transactions with eventses connection with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionsWithEventsesConnection($where: CampaignOrderTransactionsWithEventsWhereInput, $orderBy: CampaignOrderTransactionsWithEventsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionsWithEventsesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionCreativeses": {
+        "category": "campaign-orders",
+        "description": "List campaign order transaction creativeses with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionCreativeses($where: CampaignOrderTransactionCreativesWhereInput, $orderBy: CampaignOrderTransactionCreativesOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionCreativeses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionCreativesByDates": {
+        "category": "campaign-orders",
+        "description": "List campaign order transaction creatives by dates with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionCreativesByDates($where: CampaignOrderTransactionCreativesByDateWhereInput, $orderBy: CampaignOrderTransactionCreativesByDateOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionCreativesByDates(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionPublisherses": {
+        "category": "campaign-orders",
+        "description": "List campaign order transaction publisherses with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionPublisherses($where: CampaignOrderTransactionPublishersWhereInput, $orderBy: CampaignOrderTransactionPublishersOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionPublisherses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionPublishersByDates": {
+        "category": "campaign-orders",
+        "description": "List campaign order transaction publishers by dates with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionPublishersByDates($where: CampaignOrderTransactionPublishersByDateWhereInput, $orderBy: CampaignOrderTransactionPublishersByDateOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionPublishersByDates(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionsImpressionses": {
+        "category": "campaign-orders",
+        "description": "List campaign order transactions impressionses with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionsImpressionses($where: CampaignOrderTransactionsImpressionsWhereInput, $orderBy: CampaignOrderTransactionsImpressionsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionsImpressionses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionsBasketItemsesConnection": {
+        "category": "campaign-orders",
+        "description": "List campaign order transactions basket itemses connection with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionsBasketItemsesConnection($where: CampaignOrderTransactionsBasketItemsWhereInput, $orderBy: CampaignOrderTransactionsBasketItemsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionsBasketItemsesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionsBasketItemsByDates": {
+        "category": "campaign-orders",
+        "description": "List campaign order transactions basket items by dates with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionsBasketItemsByDates($where: CampaignOrderTransactionsBasketItemsByDateWhereInput, $orderBy: CampaignOrderTransactionsBasketItemsByDateOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionsBasketItemsByDates(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionsBasketItemses": {
+        "category": "campaign-orders",
+        "description": "List campaign order transactions basket itemses with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionsBasketItemses($where: CampaignOrderTransactionsBasketItemsWhereInput, $orderBy: CampaignOrderTransactionsBasketItemsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionsBasketItemses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionsWithEventses": {
+        "category": "campaign-orders",
+        "description": "List campaign order transactions with eventses with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionsWithEventses($where: CampaignOrderTransactionsWithEventsWhereInput, $orderBy: CampaignOrderTransactionsWithEventsOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionsWithEventses(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionCreativesesConnection": {
+        "category": "campaign-orders",
+        "description": "List campaign order transaction creativeses connection with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionCreativesesConnection($where: CampaignOrderTransactionCreativesWhereInput, $orderBy: CampaignOrderTransactionCreativesOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionCreativesesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionCreativesByDatesConnection": {
+        "category": "campaign-orders",
+        "description": "List campaign order transaction creatives by dates connection with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionCreativesByDatesConnection($where: CampaignOrderTransactionCreativesByDateWhereInput, $orderBy: CampaignOrderTransactionCreativesByDateOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionCreativesByDatesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "campaignOrderTransactionPublishersesConnection": {
+        "category": "campaign-orders",
+        "description": "List campaign order transaction publisherses connection with optional filtering and pagination.",
+        "exampleQuery": "query CampaignOrderTransactionPublishersesConnection($where: CampaignOrderTransactionPublishersWhereInput, $orderBy: CampaignOrderTransactionPublishersOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  campaignOrderTransactionPublishersesConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
         }
       }
     }

@@ -706,6 +706,366 @@ Platform access with agency control:
       },
     ],
   },
+  {
+    title: "API Glossary",
+    icon: "📖",
+    pages: [
+      {
+        title: "Business Terms to API Mapping",
+        content: `# Business Terms to API Mapping
+
+This guide helps you translate common business questions into the correct MediaJel GraphQL API operations.
+
+## Performance & Analytics
+
+### Weekly Performance Report
+**Business Need:** "Show me weekly performance report" or "What's our weekly metrics?"
+
+**API Operation:** \`pacingDataObjectsConnection\`
+
+Use the pacing data endpoint with date filtering to retrieve daily metrics that can be aggregated for weekly reports.
+
+\`\`\`graphql
+query WeeklyPerformance($where: PacingDataObjectWhereInput, $first: Int) {
+  pacingDataObjectsConnection(where: $where, first: $first, orderBy: date_DESC) {
+    edges {
+      node {
+        id
+        date
+        impressions
+        clicks
+        spend
+        revenue
+        ctr
+        cpm
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+\`\`\`
+
+**Variables:**
+\`\`\`json
+{
+  "where": {
+    "date_gte": "2025-02-03",
+    "date_lte": "2025-02-10"
+  },
+  "first": 100
+}
+\`\`\`
+
+---
+
+### ROAS (Return on Ad Spend)
+**Business Need:** "What's our ROAS?" or "Show me return on ad spend"
+
+**API Operation:** \`pacingDataObjectsConnection\`
+
+ROAS is calculated as revenue / spend. Query pacing data and calculate the ratio.
+
+\`\`\`graphql
+query ROASData($where: PacingDataObjectWhereInput, $first: Int) {
+  pacingDataObjectsConnection(where: $where, first: $first) {
+    edges {
+      node {
+        id
+        date
+        spend
+        revenue
+        campaignOrder {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+\`\`\`
+
+---
+
+### Attribution Data
+**Business Need:** "Show attribution data" or "What conversions are attributed to campaigns?"
+
+**API Operation:** \`attributionEventsConnection\`
+
+Attribution events track customer conversions attributed to advertising campaigns.
+
+---
+
+## Campaign Management
+
+### List Campaigns
+**Business Need:** "Show all campaigns" or "List active campaigns"
+
+**API Operation:** \`campaignsConnection\`
+
+\`\`\`graphql
+query ListCampaigns($where: CampaignWhereInput, $first: Int, $orderBy: CampaignOrderByInput) {
+  campaignsConnection(where: $where, first: $first, orderBy: $orderBy) {
+    edges {
+      node {
+        id
+        name
+        status
+        createdAt
+        orgs {
+          id
+          name
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+\`\`\`
+
+---
+
+### Campaign Orders
+**Business Need:** "Show our campaign orders" or "List active orders"
+
+**API Operation:** \`campaignOrdersConnection\`
+
+Campaign orders represent the business agreements including budgets and schedules.
+
+\`\`\`graphql
+query ActiveCampaignOrders($where: CampaignOrderWhereInput, $first: Int) {
+  campaignOrdersConnection(where: $where, first: $first, orderBy: createdAt_DESC) {
+    edges {
+      node {
+        id
+        name
+        status
+        startDate
+        endDate
+        totalBudget
+        campaigns {
+          id
+          name
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+\`\`\`
+
+---
+
+## Organizations & Users
+
+### List Organizations
+**Business Need:** "Show all organizations" or "List our clients"
+
+**API Operation:** \`orgsConnection\`
+
+\`\`\`graphql
+query ListOrganizations($first: Int, $orderBy: OrgOrderByInput) {
+  orgsConnection(first: $first, orderBy: $orderBy) {
+    edges {
+      node {
+        id
+        name
+        status
+        createdAt
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+\`\`\`
+
+---
+
+### Users
+**Business Need:** "List users in an organization" or "Show team members"
+
+**API Operation:** \`usersConnection\`
+
+---
+
+## Creative Assets
+
+### List Creatives
+**Business Need:** "Show our ad creatives" or "List creative assets"
+
+**API Operation:** \`creativesConnection\`
+
+\`\`\`graphql
+query ListCreatives($where: CreativeWhereInput, $first: Int) {
+  creativesConnection(where: $where, first: $first) {
+    edges {
+      node {
+        id
+        name
+        type
+        status
+        mediaUrl
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+\`\`\``,
+      },
+      {
+        title: "Common API Use Cases",
+        content: `# Common API Use Cases
+
+## Authentication
+
+All API requests require authentication. Use the \`authSignIn\` mutation to obtain tokens.
+
+\`\`\`graphql
+mutation SignIn($data: AuthSignInInput!) {
+  authSignIn(data: $data) {
+    accessToken
+    idToken
+    refreshToken
+  }
+}
+\`\`\`
+
+**Variables:**
+\`\`\`json
+{
+  "data": {
+    "username": "your-email@example.com",
+    "password": "your-password"
+  }
+}
+\`\`\`
+
+After authentication:
+1. Use \`accessToken\` in the \`Authorization: Bearer <token>\` header
+2. Include your organization ID in the \`Key\` header
+3. Tokens expire after ~1 hour; use \`authRefreshToken\` to obtain new tokens
+
+---
+
+## Pagination
+
+Most list operations support cursor-based pagination using the Connection pattern:
+
+- \`first\`: Number of items to return
+- \`after\`: Cursor for next page
+- \`last\`: Number of items from the end
+- \`before\`: Cursor for previous page
+
+**Example:**
+\`\`\`graphql
+query PaginatedCampaigns($first: Int, $after: String) {
+  campaignsConnection(first: $first, after: $after) {
+    edges {
+      node {
+        id
+        name
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+\`\`\`
+
+---
+
+## Filtering
+
+Use the \`where\` argument to filter results:
+
+\`\`\`graphql
+query FilteredCampaigns($where: CampaignWhereInput) {
+  campaignsConnection(where: $where, first: 10) {
+    edges {
+      node {
+        id
+        name
+        status
+      }
+    }
+  }
+}
+\`\`\`
+
+**Filter by status:**
+\`\`\`json
+{
+  "where": {
+    "status": "ACTIVE"
+  }
+}
+\`\`\`
+
+**Filter by date range:**
+\`\`\`json
+{
+  "where": {
+    "createdAt_gte": "2025-01-01",
+    "createdAt_lte": "2025-01-31"
+  }
+}
+\`\`\`
+
+---
+
+## Sorting
+
+Use the \`orderBy\` argument to sort results:
+
+\`\`\`graphql
+query SortedCampaigns($orderBy: CampaignOrderByInput) {
+  campaignsConnection(first: 10, orderBy: $orderBy) {
+    edges {
+      node {
+        id
+        name
+        createdAt
+      }
+    }
+  }
+}
+\`\`\`
+
+Common sort options:
+- \`createdAt_DESC\` - Newest first
+- \`createdAt_ASC\` - Oldest first
+- \`name_ASC\` - Alphabetical
+- \`name_DESC\` - Reverse alphabetical
+
+---
+
+## Rate Limits
+
+The API is rate limited to 100 requests per minute per organization.
+
+Rate limit information is returned in response headers:
+- \`X-RateLimit-Limit\`: Maximum requests per minute
+- \`X-RateLimit-Remaining\`: Remaining requests in current window
+- \`X-RateLimit-Reset\`: Time when the rate limit resets`,
+      },
+    ],
+  },
 ];
 
 async function main() {

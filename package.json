@@ -9,10 +9,14 @@
     "build": "yarn sync-schema && next build",
     "start": "next start",
     "lint": "next lint",
-    "sync-schema": "node scripts/sync-schema.js"
+    "sync-schema": "node scripts/sync-schema.js",
+    "sync:knowledge": "tsx src/scripts/sync-knowledge/index.ts",
+    "sync:knowledge:dry-run": "tsx src/scripts/sync-knowledge/index.ts --dry-run",
+    "build:kb": "tsx src/scripts/sync-knowledge/build-kb.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.0",
+    "@notionhq/client": "^2.2.0",
     "@graphiql/toolkit": "^0.11.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-dialog": "^1.1.0",
@@ -30,6 +34,7 @@
     "graphql-ws": "^5.16.0",
     "lucide-react": "^0.460.0",
     "next": "14.2.15",
+    "openai": "^4.104.0",
     "prism-react-renderer": "^2.4.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
@@ -42,6 +47,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "dotenv": "^16.4.0",
+    "tsx": "^4.19.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.0",

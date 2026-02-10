@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Send,
   MessageSquare,
@@ -9,11 +9,34 @@ import {
   Copy,
   Check,
   Play,
+  RotateCcw,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { CodeBlock } from "@/components/ui/code-block";
 import Link from "next/link";
 
+const THREAD_ID_KEY = "mediajel-chat-thread-id";
+
+function generateThreadId(): string {
+  return `thread_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+function getOrCreateThreadId(): string {
+  if (typeof window === "undefined") return generateThreadId();
+
+  let threadId = localStorage.getItem(THREAD_ID_KEY);
+  if (!threadId) {
+    threadId = generateThreadId();
+    localStorage.setItem(THREAD_ID_KEY, threadId);
+  }
+  return threadId;
+}
+
+function clearThreadId(): void {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(THREAD_ID_KEY);
+  }
+}
 /**
  * Given a message's raw markdown and a graphql code snippet,
  * find the JSON variables block that immediately follows it.
@@ -47,8 +70,25 @@ const STARTER_PROMPTS = [
 ];
 
 export function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat();
+  const [threadId, setThreadId] = useState<string>("");
+
+  useEffect(() => {
+    setThreadId(getOrCreateThreadId());
+  }, []);
+
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } =
+    useChat({
+      body: {
+        threadId,
+      },
+    });
+
+  const handleNewConversation = useCallback(() => {
+    clearThreadId();
+    setMessages([]);
+    setThreadId(generateThreadId());
+    localStorage.setItem(THREAD_ID_KEY, threadId);
+  }, [setMessages, threadId]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
@@ -96,6 +136,15 @@ export function Chat() {
           </div>
         ) : (
           <div className="max-w-2xl mx-auto space-y-6">
+            <div className="flex justify-end">
+              <button
+                onClick={handleNewConversation}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <RotateCcw className="h-3 w-3" />
+                New conversation
+              </button>
+            </div>
             {messages.map((message) => (
               <div key={message.id}>
                 {message.role === "user" ? (

@@ -1,0 +1,467 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-02-11",
+  "terms": [
+    {
+      "term": "weekly performance report",
+      "aliases": [
+        "weekly report",
+        "performance summary",
+        "weekly metrics",
+        "weekly pacing"
+      ],
+      "description": "A summary of campaign performance metrics over a week, including impressions, clicks, spend, revenue, and ROAS. Use pacingDataObjectsConnection with date filtering to retrieve this data.",
+      "relatedOperations": [
+        "pacingDataObjectsConnection",
+        "pacingDataObjects"
+      ],
+      "relatedTypes": [
+        "PacingDataObject",
+        "PacingDataObjectConnection"
+      ],
+      "category": "analytics",
+      "examples": [
+        {
+          "businessQuestion": "Show me the weekly performance report for last week",
+          "technicalQuery": "query WeeklyPerformance($where: PacingDataObjectWhereInput, $first: Int) {\n  pacingDataObjectsConnection(where: $where, first: $first) {\n    edges {\n      node {\n        id\n        date\n        impressions\n        clicks\n        spend\n        revenue\n        ctr\n        cpm\n      }\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+          "variables": {
+            "where": {
+              "date_gte": "2025-02-03",
+              "date_lte": "2025-02-10"
+            },
+            "first": 100
+          }
+        }
+      ]
+    },
+    {
+      "term": "ROAS",
+      "aliases": [
+        "return on ad spend",
+        "ad spend return",
+        "advertising ROI",
+        "campaign ROI"
+      ],
+      "description": "Return on Ad Spend - calculated as revenue divided by spend. Available in pacing data which tracks revenue and spend at the campaign/line item level.",
+      "relatedOperations": [
+        "pacingDataObjectsConnection",
+        "pacingDataObjects"
+      ],
+      "relatedTypes": [
+        "PacingDataObject"
+      ],
+      "category": "analytics",
+      "examples": [
+        {
+          "businessQuestion": "What's our ROAS for last month?",
+          "technicalQuery": "query MonthlyROAS($where: PacingDataObjectWhereInput, $first: Int) {\n  pacingDataObjectsConnection(where: $where, first: $first) {\n    edges {\n      node {\n        id\n        date\n        spend\n        revenue\n        campaignOrder {\n          id\n          name\n        }\n      }\n    }\n  }\n}",
+          "variables": {
+            "where": {
+              "date_gte": "2025-01-01",
+              "date_lte": "2025-01-31"
+            },
+            "first": 1000
+          }
+        }
+      ]
+    },
+    {
+      "term": "campaign orders",
+      "aliases": [
+        "orders",
+        "campaign order list",
+        "active orders",
+        "order list"
+      ],
+      "description": "Campaign orders represent the business agreements for advertising campaigns, including budgets, schedules, and associated campaigns. They tie together campaigns, line items, and billing.",
+      "relatedOperations": [
+        "campaignOrders",
+        "campaignOrdersConnection",
+        "campaignOrder"
+      ],
+      "relatedTypes": [
+        "CampaignOrder",
+        "CampaignOrderConnection"
+      ],
+      "category": "campaign-orders",
+      "examples": [
+        {
+          "businessQuestion": "List all active campaign orders",
+          "technicalQuery": "query ActiveCampaignOrders($where: CampaignOrderWhereInput, $first: Int) {\n  campaignOrdersConnection(where: $where, first: $first, orderBy: createdAt_DESC) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        totalBudget\n        campaigns {\n          id\n          name\n        }\n      }\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+          "variables": {
+            "where": {
+              "status": "ACTIVE"
+            },
+            "first": 50
+          }
+        }
+      ]
+    },
+    {
+      "term": "campaigns",
+      "aliases": [
+        "campaign list",
+        "advertising campaigns",
+        "active campaigns",
+        "all campaigns"
+      ],
+      "description": "Advertising campaigns within MediaJel. Campaigns belong to organizations and campaign orders, containing targeting, creative, and budget configurations.",
+      "relatedOperations": [
+        "campaigns",
+        "campaignsConnection",
+        "campaign"
+      ],
+      "relatedTypes": [
+        "Campaign",
+        "CampaignConnection"
+      ],
+      "category": "campaigns",
+      "examples": [
+        {
+          "businessQuestion": "How do I list all campaigns?",
+          "technicalQuery": "query ListCampaigns($where: CampaignWhereInput, $first: Int, $orderBy: CampaignOrderByInput) {\n  campaignsConnection(where: $where, first: $first, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        createdAt\n        orgs {\n          id\n          name\n        }\n      }\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+          "variables": {
+            "first": 50,
+            "orderBy": "createdAt_DESC"
+          }
+        }
+      ]
+    },
+    {
+      "term": "attribution data",
+      "aliases": [
+        "attribution events",
+        "conversion data",
+        "attribution tracking",
+        "conversion tracking"
+      ],
+      "description": "Attribution events track customer conversions and actions attributed to advertising campaigns. This includes impressions, clicks, sign-ups, and purchases tied back to specific campaigns.",
+      "relatedOperations": [
+        "attributionEvents",
+        "attributionEventsConnection"
+      ],
+      "relatedTypes": [
+        "AttributionEvent",
+        "AttributionEventConnection"
+      ],
+      "category": "analytics",
+      "examples": [
+        {
+          "businessQuestion": "Show me attribution data for a campaign",
+          "technicalQuery": "query CampaignAttribution($where: AttributionEventWhereInput, $first: Int) {\n  attributionEventsConnection(where: $where, first: $first) {\n    edges {\n      node {\n        id\n        eventType\n        eventDate\n        revenue\n        campaign {\n          id\n          name\n        }\n      }\n    }\n    pageInfo {\n      hasNextPage\n    }\n  }\n}"
+        }
+      ]
+    },
+    {
+      "term": "creatives",
+      "aliases": [
+        "creative assets",
+        "ad creatives",
+        "creative list",
+        "ads",
+        "ad units"
+      ],
+      "description": "Creative assets used in advertising campaigns, including display ads, video ads, and native ad content. Creatives are associated with campaigns and line items.",
+      "relatedOperations": [
+        "creatives",
+        "creativesConnection",
+        "creative"
+      ],
+      "relatedTypes": [
+        "Creative",
+        "CreativeConnection"
+      ],
+      "category": "creatives",
+      "examples": [
+        {
+          "businessQuestion": "List all creatives for a campaign",
+          "technicalQuery": "query CampaignCreatives($where: CreativeWhereInput, $first: Int) {\n  creativesConnection(where: $where, first: $first) {\n    edges {\n      node {\n        id\n        name\n        type\n        status\n        mediaUrl\n      }\n    }\n    pageInfo {\n      hasNextPage\n    }\n  }\n}",
+          "variables": {
+            "where": {
+              "campaign": {
+                "id": "campaign-id"
+              }
+            },
+            "first": 50
+          }
+        }
+      ]
+    },
+    {
+      "term": "organizations",
+      "aliases": [
+        "orgs",
+        "advertisers",
+        "clients",
+        "org list",
+        "company list"
+      ],
+      "description": "Organizations (advertisers) in MediaJel. Each organization represents a client account with its own campaigns, budgets, and users.",
+      "relatedOperations": [
+        "orgs",
+        "orgsConnection",
+        "org"
+      ],
+      "relatedTypes": [
+        "Org",
+        "OrgConnection"
+      ],
+      "category": "organizations",
+      "examples": [
+        {
+          "businessQuestion": "List all organizations",
+          "technicalQuery": "query ListOrganizations($first: Int, $orderBy: OrgOrderByInput) {\n  orgsConnection(first: $first, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        createdAt\n      }\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+          "variables": {
+            "first": 50,
+            "orderBy": "name_ASC"
+          }
+        }
+      ]
+    },
+    {
+      "term": "line items",
+      "aliases": [
+        "line item list",
+        "targeting configuration",
+        "ad line items",
+        "media line items"
+      ],
+      "description": "Line items define the specific targeting, bidding, and delivery settings within a campaign order. They control how and where ads are served.",
+      "relatedOperations": [
+        "lineItems",
+        "lineItemsConnection",
+        "lineItem"
+      ],
+      "relatedTypes": [
+        "LineItem",
+        "LineItemConnection"
+      ],
+      "category": "line-items",
+      "examples": [
+        {
+          "businessQuestion": "Get line items for a campaign order",
+          "technicalQuery": "query CampaignOrderLineItems($where: LineItemWhereInput, $first: Int) {\n  lineItemsConnection(where: $where, first: $first) {\n    edges {\n      node {\n        id\n        name\n        status\n        budget\n        startDate\n        endDate\n        targeting {\n          geoTargets\n          audienceSegments\n        }\n      }\n    }\n  }\n}",
+          "variables": {
+            "where": {
+              "campaignOrder": {
+                "id": "campaign-order-id"
+              }
+            },
+            "first": 50
+          }
+        }
+      ]
+    },
+    {
+      "term": "audience segments",
+      "aliases": [
+        "audiences",
+        "targeting audiences",
+        "audience list",
+        "demographic segments"
+      ],
+      "description": "Audience segments define groups of users to target based on demographics, behaviors, and other attributes. Used in DemoGraph for precise targeting.",
+      "relatedOperations": [
+        "audiences",
+        "audiencesConnection",
+        "audience"
+      ],
+      "relatedTypes": [
+        "Audience",
+        "AudienceConnection"
+      ],
+      "category": "audiences",
+      "examples": [
+        {
+          "businessQuestion": "List available audience segments",
+          "technicalQuery": "query AvailableAudiences($first: Int, $orderBy: AudienceOrderByInput) {\n  audiencesConnection(first: $first, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        description\n        size\n        category\n      }\n    }\n    pageInfo {\n      hasNextPage\n    }\n  }\n}",
+          "variables": {
+            "first": 100
+          }
+        }
+      ]
+    },
+    {
+      "term": "geo targeting",
+      "aliases": [
+        "geographic targeting",
+        "location targeting",
+        "geo targets",
+        "zip code targeting"
+      ],
+      "description": "Geographic targeting configurations for campaigns, including zip codes, DMAs, cities, and polygon-based targeting areas.",
+      "relatedOperations": [
+        "geoTargets",
+        "geoTargetsConnection"
+      ],
+      "relatedTypes": [
+        "GeoTarget",
+        "GeoTargetConnection"
+      ],
+      "category": "targeting",
+      "examples": [
+        {
+          "businessQuestion": "Get geo targeting for a line item",
+          "technicalQuery": "query LineItemGeoTargets($where: GeoTargetWhereInput, $first: Int) {\n  geoTargetsConnection(where: $where, first: $first) {\n    edges {\n      node {\n        id\n        type\n        value\n        name\n      }\n    }\n  }\n}"
+        }
+      ]
+    },
+    {
+      "term": "pacing data",
+      "aliases": [
+        "spend pacing",
+        "budget pacing",
+        "delivery data",
+        "spend tracking"
+      ],
+      "description": "Pacing data tracks daily spend, impressions, clicks, and revenue for campaigns and line items. Essential for monitoring campaign delivery and performance.",
+      "relatedOperations": [
+        "pacingDataObjects",
+        "pacingDataObjectsConnection"
+      ],
+      "relatedTypes": [
+        "PacingDataObject",
+        "PacingDataObjectConnection"
+      ],
+      "category": "analytics",
+      "examples": [
+        {
+          "businessQuestion": "Get pacing data for a specific campaign",
+          "technicalQuery": "query CampaignPacing($where: PacingDataObjectWhereInput, $first: Int) {\n  pacingDataObjectsConnection(where: $where, first: $first, orderBy: date_DESC) {\n    edges {\n      node {\n        id\n        date\n        impressions\n        clicks\n        spend\n        revenue\n        ctr\n        cpm\n      }\n    }\n  }\n}",
+          "variables": {
+            "where": {
+              "campaign": {
+                "id": "campaign-id"
+              }
+            },
+            "first": 30
+          }
+        }
+      ]
+    },
+    {
+      "term": "authentication",
+      "aliases": [
+        "login",
+        "sign in",
+        "auth token",
+        "API token",
+        "access token"
+      ],
+      "description": "Authentication to the MediaJel API using Cognito credentials. Returns JWT tokens (accessToken, idToken, refreshToken) for API access.",
+      "relatedOperations": [
+        "authSignIn",
+        "authRefreshToken"
+      ],
+      "relatedTypes": [
+        "AuthSignInInput",
+        "AuthPayload"
+      ],
+      "category": "auth",
+      "examples": [
+        {
+          "businessQuestion": "How do I authenticate to the API?",
+          "technicalQuery": "mutation SignIn($data: AuthSignInInput!) {\n  authSignIn(data: $data) {\n    accessToken\n    idToken\n    refreshToken\n  }\n}",
+          "variables": {
+            "data": {
+              "username": "your-email@example.com",
+              "password": "your-password"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "term": "paid search",
+      "aliases": [
+        "google ads",
+        "search campaigns",
+        "PPC",
+        "paid search campaigns"
+      ],
+      "description": "Paid search campaigns managed through MediaJel, including Google Ads integrations and search performance tracking.",
+      "relatedOperations": [
+        "paidSearchCampaigns",
+        "paidSearchCampaignsConnection",
+        "paidSearchCampaignsPacing"
+      ],
+      "relatedTypes": [
+        "PaidSearchCampaign",
+        "PaidSearchCampaignConnection"
+      ],
+      "category": "paid-search",
+      "examples": [
+        {
+          "businessQuestion": "List paid search campaigns",
+          "technicalQuery": "query PaidSearchCampaigns($first: Int) {\n  paidSearchCampaignsConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        status\n        budget\n        spend\n      }\n    }\n    pageInfo {\n      hasNextPage\n    }\n  }\n}",
+          "variables": {
+            "first": 50
+          }
+        }
+      ]
+    },
+    {
+      "term": "SEO data",
+      "aliases": [
+        "SEO metrics",
+        "organic search",
+        "SEO performance",
+        "search rankings"
+      ],
+      "description": "SEO summaries and performance data tracking organic search visibility and rankings.",
+      "relatedOperations": [
+        "seoSummaries",
+        "seoSummariesConnection",
+        "seoUnits"
+      ],
+      "relatedTypes": [
+        "SeoSummary",
+        "SeoUnit"
+      ],
+      "category": "seo",
+      "examples": [
+        {
+          "businessQuestion": "Get SEO performance data",
+          "technicalQuery": "query SEOPerformance($where: SeoSummaryWhereInput, $first: Int) {\n  seoSummariesConnection(where: $where, first: $first) {\n    edges {\n      node {\n        id\n        date\n        impressions\n        clicks\n        position\n        org {\n          id\n          name\n        }\n      }\n    }\n  }\n}",
+          "variables": {
+            "first": 100
+          }
+        }
+      ]
+    },
+    {
+      "term": "users",
+      "aliases": [
+        "user list",
+        "team members",
+        "user accounts",
+        "platform users"
+      ],
+      "description": "Users with access to the MediaJel platform, including their roles and permissions within organizations.",
+      "relatedOperations": [
+        "users",
+        "usersConnection",
+        "user"
+      ],
+      "relatedTypes": [
+        "User",
+        "UserConnection"
+      ],
+      "category": "users",
+      "examples": [
+        {
+          "businessQuestion": "List users in an organization",
+          "technicalQuery": "query OrgUsers($where: UserWhereInput, $first: Int) {\n  usersConnection(where: $where, first: $first) {\n    edges {\n      node {\n        id\n        email\n        firstName\n        lastName\n        role\n      }\n    }\n  }\n}",
+          "variables": {
+            "where": {
+              "orgs_some": {
+                "id": "org-id"
+              }
+            },
+            "first": 100
+          }
+        }
+      ]
+    }
+  ]
+}

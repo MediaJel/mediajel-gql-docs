@@ -4,6 +4,14 @@ import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 
+// Import hybrid AI architecture modules
+import { classifyIntent } from "@/lib/intent-classifier";
+import {
+  buildRelevantContext,
+  buildAdditionalInstructions,
+} from "@/lib/schema-context-builder";
+import { loadGlossary, DomainGlossary } from "@/lib/domain-glossary";
+
 // Load GraphQL schema for context
 const schemaSDL = fs.readFileSync(
   path.join(process.cwd(), "src/content/public-schema.graphql"),
@@ -16,6 +24,15 @@ const apiConfig = JSON.parse(
     "utf-8"
   )
 );
+
+// Load domain glossary for intent classification
+let domainGlossary: DomainGlossary;
+try {
+  domainGlossary = loadGlossary();
+} catch (error) {
+  console.warn("Failed to load domain glossary, using empty glossary:", error);
+  domainGlossary = { version: "1.0.0", lastUpdated: "", terms: [] };
+}
 
 // System prompt for non-Assistant mode (fallback)
 const SYSTEM_PROMPT = `You are an AI assistant for the MediaJel GraphQL API. You help developers build valid GraphQL queries and understand the API.
@@ -93,70 +110,11 @@ function extractCitations(
   return { text: modifiedContent, citations };
 }
 
-// Assistant-based handler with streaming
-async function handleAssistantRequest(
-  messages: Array<{ role: string; content: string }>,
-  threadId?: string
-): Promise<Response> {
-  if (!openaiClient || !ASSISTANT_ID) {
-    throw new Error("Assistants API not configured");
-  }
-
-  // Get or create thread
-  let thread: OpenAI.Beta.Threads.Thread;
-  if (threadId && threadStore.has(threadId)) {
-    const existingThreadId = threadStore.get(threadId)!;
-    try {
-      thread = await openaiClient.beta.threads.retrieve(existingThreadId);
-    } catch {
-      thread = await openaiClient.beta.threads.create();
-      threadStore.set(threadId, thread.id);
-    }
-  } else {
-    thread = await openaiClient.beta.threads.create();
-    if (threadId) {
-      threadStore.set(threadId, thread.id);
-    }
-  }
-
-  // Add the latest user message
-  const lastMessage = messages[messages.length - 1];
-  if (lastMessage.role === "user") {
-    // Add GraphQL schema context to first message for API questions
-    const userContent = lastMessage.content.toLowerCase();
-    const isApiQuestion =
-      userContent.includes("query") ||
-      userContent.includes("mutation") ||
-      userContent.includes("graphql") ||
-      userContent.includes("api") ||
-      userContent.includes("schema");
-
-    let messageContent = lastMessage.content;
-    if (isApiQuestion) {
-      messageContent += `\n\n[Context: MediaJel GraphQL API - Available operations: ${Object.keys(apiConfig.operations.queries).join(", ")} (queries), ${Object.keys(apiConfig.operations.mutations).join(", ")} (mutations)]`;
-    }
-
-    await openaiClient.beta.threads.messages.create(thread.id, {
-      role: "user",
-      content: messageContent,
-    });
-  }
-
-  // Create a run with streaming
-  const stream = await openaiClient.beta.threads.runs.stream(thread.id, {
-    assistant_id: ASSISTANT_ID,
-    additional_instructions: `When answering questions about the MediaJel GraphQL API, refer to this schema:
-\`\`\`graphql
-${schemaSDL.substring(0, 4000)}
-\`\`\`
-
-Authentication: Use Bearer token in Authorization header, organization ID in Key header.
-Rate limit: ${apiConfig.rateLimits.requestsPerMinute} requests per minute.
-
-Always format code with proper markdown code blocks.`,
-  });
-
-  // Convert OpenAI stream to Vercel AI SDK compatible format
+// Helper to convert OpenAI stream to Vercel AI SDK compatible format
+function streamAssistantResponse(
+  stream: AsyncIterable<OpenAI.Beta.Assistants.AssistantStreamEvent>,
+  threadId: string
+): Response {
   const encoder = new TextEncoder();
 
   const readableStream = new ReadableStream({
@@ -223,9 +181,91 @@ Always format code with proper markdown code blocks.`,
   return new Response(readableStream, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "X-Thread-Id": thread.id,
+      "X-Thread-Id": threadId,
     },
   });
+}
+
+// Assistant-based handler with streaming
+async function handleAssistantRequest(
+  messages: Array<{ role: string; content: string }>,
+  threadId?: string
+): Promise<Response> {
+  if (!openaiClient || !ASSISTANT_ID) {
+    throw new Error("Assistants API not configured");
+  }
+
+  // Get or create thread
+  let thread: OpenAI.Beta.Threads.Thread;
+  if (threadId && threadStore.has(threadId)) {
+    const existingThreadId = threadStore.get(threadId)!;
+    try {
+      thread = await openaiClient.beta.threads.retrieve(existingThreadId);
+    } catch {
+      thread = await openaiClient.beta.threads.create();
+      threadStore.set(threadId, thread.id);
+    }
+  } else {
+    thread = await openaiClient.beta.threads.create();
+    if (threadId) {
+      threadStore.set(threadId, thread.id);
+    }
+  }
+
+  // Add the latest user message
+  const lastMessage = messages[messages.length - 1];
+  if (lastMessage.role === "user") {
+    // Use hybrid AI architecture: classify intent and build dynamic context
+    const classification = classifyIntent(lastMessage.content, domainGlossary);
+    const schemaContext = buildRelevantContext(classification, {
+      includeExamples: true,
+      includeTypes: true,
+      includeGlossary: true,
+    });
+
+    // Add context hint to message for HYBRID and SCHEMA_QUERY intents
+    let messageContent = lastMessage.content;
+    if (
+      classification.intent === "HYBRID" ||
+      classification.intent === "SCHEMA_QUERY"
+    ) {
+      // Add a hint about the classification for context
+      const operationsHint =
+        classification.suggestedOperations.length > 0
+          ? `Relevant operations: ${classification.suggestedOperations.join(", ")}`
+          : "";
+      if (operationsHint) {
+        messageContent += `\n\n[${operationsHint}]`;
+      }
+    }
+
+    await openaiClient.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: messageContent,
+    });
+
+    // Build dynamic additional instructions based on classification
+    const dynamicInstructions = buildAdditionalInstructions(
+      classification,
+      schemaContext
+    );
+
+    // Create a run with streaming using dynamic context
+    const stream = await openaiClient.beta.threads.runs.stream(thread.id, {
+      assistant_id: ASSISTANT_ID,
+      additional_instructions: dynamicInstructions,
+    });
+
+    // Convert OpenAI stream to Vercel AI SDK compatible format
+    return streamAssistantResponse(stream, thread.id);
+  }
+
+  // Fallback for non-user messages (shouldn't happen normally)
+  const stream = await openaiClient.beta.threads.runs.stream(thread.id, {
+    assistant_id: ASSISTANT_ID,
+  });
+
+  return streamAssistantResponse(stream, thread.id);
 }
 
 // Legacy streaming handler

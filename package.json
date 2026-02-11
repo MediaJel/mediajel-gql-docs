@@ -10,6 +10,9 @@
     "start": "next start",
     "lint": "next lint",
     "sync-schema": "node scripts/sync-schema.js",
+    "sync-schema:dojo": "CREATIVE_BUCKET_NAME=mj-creatives CREATIVE_BUCKET_REGION=us-east-1 PUBLIC_API_SCHEMA_NAME=public-api-schema node scripts/sync-schema.js",
+    "sync-schema:production": "CREATIVE_BUCKET_NAME=mj-creatives-production CREATIVE_BUCKET_REGION=us-east-1 PUBLIC_API_SCHEMA_NAME=public-api-schema node scripts/sync-schema.js",
+    "sync-schema:local": "SCHEMA_SOURCE=local node scripts/sync-schema.js",
     "sync:knowledge": "tsx src/scripts/sync-knowledge/index.ts",
     "sync:knowledge:dry-run": "tsx src/scripts/sync-knowledge/index.ts --dry-run",
     "build:kb": "tsx src/scripts/sync-knowledge/build-kb.ts"

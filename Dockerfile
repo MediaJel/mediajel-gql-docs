@@ -3,10 +3,9 @@ FROM node:18-alpine AS base
 
 WORKDIR /rootDir
 
-COPY package.json yarn.lock ./
 COPY package.json .
 COPY yarn.lock .
-COPY script/ script/
+COPY scripts/ scripts/
 COPY src/ src/
 COPY next.config.js .
 COPY postcss.config.js .

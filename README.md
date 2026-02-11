@@ -41,7 +41,7 @@ git clone git@github.com:MediaJel/mediajel-gql-docs.git
 # 2. Generate public schema in gql-service
 cd mediajel-gql-service
 npm install
-npm run generate-public-api   # Generates + uploads to S3
+yarn generate-public-api   # Generates + uploads to S3
 
 # 3. Setup docs app
 cd ../mediajel-gql-docs
@@ -137,13 +137,13 @@ npm install
 
 ```bash
 # For dojo environment (default)
-npm run generate-public-api
+yarn generate-public-api
 
 # For staging environment
-npm run generate-public-api:staging
+yarn generate-public-api:staging
 
 # For production environment
-npm run generate-public-api:production
+yarn generate-public-api:production
 ```
 
 This runs four steps in sequence:
@@ -180,7 +180,7 @@ mediajel-gql-service/src/webapp/public-api/
 
 ### When to Regenerate
 
-Run `npm run generate-public-api` when:
+Run `yarn generate-public-api` when:
 - Adding new queries/mutations to the schema
 - Modifying existing query signatures
 - Changing type definitions
@@ -386,7 +386,7 @@ Set `SCHEMA_SOURCE=local` to use local filesystem (requires sibling repos).
 # 1. In mediajel-gql-service: regenerate and upload to S3
 cd mediajel-gql-service
 nvm use 14
-npm run generate-public-api   # Generates files + uploads to S3
+yarn generate-public-api   # Generates files + uploads to S3
 
 # 2. In mediajel-gql-docs: sync from S3 and restart
 cd ../mediajel-gql-docs
@@ -518,7 +518,7 @@ Error: Source file not found: .../mediajel-gql-service/src/webapp/public-api/pub
 ```bash
 # Option 1: Generate schema locally
 cd mediajel-gql-service
-npm run generate-public-api
+yarn generate-public-api
 
 # Option 2: Use S3 mode (default)
 unset SCHEMA_SOURCE  # or remove SCHEMA_SOURCE=local
@@ -527,7 +527,7 @@ yarn sync-schema
 
 ### Schema not updating after changes
 
-1. Regenerate and upload in gql-service: `npm run generate-public-api`
+1. Regenerate and upload in gql-service: `yarn generate-public-api`
 2. Sync from S3 in docs app: `yarn sync-schema`
 3. Restart dev server: `yarn dev`
 

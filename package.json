@@ -15,6 +15,7 @@
     "build:kb": "tsx src/scripts/sync-knowledge/build-kb.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
     "@ai-sdk/openai": "^1.0.0",
     "@notionhq/client": "^2.2.0",
     "@graphiql/toolkit": "^0.11.0",

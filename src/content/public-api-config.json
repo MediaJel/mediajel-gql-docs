@@ -822,6 +822,42 @@
           "first": 10
         }
       },
+      "slaConfig": {
+        "category": "config",
+        "description": "Retrieve a single sla config by ID.",
+        "exampleQuery": "query SlaConfig($where: SlaConfigWhereUniqueInput!) {\n  slaConfig(where: $where) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          }
+        }
+      },
+      "slaConfigs": {
+        "category": "config",
+        "description": "List sla configs with optional filtering and pagination.",
+        "exampleQuery": "query SlaConfigs($where: SlaConfigWhereInput, $orderBy: SlaConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  slaConfigs(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    id\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
+      "slaConfigsConnection": {
+        "category": "config",
+        "description": "List sla configs connection with optional filtering and pagination.",
+        "exampleQuery": "query SlaConfigsConnection($where: SlaConfigWhereInput, $orderBy: SlaConfigOrderByInput, $skip: Int, $after: String, $before: String, $first: Int, $last: Int) {\n  slaConfigsConnection(where: $where, orderBy: $orderBy, skip: $skip, after: $after, before: $before, first: $first, last: $last) {\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n    edges {\n      node {\n        id\n      }\n    }\n  }\n}",
+        "exampleVariables": {
+          "where": {
+            "id": "example-id"
+          },
+          "orderBy": "createdAt_DESC",
+          "skip": 0,
+          "first": 10
+        }
+      },
       "project": {
         "category": "projects",
         "description": "Retrieve a single project by ID.",

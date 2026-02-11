@@ -53,18 +53,23 @@ The system has **two parallel pipelines** that feed into the docs app:
 ### Pipeline 1: Schema (GraphQL Operations)
 
 ```
-mediajel-gql-service          mediajel-gql-docs
-       │                             │
-       ▼                             │
-  generate-public-api                │
-       │                             │
-       ▼                             ▼
-  public-schema.graphql  ──────►  src/content/public-schema.graphql
-  public-api-config.json ──────►  src/content/public-api-config.json
-                         (yarn sync-schema)
+mediajel-gql-service              S3 Bucket                 mediajel-gql-docs
+       │                              │                            │
+       ▼                              │                            │
+  generate-public-api                 │                            │
+       │                              │                            │
+       ▼                              ▼                            ▼
+  public-schema.graphql  ──────►  mj-creatives/          src/content/public-schema.graphql
+  public-api-config.json ──────►  public-api-schema/ ──────►  src/content/public-api-config.json
+                         (upload)                    (yarn sync-schema)
 ```
 
 **Purpose**: Powers Schema Explorer, GraphiQL Playground, and query autocompletion.
+
+**S3 Bucket Details**:
+- **Bucket**: `mj-creatives`
+- **Path**: `s3://mj-creatives/public-api-schema/`
+- **Files**: `public-schema.graphql`, `public-api-config.json`
 
 ### Pipeline 2: Knowledge Base (AI Assistant)
 
@@ -243,18 +248,34 @@ Follow these phases in order. Each phase must complete before the next begins.
 
 ### PHASE 1: Generate Schema (mediajel-gql-service)
 
-**Time**: ~2 minutes | **Prerequisite**: Node 14
+**Time**: ~2 minutes | **Prerequisite**: Node 18
 
 ```bash
 cd mediajel-gql-service
-nvm use 14
+nvm use 18
 yarn install
+
+# For dojo environment (default)
 yarn generate-public-api
+
+# For staging environment
+yarn generate-public-api:staging
+
+# For production environment
+yarn generate-public-api:production
 ```
+
+This runs four steps:
+1. `generate-public-schema.ts` → `public-schema.graphql`
+2. `generate-public-config.ts` → `public-api-config.json`
+3. `generate-org-scope-config.ts` → `org-scope-config.ts`
+4. `upload-to-s3.ts` → Uploads files to S3
 
 **Output files** (in `src/webapp/public-api/`):
 - `public-schema.graphql` - All public queries/mutations/types (~15,000 lines)
 - `public-api-config.json` - Category mappings, descriptions, examples
+
+**S3 Upload**: Files are automatically uploaded to `s3://mj-creatives/public-api-schema/`
 
 ### PHASE 2: Sync Knowledge Base (Optional)
 
@@ -304,10 +325,14 @@ NOTION_SECRET=secret_xxxxx
 NOTION_ROOT_PAGE_ID=xxxxx
 ```
 
-Sync the schema from Phase 1:
+Sync the schema from S3:
 
 ```bash
+# Sync from S3 (default - production/CI)
 yarn sync-schema
+
+# Or sync from local filesystem (development)
+SCHEMA_SOURCE=local yarn sync-schema
 ```
 
 ### PHASE 4: Run Application
@@ -324,15 +349,17 @@ yarn dev
 
 | Requirement | Version | Used For |
 |-------------|---------|----------|
-| Node.js | 14.18.0 | mediajel-gql-service (use `nvm use 14`) |
-| Node.js | 18+ | mediajel-gql-docs (use `nvm use 18`) |
+| Node.js | 18+ | mediajel-gql-service & mediajel-gql-docs (use `nvm use 18`) |
 | Yarn | 1.x | Package manager for all projects |
 | OpenAI API Key | - | AI assistant feature |
 | Notion API Key | - | Knowledge Base sync (optional) |
+| AWS Credentials | - | S3 schema sync (read access to mj-creatives bucket) |
 
 ---
 
 ## Environment Variables
+
+### Documentation App Variables
 
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
@@ -343,6 +370,15 @@ yarn dev
 | `NOTION_SECRET` | For KB sync | Notion integration API key | `secret_...` |
 | `NOTION_ROOT_PAGE_ID` | For KB sync | Root KB page ID in Notion | Page ID |
 | `NOTION_PARENT_PAGE_ID` | For KB build | Parent page for new KB creation | Page ID |
+
+### S3 Schema Sync Variables
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `SCHEMA_SOURCE` | No | Schema source: `s3` (default) or `local` | `s3` |
+| `CREATIVE_BUCKET_NAME` | For S3 | S3 bucket name | `mj-creatives` |
+| `CREATIVE_BUCKET_REGION` | For S3 | AWS region | `us-west-2` |
+| `PUBLIC_API_SCHEMA_NAME` | For S3 | S3 directory name | `public-api-schema` |
 
 ### GraphQL Endpoints by Environment
 
@@ -414,7 +450,7 @@ yarn sync:knowledge
 | `yarn start:watch` | Dev server + auto-sync schema on file changes |
 | `yarn build` | Sync schema + build production bundle |
 | `yarn start` | Start production server |
-| `yarn sync-schema` | Manually sync schema from GQL service |
+| `yarn sync-schema` | Sync schema from S3 (or local with `SCHEMA_SOURCE=local`) |
 | `yarn sync:knowledge` | Sync Notion KB to OpenAI |
 | `yarn build:kb` | Create KB structure in Notion |
 | `yarn lint` | Run ESLint |
@@ -428,7 +464,10 @@ mediajel-workspace/
 ├── mediajel-gql-service/           # GraphQL API backend (source of truth)
 │   └── src/webapp/public-api/
 │       ├── public-schema.graphql   # Auto-generated
-│       └── public-api-config.json  # Auto-generated
+│       ├── public-api-config.json  # Auto-generated
+│       └── scripts/
+│           ├── run-generation.ts   # Main runner script
+│           └── upload-to-s3.ts     # Uploads to S3
 │
 ├── knowledge-sync/                  # Notion → OpenAI sync scripts
 │   ├── .env                         # API keys
@@ -456,29 +495,58 @@ mediajel-workspace/
 
 ## Troubleshooting
 
-### "Source file not found" during sync
+### S3 sync fails with "Access Denied"
+
+**Cause**: AWS credentials not configured or missing S3 read access.
+
+**Solution**:
+```bash
+# Check AWS credentials
+aws sts get-caller-identity
+
+# Test S3 access
+aws s3 ls s3://mj-creatives/public-api-schema/
+```
+
+### S3 sync fails with "bucket not configured"
+
+**Cause**: Missing S3 environment variables.
+
+**Solution**:
+```bash
+export CREATIVE_BUCKET_NAME=mj-creatives
+export CREATIVE_BUCKET_REGION=us-west-2
+export PUBLIC_API_SCHEMA_NAME=public-api-schema
+```
+
+### "Source file not found" during local sync
 
 ```
 Error: Source file not found: .../mediajel-gql-service/src/webapp/public-api/public-schema.graphql
 ```
 
-**Cause**: Phase 1 not completed - schema not generated yet.
+**Cause**: Using local mode but schema not generated, or S3 mode not configured.
 
 **Solution**:
 ```bash
+# Option 1: Generate schema locally
 cd mediajel-gql-service
-nvm use 14
+nvm use 18
 yarn generate-public-api
+
+# Option 2: Use S3 mode (default)
+unset SCHEMA_SOURCE
+yarn sync-schema
 ```
 
 ### Schema not updating after changes
 
 **Solution**: Run the complete update workflow:
 ```bash
-# 1. Regenerate in gql-service
+# 1. Regenerate and upload to S3 in gql-service
 cd mediajel-gql-service && yarn generate-public-api
 
-# 2. Sync in docs app
+# 2. Sync from S3 in docs app
 cd ../mediajel-gql-docs && yarn sync-schema
 
 # 3. Restart dev server
@@ -521,15 +589,31 @@ kill -9 <PID>
 
 ### Environment Variables Required
 
-- `OPENAI_API_KEY` - Required
-- `OPENAI_ASSISTANT_ID` - Required for AI features
-- `OPENAI_VECTOR_STORE_ID` - Required for AI features
-- `NEXT_PUBLIC_GQL_ENDPOINT` - Set to appropriate environment
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENAI_API_KEY` | Yes | OpenAI API key for AI assistant |
+| `OPENAI_ASSISTANT_ID` | Yes | Required for AI features |
+| `OPENAI_VECTOR_STORE_ID` | Yes | Required for AI features |
+| `NEXT_PUBLIC_GQL_ENDPOINT` | Yes | GraphQL API endpoint for target environment |
+| `CREATIVE_BUCKET_NAME` | Yes | S3 bucket name (e.g., `mj-creatives`) |
+| `CREATIVE_BUCKET_REGION` | Yes | AWS region (e.g., `us-west-2`) |
+| `PUBLIC_API_SCHEMA_NAME` | No | S3 directory (default: `public-api-schema`) |
+
+### AWS Permissions
+
+The build process requires S3 read access:
+```json
+{
+  "Effect": "Allow",
+  "Action": ["s3:GetObject"],
+  "Resource": "arn:aws:s3:::mj-creatives/public-api-schema/*"
+}
+```
 
 ### Commands
 
 ```bash
-# Build
+# Build (syncs schema from S3 automatically)
 yarn build
 
 # Start

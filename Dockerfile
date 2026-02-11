@@ -10,7 +10,9 @@ COPY src/ src/
 COPY next.config.js .
 COPY postcss.config.js .
 COPY tailwind.config.ts .
+COPY entrypoint.sh .
 
+RUN chmod +x entrypoint.sh
 RUN yarn install --ignore-engines
 
 # ---- Stage 2: Build the application ----
@@ -20,4 +22,4 @@ RUN yarn build
 # RUN yarn global add serve
 EXPOSE 3000
 
-ENTRYPOINT [ "yarn", "start" ]
+ENTRYPOINT [ "./entrypoint.sh" ]

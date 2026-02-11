@@ -127,7 +127,7 @@ The public schema is the **source of truth** for the documentation portal. It is
 cd mediajel-gql-service
 
 # Use Node 14 (required for Prisma v1)
-nvm use 14
+nvm use 18
 
 # Install dependencies
 npm install
@@ -385,7 +385,7 @@ Set `SCHEMA_SOURCE=local` to use local filesystem (requires sibling repos).
 ```bash
 # 1. In mediajel-gql-service: regenerate and upload to S3
 cd mediajel-gql-service
-nvm use 14
+nvm use 18
 yarn generate-public-api   # Generates files + uploads to S3
 
 # 2. In mediajel-gql-docs: sync from S3 and restart

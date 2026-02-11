@@ -67,8 +67,8 @@ mediajel-gql-service              S3 Bucket                 mediajel-gql-docs
 **Purpose**: Powers Schema Explorer, GraphiQL Playground, and query autocompletion.
 
 **S3 Bucket Details**:
-- **Bucket**: `mj-creatives`
-- **Path**: `s3://mj-creatives/public-api-schema/`
+- **Dojo Bucket**: `mj-creatives` → `s3://mj-creatives/public-api-schema/`
+- **Production Bucket**: `mj-creatives-production` → `s3://mj-creatives-production/public-api-schema/`
 - **Files**: `public-schema.graphql`, `public-api-config.json`
 
 ### Pipeline 2: Knowledge Base (AI Assistant)
@@ -275,7 +275,9 @@ This runs four steps:
 - `public-schema.graphql` - All public queries/mutations/types (~15,000 lines)
 - `public-api-config.json` - Category mappings, descriptions, examples
 
-**S3 Upload**: Files are automatically uploaded to `s3://mj-creatives/public-api-schema/`
+**S3 Upload**: Files are automatically uploaded to the appropriate bucket:
+- Dojo: `s3://mj-creatives/public-api-schema/`
+- Production: `s3://mj-creatives-production/public-api-schema/`
 
 ### PHASE 2: Sync Knowledge Base (Optional)
 
@@ -328,11 +330,13 @@ NOTION_ROOT_PAGE_ID=xxxxx
 Sync the schema from S3:
 
 ```bash
-# Sync from S3 (default - production/CI)
-yarn sync-schema
+# Environment-specific sync (recommended)
+yarn sync-schema:dojo        # Sync from mj-creatives bucket
+yarn sync-schema:production  # Sync from mj-creatives-production bucket
+yarn sync-schema:local       # Sync from local filesystem
 
-# Or sync from local filesystem (development)
-SCHEMA_SOURCE=local yarn sync-schema
+# Or use base command with env vars (for CI/CD)
+yarn sync-schema
 ```
 
 ### PHASE 4: Run Application
@@ -376,8 +380,8 @@ yarn dev
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
 | `SCHEMA_SOURCE` | No | Schema source: `s3` (default) or `local` | `s3` |
-| `CREATIVE_BUCKET_NAME` | For S3 | S3 bucket name | `mj-creatives` |
-| `CREATIVE_BUCKET_REGION` | For S3 | AWS region | `us-west-2` |
+| `CREATIVE_BUCKET_NAME` | For S3 | S3 bucket name (`mj-creatives` for dojo, `mj-creatives-production` for prod) | `mj-creatives` |
+| `CREATIVE_BUCKET_REGION` | For S3 | AWS region | `us-east-1` |
 | `PUBLIC_API_SCHEMA_NAME` | For S3 | S3 directory name | `public-api-schema` |
 
 ### GraphQL Endpoints by Environment
@@ -450,7 +454,10 @@ yarn sync:knowledge
 | `yarn start:watch` | Dev server + auto-sync schema on file changes |
 | `yarn build` | Sync schema + build production bundle |
 | `yarn start` | Start production server |
-| `yarn sync-schema` | Sync schema from S3 (or local with `SCHEMA_SOURCE=local`) |
+| `yarn sync-schema` | Sync schema from S3 (requires env vars) |
+| `yarn sync-schema:dojo` | Sync schema from dojo bucket (`mj-creatives`) |
+| `yarn sync-schema:production` | Sync schema from production bucket (`mj-creatives-production`) |
+| `yarn sync-schema:local` | Sync schema from local filesystem |
 | `yarn sync:knowledge` | Sync Notion KB to OpenAI |
 | `yarn build:kb` | Create KB structure in Notion |
 | `yarn lint` | Run ESLint |
@@ -515,7 +522,7 @@ aws s3 ls s3://mj-creatives/public-api-schema/
 **Solution**:
 ```bash
 export CREATIVE_BUCKET_NAME=mj-creatives
-export CREATIVE_BUCKET_REGION=us-west-2
+export CREATIVE_BUCKET_REGION=us-east-1
 export PUBLIC_API_SCHEMA_NAME=public-api-schema
 ```
 
@@ -595,18 +602,21 @@ kill -9 <PID>
 | `OPENAI_ASSISTANT_ID` | Yes | Required for AI features |
 | `OPENAI_VECTOR_STORE_ID` | Yes | Required for AI features |
 | `NEXT_PUBLIC_GQL_ENDPOINT` | Yes | GraphQL API endpoint for target environment |
-| `CREATIVE_BUCKET_NAME` | Yes | S3 bucket name (e.g., `mj-creatives`) |
-| `CREATIVE_BUCKET_REGION` | Yes | AWS region (e.g., `us-west-2`) |
+| `CREATIVE_BUCKET_NAME` | Yes | S3 bucket name (`mj-creatives` for dojo, `mj-creatives-production` for prod) |
+| `CREATIVE_BUCKET_REGION` | Yes | AWS region (e.g., `us-east-1`) |
 | `PUBLIC_API_SCHEMA_NAME` | No | S3 directory (default: `public-api-schema`) |
 
 ### AWS Permissions
 
-The build process requires S3 read access:
+The build process requires S3 read access to the appropriate bucket:
 ```json
 {
   "Effect": "Allow",
   "Action": ["s3:GetObject"],
-  "Resource": "arn:aws:s3:::mj-creatives/public-api-schema/*"
+  "Resource": [
+    "arn:aws:s3:::mj-creatives/public-api-schema/*",
+    "arn:aws:s3:::mj-creatives-production/public-api-schema/*"
+  ]
 }
 ```
 

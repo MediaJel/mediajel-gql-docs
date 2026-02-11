@@ -1,0 +1,71 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: |-
+    {{ .Release.Name }}-sync-knowledge
+  namespace: jobqueuecrons
+  labels:
+    app: |-
+      {{ .Release.Name }}
+spec:
+  schedule: "0 6 * * 0"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        metadata:
+          labels:
+            app: |-
+              {{ .Release.Name }}
+            job: sync-knowledge
+        spec:
+          nodeSelector:
+            kops.k8s.io/instancegroup: |-
+              {{ .Values.instancegroup }}
+          restartPolicy: OnFailure
+          containers:
+            - name: sync-knowledge
+              image: |-
+                {{ .Values.repoUrl }}/gql-docs:{{ .Values.tag }}
+              imagePullPolicy: Always
+              command: ["yarn", "sync:knowledge"]
+              resources:
+                limits:
+                  cpu: "0.5"
+                  memory: 512Mi
+                requests:
+                  cpu: "0.25"
+                  memory: 256Mi
+              env:
+                - name: NEXT_PUBLIC_GQL_ENDPOINT
+                  value: |-
+                    {{ .Values.nextPublicGqlEndpoint }}
+                - name: OPENAI_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: one-pass-ai-microservice
+                      key: OPENAI_API_KEY
+                - name: NOTION_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: one-pass-ai-microservice
+                      key: NOTION_SECRET
+                - name: NOTION_ROOT_PAGE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: one-pass-ai-microservice
+                      key: NOTION_ROOT_PAGE_ID
+                - name: OPENAI_ASSISTANT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: one-pass-ai-microservice
+                      key: OPENAI_ASSISTANT_ID
+                - name: OPENAI_VECTOR_STORE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: one-pass-ai-microservice
+                      key: OPENAI_VECTOR_STORE_ID

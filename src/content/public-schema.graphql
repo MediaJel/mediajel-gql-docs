@@ -412,6 +412,9 @@ enum AudienceType {
   ATTRIBUTION
   SEO
   ADDRESS
+  COMPLIANCE_MEDICAL
+  COMPLIANCE_RECREATIONAL
+  COMPLIANCE_BOTH
 }
 
 enum AuditHistoryOrderByInput {
@@ -2140,6 +2143,16 @@ enum EventsTargetOrderByInput {
   s3_pv_DESC
   s3_tr_ASC
   s3_tr_DESC
+  s1_ASC
+  s1_DESC
+  s2_tr_ASC
+  s2_tr_DESC
+  s2_pv_ASC
+  s2_pv_DESC
+  tagId_ASC
+  tagId_DESC
+  version_ASC
+  version_DESC
 }
 
 enum EventsTargetTestLogsOrderByInput {
@@ -3146,6 +3159,8 @@ enum OrgOrderByInput {
   status_DESC
   hasMediaPlanStrategy_ASC
   hasMediaPlanStrategy_DESC
+  billingEmail_ASC
+  billingEmail_DESC
 }
 
 enum OrgReportOrderByInput {
@@ -4727,6 +4742,19 @@ enum SignupsReportByDateOrderByInput {
   updatedAt_DESC
   createdAt_ASC
   createdAt_DESC
+}
+
+enum SlaConfigOrderByInput {
+  id_ASC
+  id_DESC
+  requestType_ASC
+  requestType_DESC
+  recommendedDays_ASC
+  recommendedDays_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
 }
 
 enum Species {
@@ -20114,6 +20142,9 @@ input CampaignOrderWhereInput {
   attributionAudiences_every: AudienceWhereInput
   attributionAudiences_some: AudienceWhereInput
   attributionAudiences_none: AudienceWhereInput
+  complianceAudiences_every: AudienceWhereInput
+  complianceAudiences_some: AudienceWhereInput
+  complianceAudiences_none: AudienceWhereInput
   adUnits_every: AdUnitWhereInput
   adUnits_some: AdUnitWhereInput
   adUnits_none: AdUnitWhereInput
@@ -21207,6 +21238,9 @@ input CampaignWhereInput {
   firstPartyDataAudiences_some: HashedEmailListWhereInput
   firstPartyDataAudiences_none: HashedEmailListWhereInput
   adGroup: LineItemAdGroupWhereInput
+  flightSchedules_every: FlightScheduleWhereInput
+  flightSchedules_some: FlightScheduleWhereInput
+  flightSchedules_none: FlightScheduleWhereInput
 }
 
 input CampaignWhereUniqueInput {
@@ -29718,6 +29752,188 @@ input EventsTargetWhereInput {
 
   """All values not ending with the given string."""
   s3_tr_not_ends_with: String
+  s1: String
+
+  """All values that are not equal to given value."""
+  s1_not: String
+
+  """All values that are contained in given list."""
+  s1_in: [String!]
+
+  """All values that are not contained in given list."""
+  s1_not_in: [String!]
+
+  """All values less than the given value."""
+  s1_lt: String
+
+  """All values less than or equal the given value."""
+  s1_lte: String
+
+  """All values greater than the given value."""
+  s1_gt: String
+
+  """All values greater than or equal the given value."""
+  s1_gte: String
+
+  """All values containing the given string."""
+  s1_contains: String
+
+  """All values not containing the given string."""
+  s1_not_contains: String
+
+  """All values starting with the given string."""
+  s1_starts_with: String
+
+  """All values not starting with the given string."""
+  s1_not_starts_with: String
+
+  """All values ending with the given string."""
+  s1_ends_with: String
+
+  """All values not ending with the given string."""
+  s1_not_ends_with: String
+  s2_tr: String
+
+  """All values that are not equal to given value."""
+  s2_tr_not: String
+
+  """All values that are contained in given list."""
+  s2_tr_in: [String!]
+
+  """All values that are not contained in given list."""
+  s2_tr_not_in: [String!]
+
+  """All values less than the given value."""
+  s2_tr_lt: String
+
+  """All values less than or equal the given value."""
+  s2_tr_lte: String
+
+  """All values greater than the given value."""
+  s2_tr_gt: String
+
+  """All values greater than or equal the given value."""
+  s2_tr_gte: String
+
+  """All values containing the given string."""
+  s2_tr_contains: String
+
+  """All values not containing the given string."""
+  s2_tr_not_contains: String
+
+  """All values starting with the given string."""
+  s2_tr_starts_with: String
+
+  """All values not starting with the given string."""
+  s2_tr_not_starts_with: String
+
+  """All values ending with the given string."""
+  s2_tr_ends_with: String
+
+  """All values not ending with the given string."""
+  s2_tr_not_ends_with: String
+  s2_pv: String
+
+  """All values that are not equal to given value."""
+  s2_pv_not: String
+
+  """All values that are contained in given list."""
+  s2_pv_in: [String!]
+
+  """All values that are not contained in given list."""
+  s2_pv_not_in: [String!]
+
+  """All values less than the given value."""
+  s2_pv_lt: String
+
+  """All values less than or equal the given value."""
+  s2_pv_lte: String
+
+  """All values greater than the given value."""
+  s2_pv_gt: String
+
+  """All values greater than or equal the given value."""
+  s2_pv_gte: String
+
+  """All values containing the given string."""
+  s2_pv_contains: String
+
+  """All values not containing the given string."""
+  s2_pv_not_contains: String
+
+  """All values starting with the given string."""
+  s2_pv_starts_with: String
+
+  """All values not starting with the given string."""
+  s2_pv_not_starts_with: String
+
+  """All values ending with the given string."""
+  s2_pv_ends_with: String
+
+  """All values not ending with the given string."""
+  s2_pv_not_ends_with: String
+  tagId: String
+
+  """All values that are not equal to given value."""
+  tagId_not: String
+
+  """All values that are contained in given list."""
+  tagId_in: [String!]
+
+  """All values that are not contained in given list."""
+  tagId_not_in: [String!]
+
+  """All values less than the given value."""
+  tagId_lt: String
+
+  """All values less than or equal the given value."""
+  tagId_lte: String
+
+  """All values greater than the given value."""
+  tagId_gt: String
+
+  """All values greater than or equal the given value."""
+  tagId_gte: String
+
+  """All values containing the given string."""
+  tagId_contains: String
+
+  """All values not containing the given string."""
+  tagId_not_contains: String
+
+  """All values starting with the given string."""
+  tagId_starts_with: String
+
+  """All values not starting with the given string."""
+  tagId_not_starts_with: String
+
+  """All values ending with the given string."""
+  tagId_ends_with: String
+
+  """All values not ending with the given string."""
+  tagId_not_ends_with: String
+  version: Int
+
+  """All values that are not equal to given value."""
+  version_not: Int
+
+  """All values that are contained in given list."""
+  version_in: [Int!]
+
+  """All values that are not contained in given list."""
+  version_not_in: [Int!]
+
+  """All values less than the given value."""
+  version_lt: Int
+
+  """All values less than or equal the given value."""
+  version_lte: Int
+
+  """All values greater than the given value."""
+  version_gt: Int
+
+  """All values greater than or equal the given value."""
+  version_gte: Int
   reports_every: CampaignReportWhereInput
   reports_some: CampaignReportWhereInput
   reports_none: CampaignReportWhereInput
@@ -31652,6 +31868,7 @@ input FlightScheduleWhereInput {
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
   lineItem: LineItemWhereInput
+  campaign: CampaignWhereInput
 }
 
 input GeoTargetWhereInput {
@@ -40355,6 +40572,46 @@ input OrgWhereInput {
 
   """All values that are not equal to given value."""
   hasMediaPlanStrategy_not: Boolean
+  billingEmail: String
+
+  """All values that are not equal to given value."""
+  billingEmail_not: String
+
+  """All values that are contained in given list."""
+  billingEmail_in: [String!]
+
+  """All values that are not contained in given list."""
+  billingEmail_not_in: [String!]
+
+  """All values less than the given value."""
+  billingEmail_lt: String
+
+  """All values less than or equal the given value."""
+  billingEmail_lte: String
+
+  """All values greater than the given value."""
+  billingEmail_gt: String
+
+  """All values greater than or equal the given value."""
+  billingEmail_gte: String
+
+  """All values containing the given string."""
+  billingEmail_contains: String
+
+  """All values not containing the given string."""
+  billingEmail_not_contains: String
+
+  """All values starting with the given string."""
+  billingEmail_starts_with: String
+
+  """All values not starting with the given string."""
+  billingEmail_not_starts_with: String
+
+  """All values ending with the given string."""
+  billingEmail_ends_with: String
+
+  """All values not ending with the given string."""
+  billingEmail_not_ends_with: String
   logo: MediaWhereInput
   roles_every: RoleWhereInput
   roles_some: RoleWhereInput
@@ -55916,6 +56173,168 @@ input SignupsReportByDateWhereInput {
   campaignOrderSignupReport: CampaignOrderSignupReportWhereInput
 }
 
+input SlaConfigWhereInput {
+  """Logical AND on all given filters."""
+  AND: [SlaConfigWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [SlaConfigWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [SlaConfigWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  requestType: String
+
+  """All values that are not equal to given value."""
+  requestType_not: String
+
+  """All values that are contained in given list."""
+  requestType_in: [String!]
+
+  """All values that are not contained in given list."""
+  requestType_not_in: [String!]
+
+  """All values less than the given value."""
+  requestType_lt: String
+
+  """All values less than or equal the given value."""
+  requestType_lte: String
+
+  """All values greater than the given value."""
+  requestType_gt: String
+
+  """All values greater than or equal the given value."""
+  requestType_gte: String
+
+  """All values containing the given string."""
+  requestType_contains: String
+
+  """All values not containing the given string."""
+  requestType_not_contains: String
+
+  """All values starting with the given string."""
+  requestType_starts_with: String
+
+  """All values not starting with the given string."""
+  requestType_not_starts_with: String
+
+  """All values ending with the given string."""
+  requestType_ends_with: String
+
+  """All values not ending with the given string."""
+  requestType_not_ends_with: String
+  recommendedDays: Int
+
+  """All values that are not equal to given value."""
+  recommendedDays_not: Int
+
+  """All values that are contained in given list."""
+  recommendedDays_in: [Int!]
+
+  """All values that are not contained in given list."""
+  recommendedDays_not_in: [Int!]
+
+  """All values less than the given value."""
+  recommendedDays_lt: Int
+
+  """All values less than or equal the given value."""
+  recommendedDays_lte: Int
+
+  """All values greater than the given value."""
+  recommendedDays_gt: Int
+
+  """All values greater than or equal the given value."""
+  recommendedDays_gte: Int
+  createdAt: DateTime
+
+  """All values that are not equal to given value."""
+  createdAt_not: DateTime
+
+  """All values that are contained in given list."""
+  createdAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  createdAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  createdAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  createdAt_lte: DateTime
+
+  """All values greater than the given value."""
+  createdAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+
+  """All values that are not equal to given value."""
+  updatedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  updatedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  updatedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  updatedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  updatedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  updatedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  updatedAt_gte: DateTime
+}
+
+input SlaConfigWhereUniqueInput {
+  id: ID
+  requestType: String
+}
+
 input StrainTypeWhereInput {
   """Logical AND on all given filters."""
   AND: [StrainTypeWhereInput!]
@@ -62927,6 +63346,10 @@ type AggregateSeoCommerceTransactions {
   count: Int!
 }
 
+type AggregateSlaConfig {
+  count: Int!
+}
+
 type AggregateSystemAlert {
   count: Int!
 }
@@ -63336,6 +63759,7 @@ type Campaign implements Node {
   isLaunchProgrammatically: Boolean
   hasMediaPlanStrategy: Boolean
   valueAdd: Boolean
+  flightSchedules(where: FlightScheduleWhereInput, orderBy: FlightScheduleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [FlightSchedule!]
 }
 
 type CampaignChecklist implements Node {
@@ -63415,6 +63839,7 @@ type CampaignOrder implements Node {
   attributionTargets(where: GeoTargetWhereInput, orderBy: GeoTargetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [GeoTarget!]
   walkInTargets(where: GeoTargetWhereInput, orderBy: GeoTargetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [GeoTarget!]
   attributionAudiences(where: AudienceWhereInput, orderBy: AudienceOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Audience!]
+  complianceAudiences(where: AudienceWhereInput, orderBy: AudienceOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Audience!]
   repullVWI: Boolean
   adUnits(where: AdUnitWhereInput, orderBy: AdUnitOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [AdUnit!]
   startDate: DateTime
@@ -64469,6 +64894,12 @@ type EventsTarget implements Node {
   thirdPartyTag: Json
   s3_pv: String
   s3_tr: String
+  s1: String
+  s2_tr: String
+  s2_pv: String
+  segments: [String!]!
+  tagId: String
+  version: Int
 }
 
 type EventsTargetByDate implements Node {
@@ -64635,6 +65066,7 @@ type FeeMatrix implements Node {
 type FlightSchedule implements Node {
   id: ID!
   lineItem: LineItem
+  campaign: Campaign
   startDate: DateTime!
   endDate: DateTime!
   budget: Float!
@@ -65185,6 +65617,7 @@ type Org implements Node {
   status: OrgStatus
   parentOrder: [ID!]!
   hasMediaPlanStrategy: Boolean
+  billingEmail: String
 }
 
 type OrgConfig implements Node {
@@ -65372,6 +65805,7 @@ type OrgTableConfigData {
   isShowSignUps: Boolean
   isShowBudget: Boolean
   isShowAttribution: Boolean
+  isShowProfit: Boolean
 }
 
 type OrgTagsConfig implements Node {
@@ -66640,6 +67074,33 @@ type SignupsV2PaginatedResponse {
   hasMore: Boolean!
 }
 
+type SlaConfig implements Node {
+  id: ID!
+  requestType: String!
+  recommendedDays: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A connection to a list of items."""
+type SlaConfigConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [SlaConfigEdge]!
+  aggregate: AggregateSlaConfig!
+}
+
+"""An edge in a connection."""
+type SlaConfigEdge {
+  """The item at the end of the edge."""
+  node: SlaConfig!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
 type Strain implements Node {
   id: ID!
   isPublished: Boolean!
@@ -67366,6 +67827,28 @@ type Query {
       first: Int
       last: Int
     ): TaskConnection
+
+  slaConfig(where: SlaConfigWhereUniqueInput!): SlaConfig
+
+  slaConfigs(
+      where: SlaConfigWhereInput
+      orderBy: SlaConfigOrderByInput
+      skip: Int
+      after: String
+      before: String
+      first: Int
+      last: Int
+    ): [SlaConfig]!
+
+  slaConfigsConnection(
+      where: SlaConfigWhereInput
+      orderBy: SlaConfigOrderByInput
+      skip: Int
+      after: String
+      before: String
+      first: Int
+      last: Int
+    ): SlaConfigConnection!
 
   project(where: ProjectWhereUniqueInput!): Project
 

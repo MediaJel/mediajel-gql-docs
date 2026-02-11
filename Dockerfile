@@ -10,7 +10,7 @@ COPY script/ script/
 COPY src/ src/
 COPY next.config.js .
 COPY postcss.config.js .
-COPY tailwind.config.js .
+COPY tailwind.config.ts .
 
 RUN yarn install --ignore-engines
 

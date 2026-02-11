@@ -2,317 +2,503 @@
 
 Interactive GraphQL API documentation with playground and AI assistant.
 
-## Features
-
-- **Interactive Schema Explorer** - Browse all queries, mutations, and types
-- **GraphiQL Playground** - Test queries with full autocompletion
-- **AI Query Assistant** - Natural language to GraphQL query generation (drawer UI)
-- **Comprehensive Guides** - Quickstart, authentication, rate limits, pagination, error handling
-- **Build-time Schema Sync** - Automatically pulls curated public schema from GQL service
+**Key Features:**
+- Interactive Schema Explorer - Browse all queries, mutations, and types
+- GraphiQL Playground - Test queries with full autocompletion
+- AI Query Assistant - Natural language to GraphQL query generation (powered by Knowledge Base)
+- Comprehensive Guides - Quickstart, authentication, rate limits, pagination, error handling
 
 ---
 
-## Quick Start (TL;DR)
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        MEDIAJEL DOCS ARCHITECTURE                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│ mediajel-gql-service│     │   knowledge-sync    │     │     Notion KB       │
+│                     │     │                     │     │                     │
+│  schema.graphql     │     │  Fetches pages      │◄────│  Company, Product,  │
+│  prisma.graphql     │     │  Extracts content   │     │  Technical, Ops...  │
+│         │           │     │  Uploads to OpenAI  │     │                     │
+│         ▼           │     │         │           │     └─────────────────────┘
+│  generate-public-api│     │         ▼           │
+│         │           │     │  OpenAI Vector Store│
+│         ▼           │     │  OpenAI Assistant   │
+│  public-schema.graphql    │         │           │
+│  public-api-config.json   └─────────┼───────────┘
+│         │           │               │
+└─────────┼───────────┘               │
+          │                           │
+          ▼                           ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        mediajel-gql-docs (Next.js)                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  src/content/                    │  src/app/api/chat/                       │
+│  ├── public-schema.graphql       │  └── Queries OpenAI Assistant            │
+│  └── public-api-config.json      │      with file_search (RAG)              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Schema Explorer │ GraphiQL Playground │ AI Assistant │ Guides              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Data Flow
+
+The system has **two parallel pipelines** that feed into the docs app:
+
+### Pipeline 1: Schema (GraphQL Operations)
+
+```
+mediajel-gql-service          mediajel-gql-docs
+       │                             │
+       ▼                             │
+  generate-public-api                │
+       │                             │
+       ▼                             ▼
+  public-schema.graphql  ──────►  src/content/public-schema.graphql
+  public-api-config.json ──────►  src/content/public-api-config.json
+                         (yarn sync-schema)
+```
+
+**Purpose**: Powers Schema Explorer, GraphiQL Playground, and query autocompletion.
+
+### Pipeline 2: Knowledge Base (AI Assistant)
+
+```
+Notion KB  ──────►  knowledge-sync  ──────►  OpenAI Vector Store
+                                                    │
+                                                    ▼
+                                            OpenAI Assistant (GPT-4 + RAG)
+                                                    │
+                                                    ▼
+                                            /api/chat route
+                                                    │
+                                                    ▼
+                                            AI Query Assistant UI
+```
+
+**Purpose**: Powers the AI assistant with company/product knowledge for contextual responses.
+
+---
+
+## Authentication Flow
+
+The GraphQL API uses AWS Cognito for authentication. Here's the flow:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           AUTHENTICATION FLOW                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  1. User calls authSignIn mutation with username/password
+                              │
+                              ▼
+  2. gql-service authenticates with AWS Cognito
+                              │
+                              ▼
+  3. Returns: accessToken, idToken, refreshToken
+                              │
+                              ▼
+  4. All subsequent requests use:
+     • Header: Authorization: Bearer <accessToken>
+     • Header: Key: <organizationId>
+```
+
+### Example Sign In
+
+```graphql
+mutation {
+  authSignIn(input: {
+    username: "user@example.com"
+    password: "yourPassword"
+  }) {
+    accessToken
+    idToken
+    refreshToken
+  }
+}
+```
+
+### Authenticated Request Headers
+
+| Header | Value | Description |
+|--------|-------|-------------|
+| `Authorization` | `Bearer <accessToken>` | JWT token from sign in |
+| `Key` | `<organizationId>` | Organization context for queries |
+
+---
+
+## Embeddable Playground
+
+The GraphiQL playground can be embedded in other applications (e.g., mediajel-dashboard) via iframe with automatic authentication.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          EMBEDDABLE USAGE FLOW                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│     mediajel-dashboard (localhost:3000)     │
+│                                             │
+│  ┌───────────────────────────────────────┐  │
+│  │       ApiDocsView Component           │  │
+│  │                                       │  │
+│  │  • Fetch JWT from Auth.currentSession │  │
+│  │  • Build iframe URL with params       │  │
+│  │  • Render iframe                      │  │
+│  └───────────────────────────────────────┘  │
+│                     │                       │
+└─────────────────────┼───────────────────────┘
+                      │
+                      ▼
+       ┌──────────────────────────────┐
+       │     iframe (full viewport)   │
+       │                              │
+       │  src: http://localhost:3006  │
+       │       /playground?           │
+       │       embedded=true&         │
+       │       token=JWT&             │
+       │       orgId=ORG_ID           │
+       └──────────────┬───────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    mediajel-gql-docs (localhost:3006)                       │
+│                                                                             │
+│  1. Middleware detects ?embedded=true                                       │
+│     → Sets mediajel_embedded=true cookie                                    │
+│                                                                             │
+│  2. EmbedAuthBridge reads URL params                                        │
+│     → Injects token + orgId into localStorage                               │
+│                                                                             │
+│  3. Playground auto-authenticates                                           │
+│     → Reads from localStorage                                               │
+│     → No login form shown                                                   │
+│                                                                             │
+│  4. Full UI rendered (header, sidebar, etc.)                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Embed URL Parameters
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `embedded` | Yes | Set to `true` to enable embedded mode |
+| `token` | Yes | JWT access token from parent app |
+| `orgId` | Yes | Organization ID for API context |
+
+### Example iframe Implementation
+
+```html
+<iframe
+  src="http://localhost:3006/playground?embedded=true&token=JWT_TOKEN&orgId=ORG_ID"
+  style="width: 100%; height: 100vh; border: none;"
+  title="API Playground"
+/>
+```
+
+### React Component Example
+
+```tsx
+const ApiDocsView = () => {
+  const [iframeUrl, setIframeUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const buildUrl = async () => {
+      const session = await Auth.currentSession();
+      const token = session.getAccessToken().getJwtToken();
+      const orgId = getCurrentOrgId();
+
+      const url = new URL('http://localhost:3006/playground');
+      url.searchParams.set('embedded', 'true');
+      url.searchParams.set('token', token);
+      url.searchParams.set('orgId', orgId);
+
+      setIframeUrl(url.toString());
+    };
+    buildUrl();
+  }, []);
+
+  if (!iframeUrl) return <Loading />;
+
+  return (
+    <iframe
+      src={iframeUrl}
+      style={{ width: '100%', height: '100vh', border: 'none' }}
+      title="API Playground"
+    />
+  );
+};
+```
+
+---
+
+## DevOps Quick Start
+
+Follow these phases in order. Each phase must complete before the next begins.
+
+### PHASE 1: Generate Schema (mediajel-gql-service)
+
+**Time**: ~2 minutes | **Prerequisite**: Node 14
 
 ```bash
-# 1. Clone repos (must be siblings)
-git clone git@github.com:MediaJel/mediajel-gql-service.git
-git clone git@github.com:MediaJel/mediajel-gql-docs.git
-
-# 2. Generate public schema in gql-service
 cd mediajel-gql-service
-npm install
-npm run generate-public-api
-
-# 3. Setup docs app
-cd ../mediajel-gql-docs
-yarn install
-cp .env.example .env.local
-# Edit .env.local with your values
-
-# 4. Run docs app
-yarn dev
-```
-
----
-
-## Prerequisites
-
-| Requirement | Version | Notes |
-|-------------|---------|-------|
-| Node.js | 18+ | For mediajel-gql-docs |
-| Node.js | 14.18.0 | For mediajel-gql-service (use nvm) |
-| Yarn | 1.x | Package manager for docs app |
-| npm | 6+ | For gql-service |
-| OpenAI API Key | - | Required for AI assistant feature |
-
----
-
-## Workspace Setup
-
-### Directory Structure
-
-Both repositories must be **sibling directories** in the same workspace:
-
-```
-mediajel-workspace/
-├── mediajel-gql-service/     # GraphQL API backend (source of truth)
-│   └── src/webapp/public-api/
-│       ├── public-schema.graphql      # Auto-generated
-│       ├── public-api-config.json     # Auto-generated
-│       └── scripts/
-│           ├── generate-public-schema.ts
-│           ├── generate-public-config.ts
-│           ├── generate-org-scope-config.ts
-│           └── run-generation.ts
-│
-└── mediajel-gql-docs/        # Documentation portal (this repo)
-    └── src/content/
-        ├── public-schema.graphql      # Synced from gql-service
-        └── public-api-config.json     # Synced from gql-service
-```
-
-### Clone Repositories
-
-```bash
-# Create workspace directory
-mkdir mediajel-workspace && cd mediajel-workspace
-
-# Clone both repos
-git clone git@github.com:MediaJel/mediajel-gql-service.git
-git clone git@github.com:MediaJel/mediajel-gql-docs.git
-```
-
----
-
-## Generating Public Schema (mediajel-gql-service)
-
-The public schema is the **source of truth** for the documentation portal. It is auto-generated from the main GraphQL schema.
-
-### Step 1: Setup mediajel-gql-service
-
-```bash
-cd mediajel-gql-service
-
-# Use Node 14 (required for Prisma v1)
 nvm use 14
-
-# Install dependencies
-npm install
+yarn install
+yarn generate-public-api
 ```
 
-### Step 2: Generate Public API Files
+**Output files** (in `src/webapp/public-api/`):
+- `public-schema.graphql` - All public queries/mutations/types (~15,000 lines)
+- `public-api-config.json` - Category mappings, descriptions, examples
+
+### PHASE 2: Sync Knowledge Base (Optional)
+
+**Time**: ~5 minutes | **Prerequisite**: Notion & OpenAI API keys
+
+Skip this phase if you only need Schema Explorer and Playground without AI features.
 
 ```bash
-npm run generate-public-api
+cd knowledge-sync
+yarn install
+cp .env.example .env
+# Edit .env with:
+#   NOTION_SECRET=<your-notion-integration-key>
+#   NOTION_ROOT_PAGE_ID=<your-kb-root-page-id>
+#   OPENAI_API_KEY=<your-openai-key>
+yarn sync
 ```
 
-This runs three scripts in sequence:
+**Output** (save these for Phase 3):
+- `OPENAI_ASSISTANT_ID` - Printed to console
+- `OPENAI_VECTOR_STORE_ID` - Printed to console
 
-| Step | Script | Output |
-|------|--------|--------|
-| 1 | `generate-public-schema.ts` | `public-schema.graphql` - All queries and types |
-| 2 | `generate-public-config.ts` | `public-api-config.json` - Metadata and examples |
-| 3 | `generate-org-scope-config.ts` | `org-scope-config.ts` - Org-level filtering rules |
+### PHASE 3: Setup Docs App (mediajel-gql-docs)
 
-### Generated Files Location
-
-```
-mediajel-gql-service/src/webapp/public-api/
-├── public-schema.graphql      # ~15,000 lines, all public queries/types
-├── public-api-config.json     # Category mappings, descriptions, examples
-└── scripts/
-    └── ...
-```
-
-### When to Regenerate
-
-Run `npm run generate-public-api` when:
-- Adding new queries/mutations to the schema
-- Modifying existing query signatures
-- Changing type definitions
-- After Prisma schema changes
-
----
-
-## Setting Up mediajel-gql-docs
-
-### Step 1: Install Dependencies
+**Time**: ~2 minutes | **Prerequisite**: Node 18, Phases 1 & 2 complete
 
 ```bash
 cd mediajel-gql-docs
-
-# Use Node 18+
 nvm use 18
-
-# Install with yarn
 yarn install
-```
-
-### Step 2: Configure Environment
-
-```bash
-# Copy template
 cp .env.example .env.local
 ```
 
 Edit `.env.local`:
 
 ```env
-# GraphQL API endpoint
-# Development: http://localhost:4000
-# Dojo (staging): https://api-dojo.mediajel.io
-# Production: https://api.mediajel.com
+# Required
 NEXT_PUBLIC_GQL_ENDPOINT=http://localhost:4000
+OPENAI_API_KEY=sk-your-api-key
 
-# OpenAI API key (required for AI assistant)
-OPENAI_API_KEY=sk-your-api-key-here
+# From Phase 2 (required for AI assistant)
+OPENAI_ASSISTANT_ID=asst_xxxxx
+OPENAI_VECTOR_STORE_ID=vs_xxxxx
+
+# Optional - for KB sync scripts
+NOTION_SECRET=secret_xxxxx
+NOTION_ROOT_PAGE_ID=xxxxx
 ```
 
-### Step 3: Sync Schema
+Sync the schema from Phase 1:
 
 ```bash
-# Pull schema from gql-service into docs app
 yarn sync-schema
 ```
 
-This copies:
-- `public-schema.graphql` → `src/content/public-schema.graphql`
-- `public-api-config.json` → `src/content/public-api-config.json`
+### PHASE 4: Run Application
+
+```bash
+yarn dev
+```
+
+**Access at**: http://localhost:3006
+
+---
+
+## Prerequisites
+
+| Requirement | Version | Used For |
+|-------------|---------|----------|
+| Node.js | 14.18.0 | mediajel-gql-service (use `nvm use 14`) |
+| Node.js | 18+ | mediajel-gql-docs (use `nvm use 18`) |
+| Yarn | 1.x | Package manager for all projects |
+| OpenAI API Key | - | AI assistant feature |
+| Notion API Key | - | Knowledge Base sync (optional) |
 
 ---
 
 ## Environment Variables
 
-| Variable | Required | Description | Example Values |
-|----------|----------|-------------|----------------|
-| `NEXT_PUBLIC_GQL_ENDPOINT` | Yes | GraphQL API URL | `http://localhost:4000`, `https://api.mediajel.com` |
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `NEXT_PUBLIC_GQL_ENDPOINT` | Yes | GraphQL API URL for playground | `http://localhost:4000` |
 | `OPENAI_API_KEY` | Yes | OpenAI API key for AI assistant | `sk-...` |
+| `OPENAI_ASSISTANT_ID` | For AI | Assistant ID from knowledge-sync | `asst_...` |
+| `OPENAI_VECTOR_STORE_ID` | For AI | Vector store ID from knowledge-sync | `vs_...` |
+| `NOTION_SECRET` | For KB sync | Notion integration API key | `secret_...` |
+| `NOTION_ROOT_PAGE_ID` | For KB sync | Root KB page ID in Notion | Page ID |
+| `NOTION_PARENT_PAGE_ID` | For KB build | Parent page for new KB creation | Page ID |
 
-### Environment-Specific Endpoints
+### GraphQL Endpoints by Environment
 
-| Environment | GraphQL Endpoint |
-|-------------|------------------|
+| Environment | Endpoint |
+|-------------|----------|
 | Local Development | `http://localhost:4000` |
 | Dojo (Staging) | `https://api-dojo.mediajel.io` |
 | Production | `https://api.mediajel.com` |
 
 ---
 
-## Development
+## Knowledge Base Integration
 
-### Standard Mode
+The AI assistant uses a Knowledge Base synced from Notion to OpenAI for contextual, accurate responses.
 
-```bash
-yarn dev
+### How It Works
+
+```
+┌──────────────┐       ┌──────────────┐       ┌──────────────────────────┐
+│              │       │              │       │                          │
+│ mediajel.com │──────▶│    Notion    │──────▶│   OpenAI Vector Store    │
+│   (Source)   │ scrape│ Knowledge Base│ sync  │   (File Search Index)    │
+│              │       │              │       │                          │
+└──────────────┘       └──────────────┘       └────────────┬─────────────┘
+                                                           │
+                                                           ▼
+                                               ┌───────────────────────┐
+                                               │   OpenAI Assistant    │
+                                               │   (GPT-4 + RAG)       │
+                                               └───────────┬───────────┘
+                                                           │
+                                                           ▼
+                                               ┌───────────────────────┐
+                                               │  /api/chat Route      │
+                                               │  (mediajel-gql-docs)  │
+                                               └───────────────────────┘
 ```
 
-- Runs Next.js dev server on port **3006**
-- Access at `http://localhost:3006`
+### Knowledge Base Sections
 
-### Watch Mode (Recommended for Development)
+| Section | Content |
+|---------|---------|
+| Company | Mission, values, leadership team |
+| Product | DemoGraph, MediaJel Buyer, DataJel, Search Lights pricing |
+| Technical | Attribution methodology, advertising channels, integrations |
+| Operations | Cannabis compliance playbook, FAQs |
+| Sales & Marketing | Target industries, case studies, competitive analysis |
+| Services | Dispensary marketing, agency services |
 
-```bash
-yarn start:watch
-```
-
-This runs concurrently:
-- Next.js dev server on port 3006
-- File watcher that auto-syncs schema when files change in `mediajel-gql-service/src/webapp/public-api/`
-
-### Manual Schema Sync
+### Updating the Knowledge Base
 
 ```bash
-yarn sync-schema
+# Option 1: Edit content in Notion, then sync
+yarn sync:knowledge
+
+# Option 2: Rebuild entire KB from scratch
+yarn build:kb
+# Copy the outputted NOTION_ROOT_PAGE_ID to .env.local
+yarn sync:knowledge
 ```
 
 ---
 
-## Production Build
+## Development Commands
 
-```bash
-# Build (syncs schema + builds Next.js app)
-yarn build
-
-# Start production server
-yarn start
-```
-
----
-
-## Project Structure
-
-```
-mediajel-gql-docs/
-├── src/
-│   ├── app/                    # Next.js 14 App Router pages
-│   │   ├── page.tsx           # Homepage
-│   │   ├── schema/            # Schema explorer
-│   │   ├── playground/        # GraphiQL playground
-│   │   ├── assistant/         # AI chat (full page)
-│   │   ├── guides/            # Static documentation
-│   │   └── api/chat/          # AI chat API route
-│   ├── components/
-│   │   ├── assistant/         # Chat UI + drawer
-│   │   ├── layout/            # Header, sidebar, app shell
-│   │   ├── playground/        # GraphiQL wrapper + auth
-│   │   ├── schema/            # Operation detail views
-│   │   └── ui/                # Shared UI components
-│   ├── lib/
-│   │   ├── schema.ts          # Schema parsing utilities
-│   │   └── utils.ts           # General utilities
-│   └── content/               # Schema files (synced from GQL service)
-│       ├── public-schema.graphql
-│       └── public-api-config.json
-├── scripts/
-│   └── sync-schema.js         # Schema sync script
-├── public/                    # Static assets
-├── .env.example               # Environment template
-├── .env.local                 # Local environment (git-ignored)
-├── package.json
-└── README.md
-```
-
----
-
-## Scripts Reference
-
-| Script | Description |
-|--------|-------------|
+| Command | Description |
+|---------|-------------|
 | `yarn dev` | Start dev server on port 3006 |
-| `yarn start:watch` | Dev server + auto-sync schema on changes |
+| `yarn start:watch` | Dev server + auto-sync schema on file changes |
 | `yarn build` | Sync schema + build production bundle |
 | `yarn start` | Start production server |
 | `yarn sync-schema` | Manually sync schema from GQL service |
+| `yarn sync:knowledge` | Sync Notion KB to OpenAI |
+| `yarn build:kb` | Create KB structure in Notion |
 | `yarn lint` | Run ESLint |
 
 ---
 
-## Schema Management
+## Directory Structure
 
-### How Schema Sync Works
+```
+mediajel-workspace/
+├── mediajel-gql-service/           # GraphQL API backend (source of truth)
+│   └── src/webapp/public-api/
+│       ├── public-schema.graphql   # Auto-generated
+│       └── public-api-config.json  # Auto-generated
+│
+├── knowledge-sync/                  # Notion → OpenAI sync scripts
+│   ├── .env                         # API keys
+│   └── scripts/
+│
+└── mediajel-gql-docs/               # This repo - Documentation portal
+    ├── src/
+    │   ├── app/                     # Next.js App Router pages
+    │   │   ├── schema/              # Schema explorer
+    │   │   ├── playground/          # GraphiQL playground
+    │   │   ├── assistant/           # AI chat (full page)
+    │   │   ├── guides/              # Static documentation
+    │   │   └── api/chat/            # AI chat API route
+    │   ├── components/              # React components
+    │   ├── lib/                     # Utilities
+    │   └── content/                 # Synced schema files
+    │       ├── public-schema.graphql
+    │       └── public-api-config.json
+    ├── scripts/
+    │   └── sync-schema.js
+    └── .env.local                   # Environment config
+```
 
-1. **Source**: `mediajel-gql-service/src/webapp/public-api/`
-2. **Destination**: `mediajel-gql-docs/src/content/`
-3. **Script**: `scripts/sync-schema.js`
+---
 
-The sync copies two files:
-- `public-schema.graphql` - GraphQL SDL with all public operations
-- `public-api-config.json` - Metadata (descriptions, examples, categories)
+## Troubleshooting
 
-### Complete Schema Update Workflow
+### "Source file not found" during sync
 
+```
+Error: Source file not found: .../mediajel-gql-service/src/webapp/public-api/public-schema.graphql
+```
+
+**Cause**: Phase 1 not completed - schema not generated yet.
+
+**Solution**:
 ```bash
-# 1. In mediajel-gql-service: regenerate public schema
 cd mediajel-gql-service
 nvm use 14
-npm run generate-public-api
+yarn generate-public-api
+```
 
-# 2. In mediajel-gql-docs: sync and restart
-cd ../mediajel-gql-docs
-nvm use 18
-yarn sync-schema
+### Schema not updating after changes
+
+**Solution**: Run the complete update workflow:
+```bash
+# 1. Regenerate in gql-service
+cd mediajel-gql-service && yarn generate-public-api
+
+# 2. Sync in docs app
+cd ../mediajel-gql-docs && yarn sync-schema
+
+# 3. Restart dev server
 yarn dev
+```
+
+### AI Assistant not working
+
+**Check**:
+1. `OPENAI_API_KEY` is set in `.env.local`
+2. `OPENAI_ASSISTANT_ID` is set (from Phase 2)
+3. `OPENAI_VECTOR_STORE_ID` is set (from Phase 2)
+4. API key has sufficient credits
+5. Browser console for specific errors
+
+### Port 3006 already in use
+
+```bash
+lsof -i :3006
+kill -9 <PID>
 ```
 
 ---
@@ -328,186 +514,35 @@ yarn dev
 | Vercel AI SDK | AI chat integration |
 | OpenAI GPT-4 | AI assistant |
 | graphql | Schema parsing |
-| react-markdown | Markdown rendering |
-| prism-react-renderer | Code syntax highlighting |
-
----
-
-## Knowledge Base Integration
-
-The AI assistant is powered by a Knowledge Base synced from Notion to OpenAI. Content is scraped from mediajel.com and organized in Notion for easy editing.
-
-### Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        KNOWLEDGE BASE ARCHITECTURE                          │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-  ┌──────────────┐       ┌──────────────┐       ┌──────────────────────────┐
-  │              │       │              │       │                          │
-  │ mediajel.com │──────▶│    Notion    │──────▶│   OpenAI Vector Store    │
-  │   (Source)   │ scrape│ Knowledge Base│ sync  │   (File Search Index)    │
-  │              │       │              │       │                          │
-  └──────────────┘       └──────────────┘       └────────────┬─────────────┘
-                                                             │
-                               ┌─────────────────────────────┘
-                               │
-                               ▼
-                   ┌───────────────────────┐
-                   │                       │
-                   │   OpenAI Assistant    │
-                   │   (GPT-4 + RAG)       │
-                   │                       │
-                   └───────────┬───────────┘
-                               │
-                               ▼
-  ┌────────────────────────────────────────────────────────────────────────┐
-  │                                                                        │
-  │                     mediajel-gql-docs (Next.js)                        │
-  │  ┌──────────────────────────────────────────────────────────────────┐  │
-  │  │                        /api/chat                                 │  │
-  │  │                   (Chat API Route)                               │  │
-  │  └──────────────────────────┬───────────────────────────────────────┘  │
-  │                             │                                          │
-  │                             ▼                                          │
-  │  ┌──────────────────────────────────────────────────────────────────┐  │
-  │  │                    AI Query Assistant                            │  │
-  │  │              (Drawer UI + Full Page Chat)                        │  │
-  │  └──────────────────────────────────────────────────────────────────┘  │
-  │                                                                        │
-  └────────────────────────────────────────────────────────────────────────┘
-```
-
-### Data Flow
-
-1. **Content Source**: Website content scraped from mediajel.com
-2. **Notion KB**: Organized into sections (Company, Product, Technical, Operations, Sales & Marketing, Services)
-3. **Sync Script**: `yarn sync:knowledge` fetches Notion pages and uploads to OpenAI
-4. **Vector Store**: OpenAI indexes content for semantic search (RAG)
-5. **Assistant**: GPT-4 with file_search tool queries the vector store
-6. **Chat API**: Next.js API route streams responses to the UI
-
-### Knowledge Base Sections
-
-| Section | Content |
-|---------|---------|
-| Company | Mission, values, leadership team |
-| Product | DemoGraph, MediaJel Buyer, DataJel, Search Lights pricing |
-| Technical | Attribution methodology, advertising channels, integrations |
-| Operations | Cannabis compliance playbook, FAQs |
-| Sales & Marketing | Target industries, case studies, competitive analysis |
-| Services | Dispensary marketing, agency services |
-
-### Scripts
-
-| Script | Description |
-|--------|-------------|
-| `yarn build:kb` | Create Knowledge Base structure in Notion with pre-filled content |
-| `yarn sync:knowledge` | Sync Notion KB to OpenAI vector store and create/update assistant |
-
-### Environment Variables (Knowledge Base)
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NOTION_SECRET` | Yes | Notion integration API key |
-| `NOTION_PARENT_PAGE_ID` | Yes | Parent page ID for creating new KB |
-| `NOTION_ROOT_PAGE_ID` | Yes | Root KB page ID (after build:kb) |
-| `OPENAI_ASSISTANT_ID` | Auto | Generated by sync:knowledge |
-| `OPENAI_VECTOR_STORE_ID` | Auto | Generated by sync:knowledge |
-
-### Updating the Knowledge Base
-
-```bash
-# Option 1: Edit content directly in Notion, then sync
-yarn sync:knowledge
-
-# Option 2: Rebuild entire KB from scratch
-yarn build:kb
-# Copy the outputted NOTION_ROOT_PAGE_ID to .env.local
-yarn sync:knowledge
-```
 
 ---
 
 ## Deployment
 
-### DevOps Checklist
+### Environment Variables Required
 
-1. **Environment Variables**
-   - Set `OPENAI_API_KEY` in deployment platform
-   - Set `NEXT_PUBLIC_GQL_ENDPOINT` to appropriate environment
+- `OPENAI_API_KEY` - Required
+- `OPENAI_ASSISTANT_ID` - Required for AI features
+- `OPENAI_VECTOR_STORE_ID` - Required for AI features
+- `NEXT_PUBLIC_GQL_ENDPOINT` - Set to appropriate environment
 
-2. **Build Command**
-   ```bash
-   yarn build
-   ```
+### Commands
 
-3. **Start Command**
-   ```bash
-   yarn start
-   ```
+```bash
+# Build
+yarn build
 
-4. **Node Version**: 18+
+# Start
+yarn start
+```
 
-### Deployment Platforms
+**Node Version**: 18+
+
+### Platforms
 
 - **Vercel** (recommended) - Auto-detects Next.js
 - **Docker** - Use Node 18 base image
 - **AWS/GCP** - Any Node.js hosting
-
-### Docker Example
-
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-
-COPY . .
-RUN yarn build
-
-EXPOSE 3000
-CMD ["yarn", "start"]
-```
-
----
-
-## Troubleshooting
-
-### "Source file not found" during sync
-
-```
-Error: Source file not found: .../mediajel-gql-service/src/webapp/public-api/public-schema.graphql
-```
-
-**Solution**: Generate the public schema first:
-```bash
-cd mediajel-gql-service
-npm run generate-public-api
-```
-
-### Schema not updating after changes
-
-1. Regenerate schema in gql-service: `npm run generate-public-api`
-2. Sync in docs app: `yarn sync-schema`
-3. Restart dev server: `yarn dev`
-
-### AI Assistant not working
-
-- Verify `OPENAI_API_KEY` is set in `.env.local`
-- Check API key has sufficient credits
-- Check browser console for errors
-
-### Port 3006 already in use
-
-```bash
-# Find and kill process using port 3006
-lsof -i :3006
-kill -9 <PID>
-```
 
 ---
 

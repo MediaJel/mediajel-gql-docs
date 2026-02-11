@@ -1,0 +1,116 @@
+version: 2.1
+
+executors:
+  docker-executor:
+    docker:
+      - image: cimg/node:18.20.0
+    resource_class: medium
+    working_directory: ~/gql-docs
+orbs:
+  aws-cli: circleci/aws-cli@4.0
+  aws-ecr: circleci/aws-ecr@9.0.2
+
+jobs:
+  build:
+    executor: docker-executor
+    steps:
+      - checkout
+      - setup_remote_docker:
+            version: docker24
+      - aws-ecr/build_and_push_image:
+          account_id: ${AWS_ACCOUNT_ID}
+          auth:
+              - aws-cli/setup:
+                region: ${AWS_ECR_REGION}
+          repo_scan_on_push: true
+          create_repo: false
+          region: 'us-east-1'
+          repo: gql-docs
+          tag: $CIRCLE_SHA1
+          platform: linux/amd64
+          attach_workspace: true
+          workspace_root: .
+          dockerfile: ./Dockerfile
+
+  deploy-and-rollout:
+    executor: docker-executor
+    steps:
+      - checkout
+
+      - run:
+          name: Install kops
+          command: |
+            KOPS_VERSION=1.22.6
+            wget -O kops https://github.com/kubernetes/kops/releases/download/v${KOPS_VERSION}/kops-linux-amd64
+            chmod +x ./kops
+            sudo mv ./kops /usr/local/bin/kops
+            echo "export KOPS_CLUSTER_NAME=${KOPS_CLUSTER_NAME}" >> $BASH_ENV
+            echo "export KOPS_STATE_STORE=s3://${KOPS_STATE_STORE}" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> $BASH_ENV
+            echo "export AWS_REGION=${AWS_ECR_REGION}" >> $BASH_ENV
+
+      - run:
+          name: Install kubectl
+          command: |
+            wget -O kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/kubectl
+
+      - run:
+          name: Install helm 3
+          command: |
+            wget https://get.helm.sh/helm-v3.5.2-linux-amd64.tar.gz
+            tar -xf helm-v3.5.2-linux-amd64.tar.gz
+            chmod +x ./linux-amd64/helm
+            sudo mv ./linux-amd64/helm /usr/local/bin/helm3
+            kops export kubecfg --admin
+            helm3 version
+
+      - run:
+          name: Update Graphql Docs (Helm3 release)
+          command: |
+            kops export kubecfg --admin
+            helm3 upgrade --install gql-docs charts/ --set \
+            commitSha=${CIRCLE_SHA1} -f charts/stages/dojo.yaml \
+            --history-max=1
+
+      - run:
+          name: Rollout Graphql Docs
+          command: |
+            kops export kubecfg --admin
+            kubectl rollout restart deployment gql-docs;
+            kubectl rollout status deployment/gql-docs -w
+
+workflows:
+  build-deploy-dojo:
+    jobs:
+      - build:
+          name: Build-Graphql-Docs
+          context: STAGING
+          filters:
+            branches:
+              only: dojo
+      - deploy-and-rollout:
+          name: Deploy-Graphql-Docs
+          context: STAGING
+          filters:
+            branches:
+              only: dojo
+          requires: [Build-Graphql-Docs]
+
+  build-deploy-prod:
+    jobs:
+      - build:
+          name: Build-Graphql-Docs
+          context: PRODUCTION
+          filters:
+            branches:
+              only: master
+      - deploy-and-rollout:
+          name: Deploy-Graphql-Docs
+          context: PRODUCTION
+          filters:
+            branches:
+              only: master
+          requires: [Build-Graphql-Docs]

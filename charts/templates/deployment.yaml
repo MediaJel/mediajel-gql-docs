@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: |-
+    {{ .Release.Name }}
+  labels:
+    app: |-
+      {{ .Release.Name }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: |-
+        {{ .Release.Name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: |-
+          {{ .Release.Name }}
+    spec:
+      nodeSelector:
+        kops.k8s.io/instancegroup: |-
+          {{ .Values.instancegroup }}
+      containers:
+        - name: |-
+            {{ .Release.Name }}
+          image: |-
+            {{ .Values.repoUrl }}/gql-docs:{{ .Values.tag }}
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          resources:
+            limits:
+              cpu: |-
+                {{ .Values.cpuLimit }}
+              memory: |-
+                {{ .Values.memoryLimit }}
+            requests:
+              cpu: |-
+                {{ .Values.cpuRequest }}
+              memory: |-
+                {{ .Values.memoryRequest }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          env:
+            - name: NEXT_PUBLIC_GQL_ENDPOINT
+              value: |-
+                {{ .Values.nextPublicGqlEndpoint }}
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: one-pass-ai-microservice
+                  key: OPENAI_API_KEY
+            - name: NOTION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: one-pass-ai-microservice
+                  key: NOTION_SECRET
+            - name: NOTION_ROOT_PAGE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: one-pass-ai-microservice
+                  key: NOTION_ROOT_PAGE_ID
+            - name: NOTION_PARENT_PAGE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: one-pass-ai-microservice
+                  key: NOTION_PARENT_PAGE_ID
+            - name: OPENAI_ASSISTANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: one-pass-ai-microservice
+                  key: OPENAI_ASSISTANT_ID
+            - name: OPENAI_VECTOR_STORE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: one-pass-ai-microservice
+                  key: OPENAI_VECTOR_STORE_ID

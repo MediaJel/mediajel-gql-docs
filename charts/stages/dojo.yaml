@@ -12,6 +12,9 @@ environment: STAGING
 instancegroup: big-nodes
 nextPublicGqlEndpoint: http://graphql-dojo.dmp.mediajel.ninja/
 
+ingress:
+  enabled: true
+
 autoscaling:
   enabled: true
   minReplicas: 1

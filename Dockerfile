@@ -19,7 +19,7 @@ RUN cp entrypoint-${APP_ENV}.sh entrypoint.sh
 RUN yarn install --ignore-engines
 
 # ---- Stage 2: Build the application ----
-RUN yarn sync-schema
+RUN yarn sync-schema:${APP_ENV}
 RUN yarn build
 
 # RUN yarn global add serve

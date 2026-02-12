@@ -13,6 +13,9 @@ environment: PRODUCTION
 instancegroup: big-nodes
 nextPublicGqlEndpoint: http://graphql.dmp.cnna.io/
 
+ingress:
+  enabled: true
+
 autoscaling:
   enabled: true
   minReplicas: 1

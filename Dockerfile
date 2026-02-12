@@ -27,7 +27,7 @@ ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 ENV AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
 
 RUN yarn sync-schema:${APP_ENV}
-RUN yarn build
+RUN yarn build:${APP_ENV}
 
 # RUN yarn global add serve
 EXPOSE 3000

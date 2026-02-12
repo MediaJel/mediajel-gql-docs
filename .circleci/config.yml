@@ -11,8 +11,12 @@ orbs:
   aws-ecr: circleci/aws-ecr@9.0.2
 
 jobs:
-  build:
+  build-dojo:
     executor: docker-executor
+    parameters:
+      app_env:
+        type: string
+        default: dojo
     steps:
       - checkout
       - setup_remote_docker:
@@ -31,6 +35,33 @@ jobs:
           attach_workspace: true
           workspace_root: .
           dockerfile: ./Dockerfile
+          extra_build_args: '--build-arg APP_ENV=<< parameters.app_env >>'
+
+  build-prod:
+    executor: docker-executor
+    parameters:
+      app_env:
+        type: string
+        default: prod
+    steps:
+      - checkout
+      - setup_remote_docker:
+            version: docker24
+      - aws-ecr/build_and_push_image:
+          account_id: ${AWS_ACCOUNT_ID}
+          auth:
+              - aws-cli/setup:
+                region: ${AWS_ECR_REGION}
+          repo_scan_on_push: true
+          create_repo: false
+          region: 'us-east-1'
+          repo: gql-docs
+          tag: $CIRCLE_SHA1
+          platform: linux/amd64
+          attach_workspace: true
+          workspace_root: .
+          dockerfile: ./Dockerfile
+          extra_build_args: '--build-arg APP_ENV=<< parameters.app_env >>'
 
   deploy-and-rollout:
     executor: docker-executor
@@ -85,7 +116,7 @@ jobs:
 workflows:
   build-deploy-dojo:
     jobs:
-      - build:
+      - build-dojo:
           name: Build-Graphql-Docs
           context: STAGING
           filters:
@@ -101,7 +132,7 @@ workflows:
 
   build-deploy-prod:
     jobs:
-      - build:
+      - build-prod:
           name: Build-Graphql-Docs
           context: PRODUCTION
           filters:

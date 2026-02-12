@@ -19,6 +19,13 @@ RUN cp entrypoint-${APP_ENV}.sh entrypoint.sh
 RUN yarn install --ignore-engines
 
 # ---- Stage 2: Build the application ----
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_DEFAULT_REGION=us-east-1
+ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+ENV AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+
 RUN yarn sync-schema:${APP_ENV}
 RUN yarn build
 

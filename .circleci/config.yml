@@ -35,7 +35,7 @@ jobs:
           attach_workspace: true
           workspace_root: .
           dockerfile: ./Dockerfile
-          extra_build_args: '--build-arg APP_ENV=<< parameters.app_env >>'
+          extra_build_args: '--build-arg APP_ENV=<< parameters.app_env >> --build-arg AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} --build-arg AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
 
   build-prod:
     executor: docker-executor
@@ -61,7 +61,7 @@ jobs:
           attach_workspace: true
           workspace_root: .
           dockerfile: ./Dockerfile
-          extra_build_args: '--build-arg APP_ENV=<< parameters.app_env >>'
+          extra_build_args: '--build-arg APP_ENV=<< parameters.app_env >> --build-arg =${AWS_ACCESS_KEY_ID} --build-arg AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
 
   deploy-and-rollout:
     executor: docker-executor

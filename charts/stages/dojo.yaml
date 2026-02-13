@@ -12,6 +12,7 @@ memoryLimit: 1Gi
 environment: STAGING
 instancegroup: big-nodes
 nextPublicGqlEndpoint: http://graphql-dojo.dmp.mediajel.ninja/
+replicaCount: 1
 
 ingress:
   enabled: true

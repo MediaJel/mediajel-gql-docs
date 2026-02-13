@@ -12,6 +12,7 @@ memoryLimit: 2Gi
 environment: PRODUCTION
 instancegroup: big-nodes
 nextPublicGqlEndpoint: http://graphql.dmp.cnna.io/
+replicaCount: 1
 
 ingress:
   enabled: true

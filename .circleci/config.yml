@@ -30,7 +30,7 @@ jobs:
           create_repo: false
           region: 'us-east-1'
           repo: gql-docs
-          tag: $CIRCLE_SHA1
+          tag: "$CIRCLE_SHA1,latest"
           platform: linux/amd64
           attach_workspace: true
           workspace_root: .
@@ -56,7 +56,7 @@ jobs:
           create_repo: false
           region: 'us-east-1'
           repo: gql-docs
-          tag: $CIRCLE_SHA1
+          tag: "$CIRCLE_SHA1,latest"
           platform: linux/amd64
           attach_workspace: true
           workspace_root: .

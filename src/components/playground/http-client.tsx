@@ -104,6 +104,11 @@ export function HttpClient({ auth, gqlEndpoint, defaultBody }: HttpClientProps) 
     setHistory(loadHistory());
   }, []);
 
+  // Sync URL when gqlEndpoint prop changes
+  useEffect(() => {
+    setUrl(gqlEndpoint);
+  }, [gqlEndpoint]);
+
   const hasBody = method === "POST" || method === "PUT" || method === "PATCH";
 
   const addHeader = () => {

@@ -15,8 +15,10 @@ const GraphiQL = dynamic(() => import("graphiql").then((m) => m.GraphiQL || m.de
 });
 
 interface GraphiQLWrapperProps {
-  defaultQuery?: string;
-  defaultVariables?: string;
+  query?: string;
+  variables?: string;
+  onEditQuery?: (query: string) => void;
+  onEditVariables?: (variables: string) => void;
   auth: { accessToken: string; orgId: string };
   gqlEndpoint: string;
 }
@@ -51,8 +53,10 @@ function createMemoryStorage() {
 }
 
 export function GraphiQLWrapper({
-  defaultQuery,
-  defaultVariables,
+  query,
+  variables,
+  onEditQuery,
+  onEditVariables,
   auth,
   gqlEndpoint,
 }: GraphiQLWrapperProps) {
@@ -73,8 +77,10 @@ export function GraphiQLWrapper({
     <div className="h-full">
       <GraphiQL
         fetcher={fetcher}
-        defaultQuery={defaultQuery || DEFAULT_QUERY}
-        variables={defaultVariables}
+        query={query || DEFAULT_QUERY}
+        variables={variables}
+        onEditQuery={onEditQuery}
+        onEditVariables={onEditVariables}
         storage={storage}
       />
     </div>

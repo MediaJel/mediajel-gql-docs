@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Send,
   Plus,
@@ -57,19 +57,22 @@ interface HttpResponse {
 interface HttpClientProps {
   auth: { accessToken: string; orgId: string };
   gqlEndpoint: string;
-  defaultBody?: string;
+  query?: string;
+  variables?: string;
+  onQueryChange?: (query: string) => void;
+  onVariablesChange?: (variables: string) => void;
 }
 
-const DEFAULT_BODY = JSON.stringify(
-  {
-    query: "query { orgs(first: 5) { id name } }",
-    variables: {},
-  },
-  null,
-  2
-);
+const DEFAULT_QUERY = "query { orgs(first: 5) { id name } }";
 
-export function HttpClient({ auth, gqlEndpoint, defaultBody }: HttpClientProps) {
+export function HttpClient({
+  auth,
+  gqlEndpoint,
+  query,
+  variables,
+  onQueryChange,
+  onVariablesChange
+}: HttpClientProps) {
   const [method, setMethod] = useState<HttpMethod>("POST");
   const [url, setUrl] = useState(gqlEndpoint);
   const [headers, setHeaders] = useState<HeaderRow[]>([
@@ -77,7 +80,39 @@ export function HttpClient({ auth, gqlEndpoint, defaultBody }: HttpClientProps) 
     { key: "Key", value: auth.orgId, enabled: true },
     { key: "Content-Type", value: "application/json", enabled: true },
   ]);
-  const [body, setBody] = useState(defaultBody || DEFAULT_BODY);
+
+  // Compute body from query/variables props
+  const computedBody = useMemo(() => {
+    let parsedVariables = {};
+    if (variables) {
+      try {
+        parsedVariables = JSON.parse(variables);
+      } catch {
+        // If variables is invalid JSON, use empty object
+      }
+    }
+    return JSON.stringify(
+      {
+        query: query || DEFAULT_QUERY,
+        variables: parsedVariables,
+      },
+      null,
+      2
+    );
+  }, [query, variables]);
+
+  const [body, setBody] = useState(computedBody);
+
+  // Track if user is actively editing (to avoid overwriting their changes)
+  const isUserEditing = useRef(false);
+  const userEditTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync body state when props change (but not during active user editing)
+  useEffect(() => {
+    if (!isUserEditing.current) {
+      setBody(computedBody);
+    }
+  }, [computedBody]);
   const [response, setResponse] = useState<HttpResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,6 +145,34 @@ export function HttpClient({ auth, gqlEndpoint, defaultBody }: HttpClientProps) 
   }, [gqlEndpoint]);
 
   const hasBody = method === "POST" || method === "PUT" || method === "PATCH";
+
+  // Handle body changes from textarea - parse JSON and notify parent
+  const handleBodyChange = useCallback((newBody: string) => {
+    // Mark as user editing to prevent sync loop
+    isUserEditing.current = true;
+    if (userEditTimeout.current) {
+      clearTimeout(userEditTimeout.current);
+    }
+    // Reset editing flag after 500ms of no edits
+    userEditTimeout.current = setTimeout(() => {
+      isUserEditing.current = false;
+    }, 500);
+
+    setBody(newBody);
+
+    // Try to parse and notify parent
+    try {
+      const parsed = JSON.parse(newBody);
+      if (parsed.query !== undefined && onQueryChange) {
+        onQueryChange(parsed.query);
+      }
+      if (parsed.variables !== undefined && onVariablesChange) {
+        onVariablesChange(JSON.stringify(parsed.variables, null, 2));
+      }
+    } catch {
+      // Ignore parse errors during typing - user may be mid-edit
+    }
+  }, [onQueryChange, onVariablesChange]);
 
   const addHeader = () => {
     setHeaders([...headers, { key: "", value: "", enabled: true }]);
@@ -345,7 +408,7 @@ export function HttpClient({ auth, gqlEndpoint, defaultBody }: HttpClientProps) 
                     <div className="px-4 pb-3 flex-1">
                       <textarea
                         value={body}
-                        onChange={(e) => setBody(e.target.value)}
+                        onChange={(e) => handleBodyChange(e.target.value)}
                         spellCheck={false}
                         className="w-full h-full min-h-[200px] px-3 py-2 text-xs font-mono border border-input rounded bg-background resize-y focus:outline-none focus:ring-2 focus:ring-ring"
                         placeholder="Request body (JSON)"

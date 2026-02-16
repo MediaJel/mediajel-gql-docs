@@ -12,7 +12,7 @@ if [ -n "$NEXT_PUBLIC_GQL_ENDPOINT" ]; then
 fi
 
 echo "Syncing schema..."
-yarn sync-schema
+yarn sync-schema:dojo
 
 echo "Starting application..."
 exec yarn start

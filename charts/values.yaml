@@ -4,6 +4,7 @@ httpEndpoint: gql-docs.dmp.mediajel.ninja
 certificateArn: arn:aws:acm:us-east-1:105618632367:certificate/af54473c-845a-495b-ae6d-8cba77eb8b23
 global:
   environment: STAGE
+containerPort: 3000
 cpuRequest: 0.5
 cpuLimit: 0.5
 memoryRequest: 1Gi

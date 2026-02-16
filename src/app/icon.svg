@@ -1,0 +1,7 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with brand color -->
+  <circle cx="16" cy="16" r="15" fill="#10b981"/>
+  <!-- White curly braces -->
+  <text x="16" y="22" text-anchor="middle" fill="white"
+        font-family="monospace" font-size="18" font-weight="bold">{ }</text>
+</svg>

@@ -11,7 +11,7 @@ memoryRequest: 1Gi
 memoryLimit: 1Gi
 environment: STAGING
 instancegroup: big-nodes
-nextPublicGqlEndpoint: http://graphql-dojo.dmp.mediajel.ninja/
+nextPublicGqlEndpoint: https://graphql-dojo.dmp.mediajel.ninja/
 replicaCount: 1
 
 ingress:

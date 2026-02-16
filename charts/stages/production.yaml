@@ -11,7 +11,7 @@ memoryRequest: 2Gi
 memoryLimit: 2Gi
 environment: PRODUCTION
 instancegroup: big-nodes
-nextPublicGqlEndpoint: http://graphql.dmp.cnna.io/
+nextPublicGqlEndpoint: https://graphql.dmp.cnna.io/
 replicaCount: 1
 
 ingress:

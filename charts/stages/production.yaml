@@ -5,10 +5,10 @@ certificateArn: arn:aws:acm:us-east-1:738466439161:certificate/982a5b7b-13ba-4d7
 global:
   environment: PRODUCTION
 containerPort: 3000
-cpuRequest: 1
-cpuLimit: 1
-memoryRequest: 2Gi
-memoryLimit: 2Gi
+cpuRequest: 0.5
+cpuLimit: 0.5
+memoryRequest: 1Gi
+memoryLimit: 1Gi
 environment: PRODUCTION
 instancegroup: big-nodes
 nextPublicGqlEndpoint: https://graphql.dmp.cnna.io/

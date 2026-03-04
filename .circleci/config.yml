@@ -77,7 +77,7 @@ jobs:
     parameters:
       app_env:
         type: string
-        default: prod
+        default: production
     steps:
       - checkout
       - setup_remote_docker:

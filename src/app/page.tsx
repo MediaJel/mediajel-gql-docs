@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
+  const gqlEndpoint =
+    process.env.NEXT_PUBLIC_GQL_ENDPOINT || "http://localhost:4000";
+
   return (
     <div className="max-w-4xl mx-auto px-8 py-12">
       <div className="mb-12">
@@ -94,7 +97,7 @@ export default function HomePage() {
       <div className="border border-border rounded-lg p-6 bg-card">
         <h3 className="font-semibold mb-3">API Endpoint</h3>
         <code className="bg-muted px-3 py-2 rounded text-sm block mb-4">
-          POST https://api.mediajel.com
+          POST {gqlEndpoint}
         </code>
         <div className="text-sm text-muted-foreground space-y-1">
           <p>

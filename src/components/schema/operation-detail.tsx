@@ -17,7 +17,7 @@ export function OperationDetail({ operation }: OperationDetailProps) {
   const [playgroundOpen, setPlaygroundOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<"graphql" | "http">("graphql");
   const gqlEndpoint =
-    process.env.NEXT_PUBLIC_GQL_ENDPOINT || "https://api.mediajel.com";
+    process.env.NEXT_PUBLIC_GQL_ENDPOINT || "http://localhost:4000";
 
   return (
     <div className="space-y-8">

@@ -157,10 +157,11 @@ function buildSchemaQueryContext(
   const maxChars = options.maxChars || MAX_CONTEXT_CHARS;
   const allOps = getOperations();
   const config = getConfig();
+  const baseUrl = process.env.NEXT_PUBLIC_GQL_ENDPOINT || config.baseUrl;
 
   let context = "## MediaJel GraphQL API Reference\n\n";
   context += `${config.description}\n\n`;
-  context += `**Base URL:** ${config.baseUrl}\n`;
+  context += `**Base URL:** ${baseUrl}\n`;
   context += `**Rate Limit:** ${config.rateLimits.requestsPerMinute} requests per minute\n\n`;
 
   // Authentication info
@@ -280,9 +281,10 @@ function buildHybridContext(
  */
 function buildDomainKnowledgeContext(): SchemaContext {
   const config = getConfig();
+  const baseUrl = process.env.NEXT_PUBLIC_GQL_ENDPOINT || config.baseUrl;
 
   let context = "## API Reference (if needed)\n\n";
-  context += `The MediaJel GraphQL API is available at ${config.baseUrl}.\n`;
+  context += `The MediaJel GraphQL API is available at ${baseUrl}.\n`;
   context += "If the user asks follow-up questions about the API, ";
   context += "you can provide GraphQL query examples.\n\n";
 

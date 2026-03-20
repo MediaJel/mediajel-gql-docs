@@ -7,6 +7,7 @@ import {
   KeyRound,
   ArrowRight,
 } from "lucide-react";
+import { GoalCards } from "@/components/home/goal-cards";
 
 export default function HomePage() {
   const gqlEndpoint =
@@ -14,7 +15,7 @@ export default function HomePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-8 py-12">
-      <div className="mb-12">
+      <div className="mb-10">
         <h1 className="text-4xl font-bold mb-4">MediaJel API Documentation</h1>
         <p className="text-lg text-muted-foreground">
           Build integrations with the MediaJel advertising platform using our
@@ -22,6 +23,9 @@ export default function HomePage() {
           programmatically.
         </p>
       </div>
+
+      {/* Goal-based navigation */}
+      <GoalCards className="mb-12" />
 
       {/* Quick start cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">

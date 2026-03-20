@@ -37,6 +37,7 @@ import {
   Tag,
   Settings,
   Sliders,
+  ChefHat,
 } from "lucide-react";
 import { useState } from "react";
 import apiConfig from "@/content/public-api-config.json";
@@ -96,6 +97,20 @@ const sections: NavSection[] = [
     items: [
       { label: "Quickstart", href: "/guides/quickstart", icon: <Zap className="h-4 w-4" /> },
       { label: "Authentication", href: "/guides/authentication", icon: <KeyRound className="h-4 w-4" /> },
+    ],
+  },
+  {
+    title: "Recipes",
+    items: [
+      { label: "All Recipes", href: "/recipes", icon: <ChefHat className="h-4 w-4" /> },
+      { label: "Campaign Performance", href: "/recipes/campaign-performance", icon: <BarChart className="h-4 w-4" /> },
+      { label: "List Campaigns", href: "/recipes/list-campaigns", icon: <List className="h-4 w-4" /> },
+      { label: "Analytics Data", href: "/recipes/analytics", icon: <TrendingUp className="h-4 w-4" /> },
+      { label: "Organizations", href: "/recipes/organizations", icon: <Building2 className="h-4 w-4" /> },
+      { label: "Display Roll-up", href: "/recipes/display-rollup", icon: <Gauge className="h-4 w-4" /> },
+      { label: "Campaign Attribution", href: "/recipes/campaign-attribution", icon: <Target className="h-4 w-4" /> },
+      { label: "Device Analytics", href: "/recipes/device-analytics", icon: <Sliders className="h-4 w-4" /> },
+      { label: "Org Summary", href: "/recipes/org-summary", icon: <Building2 className="h-4 w-4" /> },
     ],
   },
   {

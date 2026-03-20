@@ -1,0 +1,42 @@
+{
+  "slug": "list-campaigns",
+  "title": "List All Campaigns",
+  "description": "Retrieve all campaigns in your organization with their budgets, dates, and basic details.",
+  "difficulty": "beginner",
+  "estimatedTime": "3 minutes",
+  "prerequisites": [
+    { "label": "Access Token", "link": "/guides/authentication" },
+    { "label": "Organization ID", "link": "/guides/quickstart" }
+  ],
+  "steps": [
+    {
+      "title": "Understand the data model",
+      "description": "Campaigns contain the ad configuration. Campaign Orders are the parent containers that include status, budget, and scheduling. Most filtering is done at the Campaign Order level.",
+      "type": "instruction"
+    },
+    {
+      "title": "Query campaign orders",
+      "description": "Fetch campaign orders with their campaigns and status information.",
+      "type": "query",
+      "query": "query ListCampaignOrders($first: Int, $status: CampaignStatus) {\n  campaignOrdersConnection(\n    first: $first\n    where: { status: $status }\n  ) {\n    edges {\n      node {\n        id\n        name\n        status\n        budget\n        startDate\n        endDate\n        createdAt\n        campaigns {\n          id\n          name\n          type\n          budgetTotal\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "variables": {
+        "first": 25,
+        "status": null
+      },
+      "tip": "Set status to \"LIVE\" to only see active campaign orders."
+    },
+    {
+      "title": "Handle pagination",
+      "description": "If hasNextPage is true, use the endCursor to fetch the next page.",
+      "type": "instruction",
+      "tip": "Pass the cursor as 'after' parameter: campaignOrdersConnection(first: 25, after: \"cursor-value\")"
+    }
+  ],
+  "tips": [
+    "Use 'first' to limit results per page (recommended: 25-50)",
+    "aggregate.count gives you the total matching campaign orders",
+    "Status values include: PENDING, LIVE, LIVE_APPROVED, PAUSED, etc.",
+    "Campaign Orders contain one or more Campaigns"
+  ],
+  "relatedRecipes": ["campaign-performance", "analytics"]
+}

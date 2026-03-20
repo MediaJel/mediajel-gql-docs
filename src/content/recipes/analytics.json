@@ -1,0 +1,43 @@
+{
+  "slug": "analytics",
+  "title": "Get Transaction Analytics",
+  "description": "Fetch transaction and conversion data attributed to your campaigns.",
+  "difficulty": "intermediate",
+  "estimatedTime": "10 minutes",
+  "prerequisites": [
+    { "label": "Access Token", "link": "/guides/authentication" },
+    { "label": "Organization ID", "link": "/guides/quickstart" },
+    { "label": "Campaign Order ID", "link": "/recipes/list-campaigns" }
+  ],
+  "steps": [
+    {
+      "title": "Understand transaction data",
+      "description": "Transaction reports track purchases and conversions attributed to your campaign orders. Each transaction includes revenue, impression data, and attribution details.",
+      "type": "instruction"
+    },
+    {
+      "title": "Query transactions with events",
+      "description": "Fetch transactions attributed to your campaigns. Filter by date range using transactionDate.",
+      "type": "query",
+      "query": "query GetTransactions(\n  $startDate: DateTime!\n  $endDate: DateTime!\n  $first: Int\n) {\n  campaignOrderTransactionsWithEventsesConnection(\n    where: {\n      transactionDate_gte: $startDate\n      transactionDate_lte: $endDate\n    }\n    first: $first\n  ) {\n    edges {\n      node {\n        id\n        orderId\n        transactionDate\n        revenue\n        totalImpressions\n        lastImpression\n        attrMethod\n        attrWindow\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "variables": {
+        "startDate": "2024-01-01T00:00:00Z",
+        "endDate": "2024-01-31T23:59:59Z",
+        "first": 100
+      }
+    },
+    {
+      "title": "Calculate totals",
+      "description": "Sum the revenue field to get total attributed revenue for the period.",
+      "type": "instruction",
+      "tip": "The aggregate.count field tells you how many transactions matched your filter."
+    }
+  ],
+  "tips": [
+    "revenue is the transaction value attributed to the campaign",
+    "attrMethod shows how attribution was determined (click, view, etc.)",
+    "attrWindow indicates the attribution lookback window in days",
+    "Use transactionDate filtering to analyze specific time periods"
+  ],
+  "relatedRecipes": ["campaign-performance", "list-campaigns"]
+}

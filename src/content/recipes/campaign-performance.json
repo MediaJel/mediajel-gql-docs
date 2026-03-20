@@ -1,0 +1,41 @@
+{
+  "slug": "campaign-performance",
+  "title": "Track Campaign Performance",
+  "description": "Get impressions, budget, ROAS, and pacing data for your campaigns.",
+  "difficulty": "beginner",
+  "estimatedTime": "5 minutes",
+  "prerequisites": [
+    { "label": "Access Token", "link": "/guides/authentication" },
+    { "label": "Organization ID", "link": "/guides/quickstart" }
+  ],
+  "steps": [
+    {
+      "title": "Understand pacing data",
+      "description": "Pacing data shows how your campaigns are performing against their goals - impressions delivered, budget spent, and projected completion.",
+      "type": "instruction"
+    },
+    {
+      "title": "Query campaign pacing data",
+      "description": "Fetch performance metrics for all campaigns in your organization.",
+      "type": "query",
+      "query": "query GetCampaignPerformance($first: Int) {\n  pacingDataObjectsConnection(first: $first) {\n    edges {\n      node {\n        id\n        campaignName\n        totalImpressions\n        impressionGoal\n        impressionsToday\n        impressionsYesterday\n        ctr\n        roas\n        budgetSpent\n        totalBudget\n        budgetLeft\n        daysLeft\n        daysIntoFlight\n        dailyAvgImpressions\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "variables": {
+        "first": 25
+      },
+      "tip": "Use 'first' to limit results per page."
+    },
+    {
+      "title": "Calculate delivery rate",
+      "description": "Compare totalImpressions to impressionGoal to see if campaigns are on track.",
+      "type": "instruction",
+      "tip": "daysIntoFlight and daysLeft help you understand pacing relative to the campaign timeline."
+    }
+  ],
+  "tips": [
+    "roas (Return on Ad Spend) shows revenue generated per dollar spent",
+    "ctr (Click-Through Rate) indicates ad engagement",
+    "budgetLeft and daysLeft help predict if you'll hit your goals",
+    "Use aggregate.count to see total campaigns"
+  ],
+  "relatedRecipes": ["list-campaigns", "analytics"]
+}

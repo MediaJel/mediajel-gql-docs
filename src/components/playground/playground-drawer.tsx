@@ -9,6 +9,16 @@ import "graphiql/graphiql.css";
 
 const STORAGE_KEY = "mediajel_playground_auth";
 
+const DEFAULT_QUERY = `query ListOrgs {
+  orgs(first: 5) {
+    id
+    name
+    website
+    status
+  }
+}
+`;
+
 interface PlaygroundDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -20,8 +30,8 @@ interface PlaygroundDrawerProps {
 export function PlaygroundDrawer({
   open,
   onClose,
-  query,
-  variables,
+  query: initialQuery,
+  variables: initialVariables,
   mode = "graphql",
 }: PlaygroundDrawerProps) {
   const gqlEndpoint =
@@ -34,10 +44,27 @@ export function PlaygroundDrawer({
   const [isRestoring, setIsRestoring] = useState(true);
   const [activeTab, setActiveTab] = useState(mode);
 
+  // Shared state for query and variables - synced between GraphQL and HTTP Client tabs
+  const [query, setQuery] = useState(initialQuery || DEFAULT_QUERY);
+  const [variables, setVariables] = useState(initialVariables || "{}");
+
   // Sync activeTab when mode prop changes (e.g. different button clicked)
   useEffect(() => {
     setActiveTab(mode);
   }, [mode]);
+
+  // Sync query/variables when initial props change (e.g. "Try in Playground" clicked with different query)
+  useEffect(() => {
+    if (initialQuery) {
+      setQuery(initialQuery);
+    }
+  }, [initialQuery]);
+
+  useEffect(() => {
+    if (initialVariables) {
+      setVariables(initialVariables);
+    }
+  }, [initialVariables]);
 
   useEffect(() => {
     try {
@@ -91,18 +118,6 @@ export function PlaygroundDrawer({
       console.error("Failed to clear session:", err);
     }
   }, []);
-
-  // Build HTTP body from query + variables
-  const httpBody = query
-    ? JSON.stringify(
-        {
-          query,
-          variables: variables ? JSON.parse(variables) : {},
-        },
-        null,
-        2
-      )
-    : undefined;
 
   return (
     <>
@@ -199,27 +214,29 @@ export function PlaygroundDrawer({
                     </button>
                   </div>
 
-                  {/* Tab panels */}
+                  {/* Tab panels — both always mounted, toggle with CSS to preserve state */}
                   <div className="flex-1 min-h-0 relative">
-                    {activeTab === "graphql" && (
-                      <div className="absolute inset-0" key={`graphql-${query}-${variables}`}>
-                        <GraphiQLWrapper
-                          defaultQuery={query}
-                          defaultVariables={variables}
-                          auth={auth}
-                          gqlEndpoint={gqlEndpoint}
-                        />
-                      </div>
-                    )}
-                    {activeTab === "http" && (
-                      <div className="absolute inset-0" key={`http-${httpBody}`}>
-                        <HttpClient
-                          auth={auth}
-                          gqlEndpoint={gqlEndpoint}
-                          defaultBody={httpBody}
-                        />
-                      </div>
-                    )}
+                    <div className={`absolute inset-0 ${activeTab === "graphql" ? "" : "invisible pointer-events-none"}`}>
+                      <GraphiQLWrapper
+                        key={initialQuery || "default"}
+                        query={query}
+                        variables={variables}
+                        onEditQuery={setQuery}
+                        onEditVariables={setVariables}
+                        auth={auth}
+                        gqlEndpoint={gqlEndpoint}
+                      />
+                    </div>
+                    <div className={`absolute inset-0 ${activeTab === "http" ? "" : "invisible pointer-events-none"}`}>
+                      <HttpClient
+                        auth={auth}
+                        gqlEndpoint={gqlEndpoint}
+                        query={query}
+                        variables={variables}
+                        onQueryChange={setQuery}
+                        onVariablesChange={setVariables}
+                      />
+                    </div>
                   </div>
                 </>
               )}

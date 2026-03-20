@@ -9,18 +9,31 @@ import { HttpClient } from "@/components/playground/http-client";
 
 const AUTH_STORAGE_KEY = "mediajel_playground_auth";
 
+const DEFAULT_QUERY = `# Welcome to the MediaJel API Playground!
+# Start by authenticating above, then try a query:
+
+query ListOrgs {
+  orgs(first: 5) {
+    id
+    name
+    website
+    status
+  }
+}
+`;
+
 function PlaygroundContent() {
   console.log("[PlaygroundContent] render", { timestamp: Date.now() });
 
   const searchParams = useSearchParams();
-  const query = searchParams.get("query") || undefined;
-  const variables = searchParams.get("variables") || undefined;
+  const initialQuery = searchParams.get("query") || DEFAULT_QUERY;
+  const initialVariables = searchParams.get("variables") || "{}";
 
   console.log("[PlaygroundContent] searchParams:", {
     embedded: searchParams.get("embedded"),
     hasToken: !!searchParams.get("token"),
     orgId: searchParams.get("orgId"),
-    query: !!query,
+    query: !!searchParams.get("query"),
     url: typeof window !== "undefined" ? window.location.href.replace(/token=[^&]+/, "token=REDACTED") : "SSR",
   });
 
@@ -34,6 +47,10 @@ function PlaygroundContent() {
   const [isRestoring, setIsRestoring] = useState(true);
   const [activeTab, setActiveTab] = useState("graphql");
   const didInit = useRef(false);
+
+  // Shared state for query and variables - synced between GraphQL and HTTP Client tabs
+  const [query, setQuery] = useState(initialQuery);
+  const [variables, setVariables] = useState(initialVariables);
 
   // Restore session from URL params (embedded in dashboard) or localStorage.
   // Read URL params directly from window.location to avoid Suspense re-render cycles.
@@ -160,18 +177,6 @@ function PlaygroundContent() {
 
   console.log("[PlaygroundContent] showing: Authenticated playground");
 
-  // Build HTTP body from query + variables for the HTTP Client tab
-  const httpBody = query
-    ? JSON.stringify(
-        {
-          query,
-          variables: variables ? JSON.parse(variables) : {},
-        },
-        null,
-        2
-      )
-    : undefined;
-
   return (
     <div className="flex flex-col h-full">
       {/* Auth status bar */}
@@ -219,14 +224,23 @@ function PlaygroundContent() {
       <div className="flex-1 min-h-0 relative">
         <div className={`absolute inset-0 ${activeTab === "graphql" ? "" : "invisible pointer-events-none"}`}>
           <GraphiQLWrapper
-            defaultQuery={query}
-            defaultVariables={variables}
+            query={query}
+            variables={variables}
+            onEditQuery={setQuery}
+            onEditVariables={setVariables}
             auth={auth}
             gqlEndpoint={gqlEndpoint}
           />
         </div>
         <div className={`absolute inset-0 ${activeTab === "http" ? "" : "invisible pointer-events-none"}`}>
-          <HttpClient auth={auth} gqlEndpoint={gqlEndpoint} defaultBody={httpBody} />
+          <HttpClient
+            auth={auth}
+            gqlEndpoint={gqlEndpoint}
+            query={query}
+            variables={variables}
+            onQueryChange={setQuery}
+            onVariablesChange={setVariables}
+          />
         </div>
       </div>
     </div>

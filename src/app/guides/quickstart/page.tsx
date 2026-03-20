@@ -1,8 +1,13 @@
+"use client";
+
 import { CodeBlock } from "@/components/ui/code-block";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export default function QuickstartPage() {
+  const gqlEndpoint =
+    process.env.NEXT_PUBLIC_GQL_ENDPOINT || "http://localhost:4000";
+
   return (
     <div className="max-w-3xl mx-auto px-8 py-10">
       <h1 className="text-3xl font-bold mb-2">Quickstart</h1>
@@ -19,21 +24,57 @@ export default function QuickstartPage() {
           <h2 className="text-xl font-semibold">Get your credentials</h2>
         </div>
         <p className="text-sm text-muted-foreground ml-11 mb-4">
-          Contact your MediaJel account manager to receive your API credentials:
+          You&apos;ll use your MediaJel Dashboard login credentials:
         </p>
         <ul className="text-sm text-muted-foreground ml-11 list-disc pl-5 space-y-1 mb-4">
           <li>
-            <strong>Username</strong> — Your Cognito username (usually an email)
+            <strong>Username</strong> — Your MediaJel Dashboard username
           </li>
           <li>
-            <strong>Password</strong> — Your Cognito password
+            <strong>Password</strong> — Your MediaJel Dashboard password
           </li>
           <li>
             <strong>Organization ID</strong> — Your org ID (used as the{" "}
-            <code className="bg-muted px-1 rounded">Key</code> header)
+            <code className="bg-muted px-1 rounded">Key</code> header). Your
+            account manager can provide this if you don&apos;t know it.
           </li>
         </ul>
       </section>
+
+      {/* Terminal Help for Beginners */}
+      <details className="ml-11 mb-10 border border-border rounded-lg">
+        <summary className="px-4 py-3 cursor-pointer text-sm font-medium hover:bg-muted/50">
+          New to Terminal? Click here for help
+        </summary>
+        <div className="px-4 pb-4 text-sm text-muted-foreground space-y-3">
+          <p>
+            The examples below use <strong>cURL</strong>, a command-line tool
+            for making HTTP requests. Here&apos;s how to get started:
+          </p>
+          <ol className="list-decimal pl-5 space-y-2">
+            <li>
+              <strong>Open Terminal</strong> — On Mac, press{" "}
+              <code className="bg-muted px-1 rounded">Cmd + Space</code>, type
+              &quot;Terminal&quot;, and press Enter.
+            </li>
+            <li>
+              <strong>Copy a command</strong> — Click the copy button on any
+              code block below.
+            </li>
+            <li>
+              <strong>Paste and run</strong> — In Terminal, press{" "}
+              <code className="bg-muted px-1 rounded">Cmd + V</code> to paste,
+              then press Enter to run.
+            </li>
+          </ol>
+          <p className="text-xs border-l-2 border-primary/50 pl-3">
+            <strong>Tip:</strong> The backslash{" "}
+            <code className="bg-muted px-1 rounded">\</code> at the end of lines
+            means the command continues on the next line. Copy the entire block,
+            not just one line.
+          </p>
+        </div>
+      </details>
 
       {/* Step 2 */}
       <section className="mb-10">
@@ -51,7 +92,7 @@ export default function QuickstartPage() {
           <CodeBlock
             language="bash"
             title="cURL"
-            code={`curl -X POST https://api.mediajel.com \\
+            code={`curl -X POST ${gqlEndpoint} \\
   -H "Content-Type: application/json" \\
   -d '{
     "query": "mutation { authSignIn(data: { username: \\"your@email.com\\", password: \\"your-password\\" }) { accessToken idToken refreshToken } }"
@@ -94,7 +135,7 @@ export default function QuickstartPage() {
           <CodeBlock
             language="bash"
             title="cURL — List Organizations"
-            code={`curl -X POST https://api.mediajel.com \\
+            code={`curl -X POST ${gqlEndpoint} \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer eyJraWQiOiJ..." \\
   -H "Key: your-org-id" \\

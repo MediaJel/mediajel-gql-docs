@@ -66,6 +66,9 @@ spec:
             timeoutSeconds: 3
             failureThreshold: 3
           env:
+            - name: CREATIVE_BUCKET_NAME
+              value: |-
+                {{ .Values.creativeBucketName }}
             - name: NEXT_PUBLIC_GQL_ENDPOINT
               value: |-
                 {{ .Values.nextPublicGqlEndpoint }}

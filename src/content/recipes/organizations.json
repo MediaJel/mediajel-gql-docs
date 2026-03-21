@@ -1,0 +1,44 @@
+{
+  "slug": "organizations",
+  "title": "Manage Organizations",
+  "description": "List organizations you have access to and retrieve organization details.",
+  "difficulty": "beginner",
+  "estimatedTime": "3 minutes",
+  "prerequisites": [
+    { "label": "Access Token", "link": "/guides/authentication" }
+  ],
+  "steps": [
+    {
+      "title": "List your organizations",
+      "description": "Get all organizations accessible with your credentials. This is often the first query after authentication.",
+      "type": "query",
+      "query": "query ListOrganizations($first: Int) {\n  orgs(first: $first) {\n    id\n    name\n    description\n    phone\n    website\n    level\n    createdAt\n  }\n}",
+      "variables": {
+        "first": 10
+      },
+      "tip": "The 'id' field is your organization ID - use it in the Key header for all subsequent requests."
+    },
+    {
+      "title": "Get organization details",
+      "description": "Fetch detailed information about a specific organization including its campaign orders.",
+      "type": "query",
+      "query": "query GetOrganization($id: ID!) {\n  org(where: { id: $id }) {\n    id\n    name\n    description\n    phone\n    website\n    domain\n    level\n    createdAt\n    updatedAt\n    campaignOrders(first: 5) {\n      id\n      name\n      status\n    }\n  }\n}",
+      "variables": {
+        "id": "your-org-id"
+      }
+    },
+    {
+      "title": "Use the organization ID",
+      "description": "Include the organization ID in all subsequent requests using the 'Key' header.",
+      "type": "instruction",
+      "tip": "Most queries and mutations require the Key header to be set to your organization ID."
+    }
+  ],
+  "tips": [
+    "Your organization ID goes in the 'Key' request header",
+    "level indicates your partnership tier (e.g., PARTNER, AGENCY)",
+    "You can access multiple organizations with the same credentials",
+    "Use orgs(first: N) to paginate through organizations"
+  ],
+  "relatedRecipes": ["list-campaigns", "campaign-performance"]
+}

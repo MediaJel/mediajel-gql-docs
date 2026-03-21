@@ -10,7 +10,10 @@ import {
   Clock,
   History,
   X,
+  Copy,
+  Check,
 } from "lucide-react";
+import { ExportDropdown } from "./export-dropdown";
 import { Highlight, themes } from "prism-react-renderer";
 import {
   RequestHistory,
@@ -122,6 +125,7 @@ export function HttpClient({
   const [responseHeadersOpen, setResponseHeadersOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [copied, setCopied] = useState(false);
 
   // Sync auth headers when auth changes
   useEffect(() => {
@@ -272,6 +276,38 @@ export function HttpClient({
   const clearHistory = () => {
     saveHistory([]);
     setHistory([]);
+  };
+
+  const copyResponse = async () => {
+    if (!response) return;
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+        await navigator.clipboard.writeText(response.body);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = response.body;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback
+      const textarea = document.createElement("textarea");
+      textarea.value = response.body;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
@@ -488,8 +524,32 @@ export function HttpClient({
 
                   {/* Response body */}
                   <div className="flex-1 overflow-auto">
-                    <div className="px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">
-                      Response Body
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Response Body
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={copyResponse}
+                          className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+                        >
+                          {copied ? (
+                            <>
+                              <Check className="h-3.5 w-3.5 text-green-600" />
+                              <span className="text-green-600">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3.5 w-3.5" />
+                              Copy
+                            </>
+                          )}
+                        </button>
+                        <ExportDropdown
+                          data={response.body}
+                          queryString={query}
+                        />
+                      </div>
                     </div>
                     <Highlight theme={themes.vsLight} code={response.body} language="json">
                       {({ style, tokens, getLineProps, getTokenProps }) => (

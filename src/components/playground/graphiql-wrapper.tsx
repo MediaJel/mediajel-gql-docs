@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState, useCallback } from "react";
 import { createGraphiQLFetcher } from "@graphiql/toolkit";
 import dynamic from "next/dynamic";
+import { ExportDropdown } from "./export-dropdown";
 
 // Dynamic import GraphiQL to avoid SSR issues
 const GraphiQL = dynamic(() => import("graphiql").then((m) => m.GraphiQL || m.default), {
@@ -60,29 +61,78 @@ export function GraphiQLWrapper({
   auth,
   gqlEndpoint,
 }: GraphiQLWrapperProps) {
+  const [lastResponse, setLastResponse] = useState<unknown>(null);
+  const [currentQuery, setCurrentQuery] = useState(query || DEFAULT_QUERY);
+
+  // Create a fetcher that captures the response
   const fetcher = useMemo(() => {
-    return createGraphiQLFetcher({
+    const baseFetcher = createGraphiQLFetcher({
       url: gqlEndpoint,
       headers: {
         Authorization: `Bearer ${auth.accessToken}`,
         Key: auth.orgId,
       },
     });
+
+    // Wrap the fetcher to capture responses
+    return async (...args: Parameters<typeof baseFetcher>) => {
+      const result = await baseFetcher(...args);
+
+      // Handle async iterables (subscriptions) and regular responses
+      if (result && typeof result === 'object') {
+        if (Symbol.asyncIterator in result) {
+          // For subscriptions, we can't easily capture all results
+          return result;
+        }
+        // Capture the response for export
+        setLastResponse(result);
+      }
+
+      return result;
+    };
   }, [auth, gqlEndpoint]);
+
+  // Track query changes
+  const handleEditQuery = useCallback((newQuery: string) => {
+    setCurrentQuery(newQuery);
+    onEditQuery?.(newQuery);
+  }, [onEditQuery]);
 
   // Each mount gets its own memory storage so GraphiQL always uses defaultQuery
   const storage = useRef(createMemoryStorage()).current;
 
   return (
-    <div className="h-full">
-      <GraphiQL
-        fetcher={fetcher}
-        query={query || DEFAULT_QUERY}
-        variables={variables}
-        onEditQuery={onEditQuery}
-        onEditVariables={onEditVariables}
-        storage={storage}
-      />
+    <div className="h-full flex flex-col">
+      {/* Export toolbar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-card border-b border-border">
+        <span className="text-xs font-medium text-muted-foreground">
+          GraphiQL Editor
+        </span>
+        <div className="flex items-center gap-2">
+          {lastResponse !== null && (
+            <span className="text-xs text-muted-foreground">
+              Response ready
+            </span>
+          )}
+          <ExportDropdown
+            data={lastResponse ? JSON.stringify(lastResponse) : ""}
+            queryString={currentQuery}
+            disabled={lastResponse === null}
+          />
+        </div>
+      </div>
+
+      {/* GraphiQL */}
+      <div className="flex-1 min-h-0">
+        <GraphiQL
+          fetcher={fetcher}
+          query={query || DEFAULT_QUERY}
+          variables={variables}
+          onEditQuery={handleEditQuery}
+          onEditVariables={onEditVariables}
+          storage={storage}
+        />
+      </div>
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import { CodeBlock } from "@/components/ui/code-block";
+import { Term, TermInline } from "@/components/ui/term-tooltip";
+import { AuthFlowDiagram } from "@/components/diagrams/auth-flow";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -7,50 +9,30 @@ export default function AuthenticationPage() {
     <div className="max-w-3xl mx-auto px-8 py-10">
       <h1 className="text-3xl font-bold mb-2">Authentication</h1>
       <p className="text-muted-foreground mb-8">
-        The MediaJel API uses AWS Cognito for authentication. All API requests
-        (except <code className="bg-muted px-1 rounded">authSignIn</code>)
-        require a valid JWT token and organization ID.
+        The MediaJel <Term id="API">API</Term> uses{" "}
+        <Term id="Cognito">AWS Cognito</Term> for authentication. All API
+        requests (except <TermInline id="mutation">authSignIn</TermInline>)
+        require a valid <Term id="JWT">JWT</Term> token and{" "}
+        <Term id="organizationId">organization ID</Term>.
       </p>
 
-      {/* Auth flow */}
+      {/* Auth flow diagram */}
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-4">Authentication Flow</h2>
-        <div className="border border-border rounded-lg p-5 bg-muted/30 mb-4">
-          <ol className="text-sm space-y-3">
-            <li className="flex gap-3">
-              <span className="font-bold text-primary">1.</span>
-              <span>
-                Call <code className="bg-muted px-1 rounded">authSignIn</code>{" "}
-                with your username and password
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <span className="font-bold text-primary">2.</span>
-              <span>
-                Receive <code className="bg-muted px-1 rounded">accessToken</code>
-                , <code className="bg-muted px-1 rounded">idToken</code>, and{" "}
-                <code className="bg-muted px-1 rounded">refreshToken</code>
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <span className="font-bold text-primary">3.</span>
-              <span>
-                Include tokens in headers for all subsequent requests
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <span className="font-bold text-primary">4.</span>
-              <span>Refresh tokens when they expire (~1 hour)</span>
-            </li>
-          </ol>
-        </div>
+        <AuthFlowDiagram variant="detailed" className="mb-4" />
+        <p className="text-xs text-muted-foreground border-l-2 border-primary/50 pl-3">
+          <strong>Summary:</strong> Sign in to get tokens, then include the{" "}
+          <Term id="accessToken">accessToken</Term> in every request. Refresh
+          when it expires (~1 hour).
+        </p>
       </section>
 
       {/* Required headers */}
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-4">Required Headers</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          Every authenticated request must include two headers:
+          Every authenticated request must include two{" "}
+          <Term id="header">headers</Term>:
         </p>
         <div className="border border-border rounded-lg overflow-hidden mb-4">
           <table className="w-full text-sm">
@@ -63,12 +45,14 @@ export default function AuthenticationPage() {
             </thead>
             <tbody>
               <tr className="border-b border-border">
-                <td className="px-4 py-2 font-mono text-sm">Authorization</td>
+                <td className="px-4 py-2 font-mono text-sm">
+                  <Term id="Authorization">Authorization</Term>
+                </td>
                 <td className="px-4 py-2 font-mono text-sm text-primary">
-                  Bearer &lt;accessToken&gt;
+                  <Term id="Bearer">Bearer</Term> &lt;accessToken&gt;
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  JWT access token from authSignIn
+                  <Term id="JWT">JWT</Term> access token from authSignIn
                 </td>
               </tr>
               <tr>
@@ -77,7 +61,8 @@ export default function AuthenticationPage() {
                   &lt;organizationId&gt;
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  Your organization&apos;s unique ID
+                  Your <Term id="organizationId">organization</Term>&apos;s
+                  unique ID
                 </td>
               </tr>
             </tbody>
@@ -88,6 +73,11 @@ export default function AuthenticationPage() {
       {/* Sign in example */}
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-4">Sign In</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          The <TermInline id="mutation">authSignIn</TermInline>{" "}
+          <Term id="mutation">mutation</Term> accepts your credentials and
+          returns tokens:
+        </p>
         <CodeBlock
           language="graphql"
           title="authSignIn Mutation"
@@ -111,11 +101,19 @@ export default function AuthenticationPage() {
 }`}
           />
         </div>
+        <p className="text-xs text-muted-foreground mt-3 border-l-2 border-primary/50 pl-3">
+          <strong>Tip:</strong> <Term id="variable">Variables</Term> let you
+          reuse the same <Term id="query">query</Term> with different values.
+          Keep your password out of the query string.
+        </p>
       </section>
 
       {/* Token lifecycle */}
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-4">Token Lifecycle</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Each token serves a different purpose and has a different lifespan:
+        </p>
         <div className="border border-border rounded-lg overflow-hidden mb-4">
           <table className="w-full text-sm">
             <thead>
@@ -127,21 +125,28 @@ export default function AuthenticationPage() {
             </thead>
             <tbody>
               <tr className="border-b border-border">
-                <td className="px-4 py-2 font-mono text-sm">accessToken</td>
+                <td className="px-4 py-2 font-mono text-sm">
+                  <Term id="accessToken">accessToken</Term>
+                </td>
                 <td className="px-4 py-2">~1 hour</td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  Used in Authorization header for API requests
+                  Used in <Term id="Authorization">Authorization</Term> header
+                  for API requests
                 </td>
               </tr>
               <tr className="border-b border-border">
-                <td className="px-4 py-2 font-mono text-sm">idToken</td>
+                <td className="px-4 py-2 font-mono text-sm">
+                  <Term id="idToken">idToken</Term>
+                </td>
                 <td className="px-4 py-2">~1 hour</td>
                 <td className="px-4 py-2 text-muted-foreground">
                   Contains user identity claims (not used for API auth)
                 </td>
               </tr>
               <tr>
-                <td className="px-4 py-2 font-mono text-sm">refreshToken</td>
+                <td className="px-4 py-2 font-mono text-sm">
+                  <Term id="refreshToken">refreshToken</Term>
+                </td>
                 <td className="px-4 py-2">30 days</td>
                 <td className="px-4 py-2 text-muted-foreground">
                   Used to obtain new access tokens without re-authenticating
@@ -155,14 +160,17 @@ export default function AuthenticationPage() {
       {/* Error handling */}
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-4">Authentication Errors</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Common authentication errors and how to fix them:
+        </p>
         <div className="space-y-3">
           <div className="border border-border rounded-lg p-4">
             <code className="text-sm font-mono text-destructive">
               Not authorized
             </code>
             <p className="text-sm text-muted-foreground mt-1">
-              Invalid or expired access token. Re-authenticate or refresh your
-              token.
+              Invalid or expired <Term id="accessToken">access token</Term>.
+              Re-authenticate or refresh your token.
             </p>
           </div>
           <div className="border border-border rounded-lg p-4">

@@ -1,0 +1,75 @@
+{
+  "slug": "display-rollup",
+  "title": "Pacing & Performance",
+  "description": "Get display advertising pacing metrics including impressions, budget, CTR, ROAS, and delivery pace data - matching the Dashboard's Display Summary page.",
+  "difficulty": "beginner",
+  "estimatedTime": "5 minutes",
+  "prerequisites": [
+    { "label": "Access Token", "link": "/guides/authentication" },
+    { "label": "Organization ID", "link": "/guides/quickstart" }
+  ],
+  "steps": [
+    {
+      "title": "Understand pacing data",
+      "description": "Pacing data provides real-time campaign performance metrics including impressions delivered, budget spent, CTR, ROAS, and delivery pace projections. This data powers the Dashboard's Display Summary > Pacing tab.",
+      "type": "instruction"
+    },
+    {
+      "title": "Query pacing metrics with filters",
+      "description": "Fetch pacing data for campaigns with filters matching Dashboard usage. The Dashboard typically filters by status (LIVE campaigns) and orders by most recent.",
+      "type": "query",
+      "query": "query GetCampaignPacingMetrics($first: Int, $where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrdersConnection(first: $first, where: $where, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        budget\n        pacingData {\n          id\n          campaignName\n          totalImpressions\n          impressionGoal\n          impressionsToday\n          impressionsYesterday\n          impressionsLeft\n          expectedImpressions\n          dailyAvgImpressions\n          dailyAvgImpressionsLeft\n          ctr\n          roas\n          budgetSpent\n          totalBudget\n          budgetLeft\n          dailyAvgBudget\n          dailyAvgBudgetLeft\n          daysLeft\n          daysIntoFlight\n          pace\n          paceYesterday\n          paceTwoDaysAgo\n          paceThreeDaysAgo\n          paceFourDaysAgo\n          paceFiveDaysAgo\n          paceSixDaysAgo\n          paceSevenDaysAgo\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "variables": {
+        "first": 50,
+        "where": {
+          "status_in": ["LIVE", "PAST"]
+        },
+        "orderBy": "startDate_DESC"
+      },
+      "tip": "Filter by status_in: LIVE for active campaigns, PAST for finished campaigns, APPROVED for pending launch, or combine multiple values."
+    },
+    {
+      "title": "Filter by date range and advertiser",
+      "description": "The Dashboard defaults to a 6-month date range. You can also filter by advertiser for multi-tenant organizations.",
+      "type": "query",
+      "query": "query GetCampaignPacingByDateRange($first: Int, $where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrdersConnection(first: $first, where: $where, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        budget\n        pacingData {\n          totalImpressions\n          impressionGoal\n          pace\n          ctr\n          roas\n          budgetSpent\n          budgetLeft\n          daysLeft\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+      "variables": {
+        "first": 50,
+        "where": {
+          "status_in": ["LIVE"],
+          "startDate_gte": "2025-01-01T00:00:00.000Z",
+          "endDate_lte": "2025-03-31T23:59:59.999Z"
+        },
+        "orderBy": "startDate_DESC"
+      },
+      "tip": "Use startDate_gte and endDate_lte for date range filtering. The Dashboard defaults to 6 months of data."
+    },
+    {
+      "title": "Understand pacing fields",
+      "description": "Key metrics in the pacing data:\n\n**Delivery Metrics:**\n- **totalImpressions**: Impressions delivered so far\n- **impressionGoal**: Target impressions for the campaign\n- **impressionsLeft**: Remaining impressions to deliver\n- **dailyAvgImpressions**: Average daily impressions needed\n\n**Budget Metrics:**\n- **budgetSpent / totalBudget / budgetLeft**: Budget tracking\n- **dailyAvgBudget / dailyAvgBudgetLeft**: Daily budget pacing\n\n**Performance:**\n- **ctr**: Click-through rate (percentage)\n- **roas**: Return on ad spend\n\n**Pacing:**\n- **pace**: Today's delivery pace (100 = on track)\n- **paceYesterday** through **paceSevenDaysAgo**: Historical pace\n- **daysLeft / daysIntoFlight**: Campaign timeline",
+      "type": "instruction",
+      "tip": "Pace values: 100% = on track, >100% = ahead of schedule, <100% = behind schedule."
+    },
+    {
+      "title": "Filter by campaign ID",
+      "description": "Query pacing data for a specific campaign by filtering the connection.",
+      "type": "query",
+      "query": "query GetCampaignPacing($campaignOrderId: ID!) {\n  campaignOrdersConnection(where: { id: $campaignOrderId }) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        budget\n        pacingData {\n          id\n          totalImpressions\n          impressionGoal\n          impressionsLeft\n          budgetSpent\n          totalBudget\n          budgetLeft\n          ctr\n          roas\n          pace\n          daysLeft\n          daysIntoFlight\n        }\n      }\n    }\n  }\n}",
+      "variables": {
+        "campaignOrderId": "your-campaign-order-id"
+      },
+      "tip": "Using campaignOrdersConnection with an ID filter works with all permission levels."
+    }
+  ],
+  "tips": [
+    "Common status values: LIVE, LIVE_PENDING, LIVE_APPROVED, PAUSED, PAUSED_PENDING, PAUSED_APPROVED, APPROVED, PAST, DRAFT, LAUNCHING_LIVE, LAUNCHING_PAUSED",
+    "pace value of 100 means on track, >100 means ahead of schedule, <100 means behind",
+    "ctr (Click-Through Rate) indicates ad engagement quality",
+    "roas (Return on Ad Spend) shows revenue generated per dollar spent",
+    "dailyAvgImpressionsLeft helps predict if campaigns will hit their goals",
+    "Historical pace fields (paceYesterday, paceTwoDaysAgo, etc.) show delivery trends",
+    "Use orderBy: startDate_DESC to show most recent campaigns first",
+    "Use aggregate.count to get total matching campaigns"
+  ],
+  "relatedRecipes": ["campaign-attribution", "device-analytics", "org-summary", "list-campaigns"]
+}

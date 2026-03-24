@@ -7,11 +7,15 @@ import {
   KeyRound,
   ArrowRight,
 } from "lucide-react";
+import { GoalCards } from "@/components/home/goal-cards";
 
 export default function HomePage() {
+  const gqlEndpoint =
+    process.env.NEXT_PUBLIC_GQL_ENDPOINT || "http://localhost:4000";
+
   return (
     <div className="max-w-4xl mx-auto px-8 py-12">
-      <div className="mb-12">
+      <div className="mb-10">
         <h1 className="text-4xl font-bold mb-4">MediaJel API Documentation</h1>
         <p className="text-lg text-muted-foreground">
           Build integrations with the MediaJel advertising platform using our
@@ -19,6 +23,9 @@ export default function HomePage() {
           programmatically.
         </p>
       </div>
+
+      {/* Goal-based navigation */}
+      <GoalCards className="mb-12" />
 
       {/* Quick start cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
@@ -94,7 +101,7 @@ export default function HomePage() {
       <div className="border border-border rounded-lg p-6 bg-card">
         <h3 className="font-semibold mb-3">API Endpoint</h3>
         <code className="bg-muted px-3 py-2 rounded text-sm block mb-4">
-          POST https://api.mediajel.com
+          POST {gqlEndpoint}
         </code>
         <div className="text-sm text-muted-foreground space-y-1">
           <p>

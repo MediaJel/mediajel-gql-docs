@@ -1,0 +1,93 @@
+{
+  "slug": "device-analytics",
+  "title": "Device Analytics",
+  "description": "Analyze click and engagement data by device type (desktop, mobile, tablet) to understand how users interact with your campaigns across different devices.",
+  "difficulty": "intermediate",
+  "estimatedTime": "10 minutes",
+  "prerequisites": [
+    { "label": "Access Token", "link": "/guides/authentication" },
+    { "label": "Organization ID", "link": "/guides/quickstart" }
+  ],
+  "steps": [
+    {
+      "title": "Understand device analytics",
+      "description": "Device analytics shows how your audience engages with campaigns across different device types (desktop, mobile, tablet). This data comes from the `deviceClicks` JSON field in `aggregateData` on CampaignOrder.",
+      "type": "instruction"
+    },
+    {
+      "title": "Query device click data",
+      "description": "Fetch device breakdown data for campaigns. This query works with all permission levels.",
+      "type": "query",
+      "query": "query GetDeviceAnalytics($first: Int, $where: CampaignOrderWhereInput) {\n  campaignOrdersConnection(first: $first, where: $where) {\n    edges {\n      node {\n        id\n        name\n        status\n        aggregateData {\n          id\n          deviceClicks\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+      "variables": {
+        "first": 10,
+        "where": {
+          "status_in": ["LIVE", "PAST"]
+        }
+      },
+      "tip": "deviceClicks is a JSON field containing click counts by device type (mobile, tablet, desktop, etc.)."
+    },
+    {
+      "title": "Understand deviceClicks structure",
+      "description": "The `deviceClicks` JSON typically contains:\n\n- **desktop**: Click count from desktop devices\n- **mobile**: Click count from mobile devices\n- **tablet**: Click count from tablet devices\n\nUse these values to calculate device distribution percentages.",
+      "type": "instruction",
+      "tip": "Calculate percentages: (device_clicks / total_clicks) * 100"
+    },
+    {
+      "title": "Query multiple campaigns for device data",
+      "description": "Get device analytics across multiple campaigns with filters matching Dashboard usage.",
+      "type": "query",
+      "query": "query GetMultipleCampaignDeviceData($first: Int, $where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrdersConnection(first: $first, where: $where, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        aggregateData {\n          id\n          deviceClicks\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "variables": {
+        "first": 50,
+        "where": {
+          "status_in": ["LIVE", "PAST"]
+        },
+        "orderBy": "startDate_DESC"
+      },
+      "tip": "Filter by status_in: LIVE for active campaigns, PAST for finished campaigns."
+    },
+    {
+      "title": "Filter device data by date range",
+      "description": "Filter campaigns by date range to analyze device trends over a specific period.",
+      "type": "query",
+      "query": "query GetDeviceDataByDateRange($first: Int, $where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrdersConnection(first: $first, where: $where, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        aggregateData {\n          id\n          deviceClicks\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+      "variables": {
+        "first": 50,
+        "where": {
+          "status_in": ["LIVE"],
+          "startDate_gte": "2025-01-01T00:00:00.000Z",
+          "endDate_lte": "2025-03-31T23:59:59.999Z"
+        },
+        "orderBy": "startDate_DESC"
+      },
+      "tip": "Use startDate_gte and endDate_lte for date range filtering. The Dashboard defaults to 6 months of data."
+    },
+    {
+      "title": "Combine with session data",
+      "description": "For deeper session-level device analysis, query attributed sessions.",
+      "type": "query",
+      "query": "query GetSessionsByDevice($first: Int) {\n  campaignOrderSessionsWithEventsesConnection(first: $first) {\n    edges {\n      node {\n        id\n        sessionId\n        deviceType\n        pageViews\n        durationInSeconds\n        totalImpressions\n        landingPage\n        attrMethod\n        start\n        end\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "variables": {
+        "first": 100
+      },
+      "tip": "Session data provides detailed user journey information by device."
+    },
+    {
+      "title": "Optimize based on device data",
+      "description": "Use device analytics to inform your campaign strategy:\n\n- **High mobile traffic**: Ensure landing pages are mobile-optimized\n- **Low tablet engagement**: Consider adjusting tablet bid modifiers\n- **Desktop dominance**: B2B campaigns often see higher desktop engagement\n\nCompare durationInSeconds and pageViews across device types to understand engagement quality.",
+      "type": "instruction",
+      "tip": "Mobile users typically have shorter sessions but higher volume."
+    }
+  ],
+  "tips": [
+    "Common status values: LIVE, LIVE_PENDING, LIVE_APPROVED, PAUSED, PAUSED_PENDING, PAUSED_APPROVED, APPROVED, PAST, DRAFT, LAUNCHING_LIVE, LAUNCHING_PAUSED",
+    "deviceClicks is a JSON scalar - parse it in your application code",
+    "Mobile users typically have shorter sessions but higher volume",
+    "Desktop users often have longer session durations and more page views",
+    "Use device data to optimize landing page experiences for each device type",
+    "Compare conversion rates across device types by joining with transaction data",
+    "Use orderBy: startDate_DESC to show most recent campaigns first"
+  ],
+  "relatedRecipes": ["display-rollup", "campaign-attribution", "org-summary", "analytics"]
+}

@@ -49,6 +49,23 @@
       "tip": "Sessions show visit duration (durationInSeconds), page views, device type, and attribution details."
     },
     {
+      "title": "Filter by advertiser",
+      "description": "Fetch analytics data for all campaigns belonging to a specific advertiser. Useful for aggregating metrics across all campaigns for an organization.",
+      "type": "query",
+      "query": "query GetAnalyticsByAdvertiser($first: Int, $where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrdersConnection(first: $first, where: $where, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        advertiser {\n          id\n          name\n        }\n        pacingData {\n          totalImpressions\n          pace\n          ctr\n          roas\n        }\n        aggregateData {\n          completeAttributionSummary\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+      "variables": {
+        "first": 50,
+        "where": {
+          "advertiser": {
+            "id": "your-advertiser-org-id"
+          },
+          "status_in": ["LIVE", "PAST"]
+        },
+        "orderBy": "startDate_DESC"
+      },
+      "tip": "The advertiser field filters campaigns by the organization that owns them. Replace 'your-advertiser-org-id' with the actual org ID."
+    },
+    {
       "title": "Filter by date range",
       "description": "Filter campaigns by their start and end dates. The Dashboard defaults to a 6-month date range.",
       "type": "query",
@@ -86,6 +103,7 @@
   ],
   "tips": [
     "All queries use campaignOrdersConnection - works with all permission levels",
+    "Filter by advertiser.id to get campaigns for a specific organization",
     "Use campaignOrderTransactionsWithEventsesConnection for individual transaction records",
     "Use campaignOrderSessionsWithEventsesConnection for individual session records",
     "Not all campaigns have signups/sessions/transactions - check for null values",

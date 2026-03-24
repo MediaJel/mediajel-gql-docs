@@ -1,7 +1,7 @@
 {
   "slug": "campaign-attribution",
-  "title": "Campaign Attribution Data",
-  "description": "Get campaign attribution data including daily performance metrics, transactions, revenue, spend, sessions, and sign-ups - matching the Dashboard's Display Reports page.",
+  "title": "Analytics Data",
+  "description": "Get analytics data including daily performance metrics, transactions, revenue, spend, sessions, and sign-ups - matching the Dashboard's Display Reports page.",
   "difficulty": "intermediate",
   "estimatedTime": "10 minutes",
   "prerequisites": [

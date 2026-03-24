@@ -16,13 +16,16 @@
     },
     {
       "title": "Query device click data",
-      "description": "Fetch device breakdown data for a specific campaign.",
+      "description": "Fetch device breakdown data for campaigns. This query works with all permission levels.",
       "type": "query",
-      "query": "query GetDeviceAnalytics($campaignOrderId: ID!) {\n  campaignOrder(where: { id: $campaignOrderId }) {\n    id\n    name\n    status\n    aggregateData {\n      id\n      deviceClicks\n    }\n  }\n}",
+      "query": "query GetDeviceAnalytics($first: Int, $where: CampaignOrderWhereInput) {\n  campaignOrdersConnection(first: $first, where: $where) {\n    edges {\n      node {\n        id\n        name\n        status\n        aggregateData {\n          id\n          deviceClicks\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n  }\n}",
       "variables": {
-        "campaignOrderId": "your-campaign-order-id"
+        "first": 10,
+        "where": {
+          "status_in": ["LIVE", "PAST"]
+        }
       },
-      "tip": "deviceClicks is a JSON field containing click counts by device type."
+      "tip": "deviceClicks is a JSON field containing click counts by device type (mobile, tablet, desktop, etc.)."
     },
     {
       "title": "Understand deviceClicks structure",
@@ -53,8 +56,8 @@
         "first": 50,
         "where": {
           "status_in": ["LIVE"],
-          "startDate_gte": "2024-09-20T00:00:00.000Z",
-          "endDate_lte": "2025-03-20T23:59:59.999Z"
+          "startDate_gte": "2025-01-01T00:00:00.000Z",
+          "endDate_lte": "2025-03-31T23:59:59.999Z"
         },
         "orderBy": "startDate_DESC"
       },

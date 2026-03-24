@@ -1,6 +1,6 @@
 {
   "slug": "display-rollup",
-  "title": "Display Pacing & Performance",
+  "title": "Pacing & Performance",
   "description": "Get display advertising pacing metrics including impressions, budget, CTR, ROAS, and delivery pace data - matching the Dashboard's Display Summary page.",
   "difficulty": "beginner",
   "estimatedTime": "5 minutes",
@@ -37,8 +37,8 @@
         "first": 50,
         "where": {
           "status_in": ["LIVE"],
-          "startDate_gte": "2024-09-20T00:00:00.000Z",
-          "endDate_lte": "2025-03-20T23:59:59.999Z"
+          "startDate_gte": "2025-01-01T00:00:00.000Z",
+          "endDate_lte": "2025-03-31T23:59:59.999Z"
         },
         "orderBy": "startDate_DESC"
       },
@@ -51,14 +51,14 @@
       "tip": "Pace values: 100% = on track, >100% = ahead of schedule, <100% = behind schedule."
     },
     {
-      "title": "Get pacing for a specific campaign",
-      "description": "Query pacing data through a specific CampaignOrder.",
+      "title": "Filter by campaign ID",
+      "description": "Query pacing data for a specific campaign by filtering the connection.",
       "type": "query",
-      "query": "query GetCampaignPacing($campaignOrderId: ID!) {\n  campaignOrder(where: { id: $campaignOrderId }) {\n    id\n    name\n    status\n    startDate\n    endDate\n    budget\n    pacingData {\n      id\n      totalImpressions\n      impressionGoal\n      impressionsLeft\n      budgetSpent\n      totalBudget\n      budgetLeft\n      ctr\n      roas\n      pace\n      daysLeft\n      daysIntoFlight\n    }\n  }\n}",
+      "query": "query GetCampaignPacing($campaignOrderId: ID!) {\n  campaignOrdersConnection(where: { id: $campaignOrderId }) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        budget\n        pacingData {\n          id\n          totalImpressions\n          impressionGoal\n          impressionsLeft\n          budgetSpent\n          totalBudget\n          budgetLeft\n          ctr\n          roas\n          pace\n          daysLeft\n          daysIntoFlight\n        }\n      }\n    }\n  }\n}",
       "variables": {
         "campaignOrderId": "your-campaign-order-id"
       },
-      "tip": "Each CampaignOrder has a pacingData relation containing its pacing metrics."
+      "tip": "Using campaignOrdersConnection with an ID filter works with all permission levels."
     }
   ],
   "tips": [

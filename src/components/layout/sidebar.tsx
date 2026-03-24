@@ -87,8 +87,9 @@ interface NavSection {
 
 interface NavItem {
   label: string;
-  href: string;
+  href?: string;
   icon?: React.ReactNode;
+  children?: NavItem[];
 }
 
 const sections: NavSection[] = [
@@ -105,12 +106,18 @@ const sections: NavSection[] = [
       { label: "All Recipes", href: "/recipes", icon: <ChefHat className="h-4 w-4" /> },
       { label: "Campaign Performance", href: "/recipes/campaign-performance", icon: <BarChart className="h-4 w-4" /> },
       { label: "List Campaigns", href: "/recipes/list-campaigns", icon: <List className="h-4 w-4" /> },
-      { label: "Analytics Data", href: "/recipes/analytics", icon: <TrendingUp className="h-4 w-4" /> },
       { label: "Organizations", href: "/recipes/organizations", icon: <Building2 className="h-4 w-4" /> },
-      { label: "Display Roll-up", href: "/recipes/display-rollup", icon: <Gauge className="h-4 w-4" /> },
-      { label: "Campaign Attribution", href: "/recipes/campaign-attribution", icon: <Target className="h-4 w-4" /> },
-      { label: "Device Analytics", href: "/recipes/device-analytics", icon: <Sliders className="h-4 w-4" /> },
       { label: "Org Summary", href: "/recipes/org-summary", icon: <Building2 className="h-4 w-4" /> },
+      {
+        label: "Analytics",
+        icon: <TrendingUp className="h-4 w-4" />,
+        children: [
+          { label: "Campaign Analytics", href: "/recipes/campaign-attribution", icon: <TrendingUp className="h-4 w-4" /> },
+          { label: "Transaction Data", href: "/recipes/analytics", icon: <Target className="h-4 w-4" /> },
+          { label: "Pacing & Performance", href: "/recipes/display-rollup", icon: <Gauge className="h-4 w-4" /> },
+          { label: "Device Analytics", href: "/recipes/device-analytics", icon: <Sliders className="h-4 w-4" /> },
+        ],
+      },
     ],
   },
   {
@@ -161,19 +168,56 @@ export function Sidebar() {
             {!collapsed[section.title] && (
               <ul className="space-y-1">
                 {section.items.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors",
-                        pathname === item.href
-                          ? "bg-primary/10 text-primary font-medium"
-                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                      )}
-                    >
-                      {item.icon}
-                      {item.label}
-                    </Link>
+                  <li key={item.href || item.label}>
+                    {item.children ? (
+                      <div>
+                        <button
+                          onClick={() => toggleSection(`${section.title}-${item.label}`)}
+                          className="flex items-center gap-2 px-3 py-1.5 w-full rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                        >
+                          {item.icon}
+                          <span className="flex-1 text-left">{item.label}</span>
+                          {collapsed[`${section.title}-${item.label}`] ? (
+                            <ChevronRight className="h-3 w-3" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" />
+                          )}
+                        </button>
+                        {!collapsed[`${section.title}-${item.label}`] && (
+                          <ul className="ml-4 space-y-1 mt-1">
+                            {item.children.map((child) => (
+                              <li key={child.href}>
+                                <Link
+                                  href={child.href!}
+                                  className={cn(
+                                    "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors",
+                                    pathname === child.href
+                                      ? "bg-primary/10 text-primary font-medium"
+                                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                                  )}
+                                >
+                                  {child.icon}
+                                  {child.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ) : (
+                      <Link
+                        href={item.href!}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors",
+                          pathname === item.href
+                            ? "bg-primary/10 text-primary font-medium"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                        )}
+                      >
+                        {item.icon}
+                        {item.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

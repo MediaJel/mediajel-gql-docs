@@ -1,43 +1,54 @@
 {
   "slug": "analytics",
-  "title": "Get Transaction Analytics",
-  "description": "Fetch transaction and conversion data attributed to your campaigns.",
-  "difficulty": "intermediate",
-  "estimatedTime": "10 minutes",
+  "title": "Transaction Data",
+  "description": "Query individual transactions and conversions attributed to your campaigns, with revenue and attribution details.",
+  "difficulty": "beginner",
+  "estimatedTime": "5 minutes",
   "prerequisites": [
     { "label": "Access Token", "link": "/guides/authentication" },
-    { "label": "Organization ID", "link": "/guides/quickstart" },
-    { "label": "Campaign Order ID", "link": "/recipes/list-campaigns" }
+    { "label": "Organization ID", "link": "/guides/quickstart" }
   ],
   "steps": [
     {
       "title": "Understand transaction data",
-      "description": "Transaction reports track purchases and conversions attributed to your campaign orders. Each transaction includes revenue, impression data, and attribution details.",
+      "description": "Transaction reports track purchases and conversions attributed to your campaign orders. Each transaction includes:\n\n- **revenue**: Transaction value\n- **transactionDate**: When the conversion occurred\n- **totalImpressions**: Number of ad impressions before conversion\n- **attrMethod**: Attribution method (click, view, etc.)\n- **attrWindow**: Attribution lookback window in days",
       "type": "instruction"
     },
     {
-      "title": "Query transactions with events",
-      "description": "Fetch transactions attributed to your campaigns. Filter by date range using transactionDate.",
+      "title": "Query all transactions",
+      "description": "Fetch recent transactions with pagination. This query works with all permission levels.",
       "type": "query",
-      "query": "query GetTransactions(\n  $startDate: DateTime!\n  $endDate: DateTime!\n  $first: Int\n) {\n  campaignOrderTransactionsWithEventsesConnection(\n    where: {\n      transactionDate_gte: $startDate\n      transactionDate_lte: $endDate\n    }\n    first: $first\n  ) {\n    edges {\n      node {\n        id\n        orderId\n        transactionDate\n        revenue\n        totalImpressions\n        lastImpression\n        attrMethod\n        attrWindow\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "query": "query GetTransactions($first: Int) {\n  campaignOrderTransactionsWithEventsesConnection(first: $first) {\n    edges {\n      node {\n        id\n        orderId\n        transactionDate\n        revenue\n        totalImpressions\n        lastImpression\n        attrMethod\n        attrWindow\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
       "variables": {
-        "startDate": "2024-01-01T00:00:00Z",
-        "endDate": "2024-01-31T23:59:59Z",
-        "first": 100
-      }
+        "first": 50
+      },
+      "tip": "This query retrieves the most recent transactions. Use pagination (after: endCursor) to fetch more."
+    },
+    {
+      "title": "Filter by date range",
+      "description": "Filter transactions by date range to analyze specific time periods.",
+      "type": "query",
+      "query": "query GetTransactionsByDate($first: Int, $startDate: DateTime!, $endDate: DateTime!) {\n  campaignOrderTransactionsWithEventsesConnection(\n    first: $first\n    where: {\n      transactionDate_gte: $startDate\n      transactionDate_lte: $endDate\n    }\n  ) {\n    edges {\n      node {\n        id\n        orderId\n        transactionDate\n        revenue\n        totalImpressions\n        attrMethod\n        attrWindow\n      }\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+      "variables": {
+        "first": 100,
+        "startDate": "2025-01-01T00:00:00Z",
+        "endDate": "2025-03-31T23:59:59Z"
+      },
+      "tip": "Use transactionDate_gte and transactionDate_lte for date filtering."
     },
     {
       "title": "Calculate totals",
-      "description": "Sum the revenue field to get total attributed revenue for the period.",
+      "description": "The response includes:\n\n- **aggregate.count**: Total transactions matching your filter\n- Sum the **revenue** field to get total attributed revenue\n- **pageInfo.hasNextPage**: Whether more results exist\n\nPaginate through all results to calculate accurate totals.",
       "type": "instruction",
-      "tip": "The aggregate.count field tells you how many transactions matched your filter."
+      "tip": "For large datasets, use the endCursor with the 'after' parameter to paginate."
     }
   ],
   "tips": [
     "revenue is the transaction value attributed to the campaign",
     "attrMethod shows how attribution was determined (click, view, etc.)",
     "attrWindow indicates the attribution lookback window in days",
-    "Use transactionDate filtering to analyze specific time periods"
+    "Use transactionDate filtering to analyze specific time periods",
+    "orderId is the external order/transaction identifier"
   ],
-  "relatedRecipes": ["campaign-performance", "list-campaigns"]
+  "relatedRecipes": ["campaign-attribution", "list-campaigns", "display-rollup"]
 }

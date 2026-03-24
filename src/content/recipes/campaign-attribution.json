@@ -1,80 +1,98 @@
 {
   "slug": "campaign-attribution",
-  "title": "Campaign Attribution Data",
-  "description": "Get campaign attribution data including daily performance metrics, transactions, revenue, spend, sessions, and sign-ups - matching the Dashboard's Display Reports page.",
+  "title": "Campaign Analytics",
+  "description": "Get comprehensive analytics data including transactions, revenue, signups, sessions, and daily performance metrics - matching the Dashboard's Display Reports page.",
   "difficulty": "intermediate",
-  "estimatedTime": "10 minutes",
+  "estimatedTime": "15 minutes",
   "prerequisites": [
     { "label": "Access Token", "link": "/guides/authentication" },
     { "label": "Organization ID", "link": "/guides/quickstart" }
   ],
   "steps": [
     {
-      "title": "Understand attribution data",
-      "description": "Attribution data connects campaign performance to business outcomes. The `aggregateData` field on CampaignOrder contains `completeAttributionSummary` - a JSON field with daily metrics matching the Dashboard's Display Reports > By Date view.",
+      "title": "Understanding analytics data sources",
+      "description": "CampaignOrder provides analytics data through two relations:\n\n**aggregateData** (JSON-based):\n- `completeAttributionSummary`: JSON array with daily metrics\n- `byDate`, `topCreatives`, `topPublishers`, `deviceClicks`\n\n**reportDetails** (structured):\n- `transaction`: Structured transaction/conversion data with `byDate` breakdowns\n- `signups`: Signup metrics with daily breakdowns\n- `sessions`: Session metrics with device breakdown\n\nBoth relations work through `campaignOrdersConnection` for all permission levels. Not all campaigns have all report types - check for null values.",
       "type": "instruction"
     },
     {
-      "title": "Query campaign with attribution summary",
-      "description": "Fetch a campaign's complete attribution data including daily breakdowns.",
+      "title": "List campaigns with analytics",
+      "description": "Fetch analytics data for multiple campaigns with filtering. This is the recommended starting point - works with all permission levels.",
       "type": "query",
-      "query": "query GetCampaignAttribution($campaignOrderId: ID!) {\n  campaignOrder(where: { id: $campaignOrderId }) {\n    id\n    name\n    status\n    startDate\n    endDate\n    budget\n    aggregateData {\n      id\n      completeAttributionSummary\n      byDate\n      topCreatives\n      topPublishers\n      deviceClicks\n    }\n  }\n}",
+      "query": "query GetCampaignsWithAnalytics($first: Int, $where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrdersConnection(first: $first, where: $where, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        budget\n        pacingData {\n          totalImpressions\n          impressionGoal\n          pace\n          ctr\n          roas\n        }\n        aggregateData {\n          id\n          completeAttributionSummary\n          deviceClicks\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
       "variables": {
-        "campaignOrderId": "your-campaign-order-id"
-      },
-      "tip": "completeAttributionSummary is a JSON field containing daily metrics arrays."
-    },
-    {
-      "title": "Understand the completeAttributionSummary structure",
-      "description": "The `completeAttributionSummary` JSON contains daily records with these fields:\n\n- **date**: Date of the metrics\n- **impressions**: Total impressions served\n- **clicks**: Total clicks\n- **ctr**: Click-through rate\n- **transactions**: Number of transactions\n- **revenue**: Revenue amount\n- **spend**: Amount spent\n- **sessions**: Number of sessions\n- **signUps**: Number of sign-ups\n\nThis matches the columns shown in the Dashboard's Display Reports table.",
-      "type": "instruction",
-      "tip": "Parse the JSON response to extract daily metrics for reporting."
-    },
-    {
-      "title": "Query multiple campaigns with filters",
-      "description": "Fetch attribution data for multiple campaigns with filters matching Dashboard usage. The Dashboard typically filters by status (LIVE campaigns) and orders by most recent.",
-      "type": "query",
-      "query": "query GetMultipleCampaignAttribution($first: Int, $where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrdersConnection(first: $first, where: $where, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        aggregateData {\n          id\n          completeAttributionSummary\n          byDate\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
-      "variables": {
-        "first": 50,
+        "first": 10,
         "where": {
           "status_in": ["LIVE", "PAST"]
         },
         "orderBy": "startDate_DESC"
       },
-      "tip": "Filter by status_in: LIVE for active campaigns, PAST for finished campaigns, or combine multiple values."
+      "tip": "This query works with all permission levels. Filter by status_in: LIVE for active campaigns, PAST for finished campaigns."
+    },
+    {
+      "title": "Query individual transactions",
+      "description": "Fetch individual transaction events. Each record represents a conversion attributed to a campaign impression.",
+      "type": "query",
+      "query": "query GetTransactions($first: Int, $where: CampaignOrderTransactionsWithEventsWhereInput) {\n  campaignOrderTransactionsWithEventsesConnection(first: $first, where: $where) {\n    edges {\n      node {\n        id\n        orderId\n        revenue\n        transactionDate\n        totalImpressions\n        attrMethod\n        attrWindow\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "variables": {
+        "first": 20
+      },
+      "tip": "Each transaction shows the order ID, revenue, and attribution details (method, window, impressions)."
+    },
+    {
+      "title": "Query individual sessions",
+      "description": "Fetch individual session events. Each record represents a website visit attributed to a campaign impression.",
+      "type": "query",
+      "query": "query GetSessions($first: Int) {\n  campaignOrderSessionsWithEventsesConnection(first: $first) {\n    edges {\n      node {\n        id\n        sessionId\n        start\n        end\n        durationInSeconds\n        pageViews\n        deviceType\n        landingPage\n        attrMethod\n        attrWindow\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "variables": {
+        "first": 20
+      },
+      "tip": "Sessions show visit duration (durationInSeconds), page views, device type, and attribution details."
     },
     {
       "title": "Filter by date range",
-      "description": "The Dashboard defaults to a 6-month date range. You can filter campaigns by their start and end dates.",
+      "description": "Filter campaigns by their start and end dates. The Dashboard defaults to a 6-month date range.",
       "type": "query",
-      "query": "query GetCampaignAttributionByDateRange($first: Int, $where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrdersConnection(first: $first, where: $where, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        aggregateData {\n          id\n          completeAttributionSummary\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n  }\n}",
+      "query": "query GetAnalyticsByDateRange($first: Int, $where: CampaignOrderWhereInput, $orderBy: CampaignOrderOrderByInput) {\n  campaignOrdersConnection(first: $first, where: $where, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        status\n        startDate\n        endDate\n        pacingData {\n          totalImpressions\n          pace\n          ctr\n          roas\n        }\n        aggregateData {\n          completeAttributionSummary\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n  }\n}",
       "variables": {
         "first": 50,
         "where": {
           "status_in": ["LIVE"],
-          "startDate_gte": "2024-09-20T00:00:00.000Z",
-          "endDate_lte": "2025-03-20T23:59:59.999Z"
+          "startDate_gte": "2025-01-01T00:00:00.000Z",
+          "endDate_lte": "2025-06-30T23:59:59.999Z"
         },
         "orderBy": "startDate_DESC"
       },
       "tip": "Use startDate_gte and endDate_lte for date range filtering. The Dashboard defaults to 6 months of data."
     },
     {
-      "title": "Additional aggregate fields",
-      "description": "The `aggregateData` object also contains:\n\n- **byDate**: Alternative date-based metrics breakdown\n- **topCreatives**: Top performing creatives as JSON\n- **topPublishers**: Top ad placements/publishers as JSON\n- **deviceClicks**: Click data broken down by device type\n\nThese power different sections of the Dashboard reports.",
+      "title": "Understanding completeAttributionSummary",
+      "description": "The `completeAttributionSummary` JSON contains daily records with these fields:\n\n- **date**: Date of the metrics\n- **impressions**: Total impressions served\n- **clicks**: Total clicks\n- **ctr**: Click-through rate\n- **transactions**: Number of transactions\n- **revenue**: Revenue amount\n- **spend**: Amount spent\n- **sessions**: Number of sessions\n- **signUps**: Number of sign-ups\n\nThis matches the columns shown in the Dashboard's Display Reports table.",
       "type": "instruction",
-      "tip": "Use deviceClicks for device analytics (see Device Analytics recipe)."
+      "tip": "Parse the JSON response to extract daily metrics for reporting."
+    },
+    {
+      "title": "Query reportDetails via connection",
+      "description": "Fetch structured analytics including transactions, signups, and sessions using the connection query. This works with all permission levels.",
+      "type": "query",
+      "query": "query GetCampaignReportDetails($first: Int, $where: CampaignOrderWhereInput) {\n  campaignOrdersConnection(first: $first, where: $where) {\n    edges {\n      node {\n        id\n        name\n        status\n        reportDetails {\n          id\n          transaction {\n            id\n            transactions\n            revenue\n            spend\n            customers\n            roas\n            byDate {\n              date\n              transactions\n              revenue\n              spend\n            }\n          }\n          signups {\n            id\n            signups\n            impressions\n            byDate {\n              date\n              signups\n              customers\n            }\n          }\n          sessions {\n            id\n            sessions\n            avgSessionDuration\n            pagesPerSession\n            byDate {\n              date\n              sessions\n              averageSessionDuration\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+      "variables": {
+        "first": 10,
+        "where": {
+          "status_in": ["LIVE", "PAST"]
+        }
+      },
+      "tip": "Not all campaigns have all report types - transaction/signups/sessions may be null if not configured for the campaign."
     }
   ],
   "tips": [
-    "Common status values: LIVE, LIVE_PENDING, LIVE_APPROVED, PAUSED, PAUSED_PENDING, PAUSED_APPROVED, APPROVED, PAST, DRAFT, LAUNCHING_LIVE, LAUNCHING_PAUSED",
-    "completeAttributionSummary is a JSON scalar - parse it in your application code",
-    "Each day's record in the JSON matches the Dashboard's Reports table columns",
-    "Use startDate_gte and endDate_lte for date range filtering (Dashboard defaults to 6 months)",
-    "Combine with pacingData for a complete picture of campaign performance",
-    "topCreatives and topPublishers help identify what's working best",
-    "Use orderBy: startDate_DESC to show most recent campaigns first"
+    "All queries use campaignOrdersConnection - works with all permission levels",
+    "Use campaignOrderTransactionsWithEventsesConnection for individual transaction records",
+    "Use campaignOrderSessionsWithEventsesConnection for individual session records",
+    "Not all campaigns have signups/sessions/transactions - check for null values",
+    "aggregateData has JSON fields, reportDetails has structured typed data",
+    "Common status values: LIVE, PAST, APPROVED, PAUSED, DRAFT",
+    "Use orderBy: startDate_DESC to show most recent campaigns first",
+    "Combine with pacingData for a complete picture of campaign performance"
   ],
-  "relatedRecipes": ["display-rollup", "device-analytics", "org-summary", "analytics"]
+  "relatedRecipes": ["analytics", "display-rollup", "device-analytics", "list-campaigns"]
 }

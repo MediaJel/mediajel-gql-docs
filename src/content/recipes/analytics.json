@@ -1,6 +1,6 @@
 {
   "slug": "analytics",
-  "title": "Get Transaction Analytics",
+  "title": "Campaign Attribution",
   "description": "Fetch transaction and conversion data attributed to your campaigns.",
   "difficulty": "intermediate",
   "estimatedTime": "10 minutes",

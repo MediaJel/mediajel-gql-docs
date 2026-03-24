@@ -1,7 +1,7 @@
 {
   "slug": "device-analytics",
-  "title": "Campaign Attribution",
-  "description": "Analyze campaign attribution by device type (desktop, mobile, tablet) to understand how users interact with your campaigns across different devices.",
+  "title": "Device Analytics",
+  "description": "Analyze click and engagement data by device type (desktop, mobile, tablet) to understand how users interact with your campaigns across different devices.",
   "difficulty": "intermediate",
   "estimatedTime": "10 minutes",
   "prerequisites": [

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, useCallback } from "react";
-import { createGraphiQLFetcher, isAsyncIterable } from "@graphiql/toolkit";
+import { createGraphiQLFetcher, isAsyncIterable, Fetcher } from "@graphiql/toolkit";
 import dynamic from "next/dynamic";
 import { ExportDropdown } from "./export-dropdown";
 
@@ -80,7 +80,7 @@ export function GraphiQLWrapper({
   const [currentQuery, setCurrentQuery] = useState(query || DEFAULT_QUERY);
 
   // Create a fetcher that captures the response
-  const fetcher = useMemo(() => {
+  const fetcher: Fetcher = useMemo(() => {
     const baseFetcher = createGraphiQLFetcher({
       url: gqlEndpoint,
       headers: {
@@ -90,7 +90,7 @@ export function GraphiQLWrapper({
     });
 
     // Wrap the fetcher to capture responses (but not schema introspection)
-    return async (...args: Parameters<typeof baseFetcher>) => {
+    const wrappedFetcher: Fetcher = async (...args: Parameters<typeof baseFetcher>) => {
       // Check if this is an introspection query by examining the query string
       const params = args[0] as { query?: string } | undefined;
       const queryString = params?.query || '';
@@ -115,7 +115,8 @@ export function GraphiQLWrapper({
               complete: observer.complete,
             });
           },
-        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any;
       }
 
       // Handle AsyncIterable (streaming/multipart responses)
@@ -136,6 +137,8 @@ export function GraphiQLWrapper({
 
       return result;
     };
+
+    return wrappedFetcher;
   }, [auth, gqlEndpoint]);
 
   // Track query changes

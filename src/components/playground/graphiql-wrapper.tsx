@@ -1,9 +1,24 @@
 "use client";
 
 import { useMemo, useRef, useState, useCallback } from "react";
-import { createGraphiQLFetcher } from "@graphiql/toolkit";
+import { createGraphiQLFetcher, isAsyncIterable, Fetcher } from "@graphiql/toolkit";
 import dynamic from "next/dynamic";
 import { ExportDropdown } from "./export-dropdown";
+
+// Helper to detect introspection queries (fields starting with __)
+function isIntrospectionQuery(query: string): boolean {
+  return query.includes('__schema') || query.includes('__type');
+}
+
+// Helper to check if value is an Observable
+function isObservable(value: unknown): value is { subscribe: (observer: unknown) => unknown } {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'subscribe' in value &&
+    typeof (value as { subscribe: unknown }).subscribe === 'function'
+  );
+}
 
 // Dynamic import GraphiQL to avoid SSR issues
 const GraphiQL = dynamic(() => import("graphiql").then((m) => m.GraphiQL || m.default), {
@@ -65,7 +80,7 @@ export function GraphiQLWrapper({
   const [currentQuery, setCurrentQuery] = useState(query || DEFAULT_QUERY);
 
   // Create a fetcher that captures the response
-  const fetcher = useMemo(() => {
+  const fetcher: Fetcher = useMemo(() => {
     const baseFetcher = createGraphiQLFetcher({
       url: gqlEndpoint,
       headers: {
@@ -74,22 +89,56 @@ export function GraphiQLWrapper({
       },
     });
 
-    // Wrap the fetcher to capture responses
-    return async (...args: Parameters<typeof baseFetcher>) => {
+    // Wrap the fetcher to capture responses (but not schema introspection)
+    const wrappedFetcher: Fetcher = async (...args: Parameters<typeof baseFetcher>) => {
+      // Check if this is an introspection query by examining the query string
+      const params = args[0] as { query?: string } | undefined;
+      const queryString = params?.query || '';
+
+      // Skip response capture for introspection queries
+      if (isIntrospectionQuery(queryString)) {
+        return baseFetcher(...args);
+      }
+
       const result = await baseFetcher(...args);
 
-      // Handle async iterables (subscriptions) and regular responses
+      // Handle Observable (subscriptions) - wrap to capture responses
+      if (isObservable(result)) {
+        return {
+          subscribe: (observer: { next?: (value: unknown) => void; error?: (err: unknown) => void; complete?: () => void }) => {
+            return result.subscribe({
+              next: (value: unknown) => {
+                setLastResponse(value);
+                observer.next?.(value);
+              },
+              error: observer.error,
+              complete: observer.complete,
+            });
+          },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any;
+      }
+
+      // Handle AsyncIterable (streaming/multipart responses)
+      if (isAsyncIterable(result)) {
+        const capturedResult = result;
+        return (async function* () {
+          for await (const value of capturedResult) {
+            setLastResponse(value);
+            yield value;
+          }
+        })();
+      }
+
+      // Handle Promise/direct result (standard query/mutation)
       if (result && typeof result === 'object') {
-        if (Symbol.asyncIterator in result) {
-          // For subscriptions, we can't easily capture all results
-          return result;
-        }
-        // Capture the response for export
         setLastResponse(result);
       }
 
       return result;
     };
+
+    return wrappedFetcher;
   }, [auth, gqlEndpoint]);
 
   // Track query changes

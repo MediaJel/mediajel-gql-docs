@@ -7,7 +7,7 @@ kind: CronJob
 metadata:
   name: |-
     {{ .Release.Name }}-sync-knowledge
-  namespace: public-nodes
+  namespace: public-apps
   labels:
     app: |-
       {{ .Release.Name }}

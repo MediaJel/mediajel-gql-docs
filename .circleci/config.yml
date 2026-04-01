@@ -112,13 +112,13 @@ jobs:
             kops export kubecfg --admin
             helm3 upgrade --install gql-docs charts/ --set \
             commitSha=${CIRCLE_SHA1} -f charts/stages/dojo.yaml \
-            --history-max=1
+            --history-max=1 -n public-apps
       - run:
           name: Rollout Graphql Docs Staging
           command: |
             kops export kubecfg --admin
-            kubectl rollout restart deployment gql-docs;
-            kubectl rollout status deployment/gql-docs -w
+            kubectl rollout restart deployment gql-docs -n public-apps
+            kubectl rollout status deployment/gql-docs -n public-apps -w
 
   deploy-production:
     executor: docker-executor
@@ -131,13 +131,13 @@ jobs:
             kops export kubecfg --admin
             helm3 upgrade --install gql-docs charts/ --set \
             commitSha=${CIRCLE_SHA1} -f charts/stages/production.yaml \
-            --history-max=1
+            --history-max=1 -n public-apps
       - run:
           name: Rollout Graphql Docs Production
           command: |
             kops export kubecfg --admin
-            kubectl rollout restart deployment gql-docs;
-            kubectl rollout status deployment/gql-docs -w
+            kubectl rollout restart deployment gql-docs -n public-apps
+            kubectl rollout status deployment/gql-docs -n public-apps -w
 
 # ---------------------------------------------------------------------------
 # Workflows

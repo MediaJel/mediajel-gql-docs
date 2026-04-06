@@ -10,7 +10,7 @@ cpuLimit: 0.5
 memoryRequest: 1Gi
 memoryLimit: 1Gi
 environment: PRODUCTION
-instancegroup: big-nodes
+instancegroup: public-nodes
 nextPublicGqlEndpoint: https://graphql.dmp.cnna.io/
 replicaCount: 1
 

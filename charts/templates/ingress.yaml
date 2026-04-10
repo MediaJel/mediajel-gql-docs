@@ -4,6 +4,7 @@ kind: Ingress
 metadata:
   name: |-
     {{ .Release.Name }}
+  namespace: public-apps
   labels:
     app: |-
       {{ .Release.Name }}

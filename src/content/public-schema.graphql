@@ -2000,6 +2000,14 @@ enum EnumFirstPartyDataStatus {
   NO_ACTION
 }
 
+enum EnumRefreshStatus {
+  ACTIVE
+  NEEDS_REFRESH
+  REFRESHING
+  REFRESH_FAILED
+  REFRESH_COMPLETED
+}
+
 enum EventOrderByInput {
   id_ASC
   id_DESC
@@ -2522,6 +2530,12 @@ enum HashedEmailListOrderByInput {
   status_DESC
   stepProgress_ASC
   stepProgress_DESC
+  refreshStatus_ASC
+  refreshStatus_DESC
+  lastRefreshedAt_ASC
+  lastRefreshedAt_DESC
+  refreshMessage_ASC
+  refreshMessage_DESC
 }
 
 enum HistoryLogOrderByInput {
@@ -32874,6 +32888,78 @@ input HashedEmailListWhereInput {
 
   """All values greater than or equal the given value."""
   stepProgress_gte: Int
+  refreshStatus: EnumRefreshStatus
+
+  """All values that are not equal to given value."""
+  refreshStatus_not: EnumRefreshStatus
+
+  """All values that are contained in given list."""
+  refreshStatus_in: [EnumRefreshStatus!]
+
+  """All values that are not contained in given list."""
+  refreshStatus_not_in: [EnumRefreshStatus!]
+  lastRefreshedAt: DateTime
+
+  """All values that are not equal to given value."""
+  lastRefreshedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  lastRefreshedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  lastRefreshedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  lastRefreshedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  lastRefreshedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  lastRefreshedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  lastRefreshedAt_gte: DateTime
+  refreshMessage: String
+
+  """All values that are not equal to given value."""
+  refreshMessage_not: String
+
+  """All values that are contained in given list."""
+  refreshMessage_in: [String!]
+
+  """All values that are not contained in given list."""
+  refreshMessage_not_in: [String!]
+
+  """All values less than the given value."""
+  refreshMessage_lt: String
+
+  """All values less than or equal the given value."""
+  refreshMessage_lte: String
+
+  """All values greater than the given value."""
+  refreshMessage_gt: String
+
+  """All values greater than or equal the given value."""
+  refreshMessage_gte: String
+
+  """All values containing the given string."""
+  refreshMessage_contains: String
+
+  """All values not containing the given string."""
+  refreshMessage_not_contains: String
+
+  """All values starting with the given string."""
+  refreshMessage_starts_with: String
+
+  """All values not starting with the given string."""
+  refreshMessage_not_starts_with: String
+
+  """All values ending with the given string."""
+  refreshMessage_ends_with: String
+
+  """All values not ending with the given string."""
+  refreshMessage_not_ends_with: String
   hashedEmails_every: HashedEmailAddressWhereInput
   hashedEmails_some: HashedEmailAddressWhereInput
   hashedEmails_none: HashedEmailAddressWhereInput
@@ -65188,6 +65274,10 @@ type HashedEmailList implements Node {
   dsp: EnumFirstPartyDataDSP
   status: EnumFirstPartyDataStatus
   stepProgress: Int
+  refreshStatus: EnumRefreshStatus
+  s3CsvPaths: Json
+  lastRefreshedAt: DateTime
+  refreshMessage: String
 }
 
 type HashedEmailListPageInfo {

@@ -1,0 +1,65 @@
+{
+  "slug": "org-summary",
+  "title": "Organization Summary",
+  "description": "Get organization-level aggregated metrics including campaign counts, budget, ROAS, impressions, clicks, revenue, and walk-ins.",
+  "difficulty": "beginner",
+  "estimatedTime": "5 minutes",
+  "prerequisites": [
+    { "label": "Access Token", "link": "/guides/authentication" },
+    { "label": "Organization ID", "link": "/guides/quickstart" }
+  ],
+  "steps": [
+    {
+      "title": "Understand organization data",
+      "description": "Organization data includes name, configuration, and aggregated campaign metrics through the `orgSummary` relation. You can access org data either directly (requires org-level permissions) or through campaign relations (works with all permissions).",
+      "type": "instruction"
+    },
+    {
+      "title": "Get org summary via campaigns",
+      "description": "Fetch organization summary through the campaign advertiser relation. This approach works with all permission levels.",
+      "type": "query",
+      "query": "query GetOrgSummaryViaCampaigns($first: Int) {\n  campaignOrdersConnection(first: $first) {\n    edges {\n      node {\n        id\n        name\n        advertiser {\n          id\n          name\n          website\n          level\n          orgSummary {\n            totalCampaigns\n            activeCampaigns\n            liveCampaigns\n            impressions\n            budget\n            roas\n            totalRevenue\n            totalOrders\n          }\n        }\n      }\n    }\n  }\n}",
+      "variables": {
+        "first": 1
+      },
+      "tip": "This query works with all permission levels. The advertiser relation provides access to org data through campaigns."
+    },
+    {
+      "title": "Understand summary fields",
+      "description": "The orgSummary object contains:\n\n**Campaign Counts:**\n- **totalCampaigns**: Total number of campaigns\n- **activeCampaigns**: Campaigns with remaining budget\n- **liveCampaigns**: Currently serving campaigns\n- **inAttributionCampaigns**: Campaigns in attribution window\n\n**Performance Metrics:**\n- **impressions**: Total impressions served (string for large numbers)\n- **mediaSpendClicks**: Total clicks\n- **mediaSpendCTR**: Click-through rate\n- **roas**: Return on ad spend\n\n**Financial:**\n- **budget**: Total allocated budget\n- **mediaSpendBudgetSpent**: Amount spent\n- **totalRevenue**: Total attributed revenue\n\n**Conversions:**\n- **totalOrders**: Total attributed orders\n- **totalWalkIns**: Total walk-in visits\n- **totalObservations**: Total tracked observations",
+      "type": "instruction",
+      "tip": "liveCampaigns vs activeCampaigns helps identify paused campaigns."
+    },
+    {
+      "title": "Direct org query",
+      "description": "For users with org-level access: fetch organization details directly with full summary metrics.",
+      "type": "query",
+      "query": "query GetOrgWithSummary($orgId: ID!) {\n  org(where: { id: $orgId }) {\n    id\n    name\n    website\n    domain\n    zone\n    level\n    orgSummary {\n      id\n      totalCampaigns\n      activeCampaigns\n      liveCampaigns\n      inAttributionCampaigns\n      impressions\n      budget\n      roas\n      mediaSpendImpressionsServed\n      mediaSpendClicks\n      mediaSpendCTR\n      mediaSpendBudgetSpent\n      totalWalkIns\n      totalOrders\n      totalRevenue\n      totalObservations\n      goal\n    }\n  }\n}",
+      "variables": {
+        "orgId": "your-org-id"
+      },
+      "tip": "This query requires org-level access permissions. Use the campaign-based query above if you get 'Not Authorised' errors."
+    },
+    {
+      "title": "List all organizations",
+      "description": "For users with org-level access: list multiple organizations with their summaries.",
+      "type": "query",
+      "query": "query ListOrganizationsWithSummary($first: Int, $orderBy: OrgOrderByInput) {\n  orgsConnection(first: $first, orderBy: $orderBy) {\n    edges {\n      node {\n        id\n        name\n        website\n        level\n        createdAt\n        orgSummary {\n          totalCampaigns\n          liveCampaigns\n          activeCampaigns\n          impressions\n          roas\n          totalRevenue\n          budget\n        }\n      }\n    }\n    aggregate {\n      count\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+      "variables": {
+        "first": 50,
+        "orderBy": "createdAt_DESC"
+      },
+      "tip": "This query requires org-level access permissions. Use orderBy: createdAt_DESC to show most recent orgs first."
+    }
+  ],
+  "tips": [
+    "Use campaignOrdersConnection with advertiser.orgSummary for universal access",
+    "Direct org queries require elevated permissions",
+    "orgSummary is cached - data may be slightly delayed for real-time updates",
+    "level indicates organization tier (PARTNER, ADVERTISER, etc.)",
+    "zone field shows the organization's timezone setting",
+    "impressions is returned as a string to handle large numbers",
+    "Combine orgSummary with campaign-level queries for detailed breakdowns"
+  ],
+  "relatedRecipes": ["display-rollup", "device-analytics", "campaign-attribution", "organizations"]
+}

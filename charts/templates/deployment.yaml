@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: |-
     {{ .Release.Name }}
+  namespace: public-apps
   labels:
     app: |-
       {{ .Release.Name }}
@@ -28,6 +29,12 @@ spec:
       nodeSelector:
         kops.k8s.io/instancegroup: |-
           {{ .Values.instancegroup }}
+      serviceAccountName: public-app-sa
+      tolerations:
+        - key: "tier"
+          operator: "Equal"
+          value: |-
+            {{ .Values.instancegroup }}
       containers:
         - name: |-
             {{ .Release.Name }}

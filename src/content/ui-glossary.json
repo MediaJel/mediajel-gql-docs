@@ -1,0 +1,94 @@
+{
+  "accessToken": {
+    "simple": "A temporary password that proves you're logged in",
+    "detail": "Expires after ~1 hour. Get it from authSignIn."
+  },
+  "idToken": {
+    "simple": "A token containing your user identity information",
+    "detail": "Contains claims about who you are. Not used for API auth."
+  },
+  "refreshToken": {
+    "simple": "A long-lived token to get new access tokens",
+    "detail": "Lasts 30 days. Use it to stay logged in without re-entering credentials."
+  },
+  "mutation": {
+    "simple": "A request that changes data (like logging in or creating something)",
+    "detail": "Unlike queries which just read data, mutations modify it."
+  },
+  "query": {
+    "simple": "A request that reads data without changing anything",
+    "detail": "Use queries to fetch campaigns, analytics, etc."
+  },
+  "JWT": {
+    "simple": "A secure string containing your identity",
+    "detail": "JSON Web Token. Keep it secret—don't share it publicly."
+  },
+  "GraphQL": {
+    "simple": "A query language for APIs",
+    "detail": "Lets you request exactly the data you need, nothing more."
+  },
+  "endpoint": {
+    "simple": "The URL where you send API requests",
+    "detail": "MediaJel's API endpoint is where all GraphQL requests go."
+  },
+  "Authorization": {
+    "simple": "The header where you put your access token",
+    "detail": "Format: 'Bearer' followed by your accessToken."
+  },
+  "Bearer": {
+    "simple": "A prefix indicating token-based authentication",
+    "detail": "Always write 'Bearer ' (with a space) before your token."
+  },
+  "cURL": {
+    "simple": "A command-line tool for making web requests",
+    "detail": "Pre-installed on Mac/Linux. Used in code examples."
+  },
+  "organizationId": {
+    "simple": "Your company's unique identifier in MediaJel",
+    "detail": "Used in the 'Key' header. Ask your account manager if unknown."
+  },
+  "Cognito": {
+    "simple": "AWS service that handles user login",
+    "detail": "Amazon Cognito manages authentication behind the scenes."
+  },
+  "header": {
+    "simple": "Extra information sent with your request",
+    "detail": "Like metadata. Contains auth info, content type, etc."
+  },
+  "API": {
+    "simple": "A way for programs to communicate",
+    "detail": "Application Programming Interface. How your code talks to MediaJel."
+  },
+  "pagination": {
+    "simple": "Getting results in chunks instead of all at once",
+    "detail": "Use 'first', 'skip', or cursor-based params to paginate."
+  },
+  "schema": {
+    "simple": "A blueprint of all available operations",
+    "detail": "Describes what data you can query or mutate."
+  },
+  "variable": {
+    "simple": "A placeholder for values in your query",
+    "detail": "Makes queries reusable. Passed separately from the query."
+  },
+  "CTR": {
+    "simple": "Click-Through Rate",
+    "detail": "Percentage of impressions that resulted in clicks."
+  },
+  "ROAS": {
+    "simple": "Return on Ad Spend",
+    "detail": "Revenue generated per dollar spent on advertising."
+  },
+  "impressions": {
+    "simple": "Number of times ads were shown",
+    "detail": "Each display of your ad counts as one impression."
+  },
+  "pace": {
+    "simple": "Delivery rate vs goal",
+    "detail": "How fast impressions are being served relative to schedule."
+  },
+  "attributionWindow": {
+    "simple": "Lookback period for conversions",
+    "detail": "Days after ad exposure to attribute conversions (default 7-30 days)."
+  }
+}

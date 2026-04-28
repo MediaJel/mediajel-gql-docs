@@ -180,7 +180,7 @@ workflows:
           app_name: mediajel-gql-docs
           environment: staging
           update_script: |
-            yq eval '.spec.values.commitSha = env(CIRCLE_SHA1)' -i \
+            yq eval '.spec.values.tag = env(CIRCLE_SHA1)' -i \
               fluxcd/clusters/staging/apps/mediajel-gql-docs/mediajel-gql-docs.yaml
             git add fluxcd/clusters/staging/apps/mediajel-gql-docs/mediajel-gql-docs.yaml
           context: STAGING

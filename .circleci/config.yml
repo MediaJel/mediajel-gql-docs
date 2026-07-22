@@ -24,26 +24,34 @@ commands:
             sudo chmod +x /usr/local/bin/yq
 
   clone-gitops-repo:
-    description: "Clone k8s-infra GitOps repository"
+    description: "Clone k8s-infra GitOps repository at the target branch"
+    parameters:
+      branch:
+        type: string
+        default: "main"
     steps:
       - run:
-          name: Clone GitOps Repository
+          name: Clone GitOps Repository (<< parameters.branch >>)
           command: |
             git config --global user.email "circleci@mediajel.com"
             git config --global user.name "CircleCI Bot"
-            git clone https://${GITOPS_PAT}@github.com/MediaJel/k8s-infra.git
+            git clone --branch << parameters.branch >> \
+              https://${GITOPS_PAT}@github.com/MediaJel/k8s-infra.git
 
   commit-and-push:
-    description: "Commit updated manifests and push to main"
+    description: "Commit updated manifests and push to the target branch"
     parameters:
       app_name:
         type: string
+      branch:
+        type: string
+        default: "main"
       commit_action:
         type: string
         default: "update image tag to"
     steps:
       - run:
-          name: Commit and Push
+          name: Commit and Push (<< parameters.branch >>)
           command: |
             cd k8s-infra
             git commit -m "chore(<< parameters.app_name >>): << parameters.commit_action >> ${CIRCLE_SHA1}
@@ -53,7 +61,7 @@ commands:
             Branch: ${CIRCLE_BRANCH}
             Author: $(git log -1 --pretty=format:'%an <%ae>')"
 
-            git push origin main
+            git push origin << parameters.branch >>
   install-k8s-tools:
     description: "Install kops, kubectl, and Helm 3"
     steps:
@@ -119,11 +127,11 @@ jobs:
     parameters:
       app_name:
         type: string
-      environment:
-        type: enum
-        enum: ["staging", "production"]
       update_script:
         type: string
+      target_branch:
+        type: string
+        default: "main"
       commit_action:
         type: string
         default: "update image tag to"
@@ -132,7 +140,8 @@ jobs:
     steps:
       - checkout
       - install-yq
-      - clone-gitops-repo
+      - clone-gitops-repo:
+          branch: << parameters.target_branch >>
       - run:
           name: Update Manifests
           command: |
@@ -140,6 +149,7 @@ jobs:
             << parameters.update_script >>
       - commit-and-push:
           app_name: << parameters.app_name >>
+          branch: << parameters.target_branch >>
           commit_action: << parameters.commit_action >>
   # Helm Deploy Job Workflow
   deploy-production:
@@ -178,7 +188,7 @@ workflows:
       - deploy:
           name: deploy-staging
           app_name: mediajel-gql-docs
-          environment: staging
+          target_branch: staging
           update_script: |
             yq eval '.spec.values.tag = env(CIRCLE_SHA1)' -i \
               fluxcd/clusters/staging/apps/mediajel-gql-docs/mediajel-gql-docs.yaml

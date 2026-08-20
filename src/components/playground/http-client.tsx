@@ -58,7 +58,7 @@ interface HttpResponse {
 }
 
 interface HttpClientProps {
-  auth: { accessToken: string; orgId: string };
+  auth: { idToken: string; orgId: string };
   gqlEndpoint: string;
   query?: string;
   variables?: string;
@@ -79,7 +79,7 @@ export function HttpClient({
   const [method, setMethod] = useState<HttpMethod>("POST");
   const [url, setUrl] = useState(gqlEndpoint);
   const [headers, setHeaders] = useState<HeaderRow[]>([
-    { key: "Authorization", value: `Bearer ${auth.accessToken}`, enabled: true },
+    { key: "Authorization", value: `Bearer ${auth.idToken}`, enabled: true },
     { key: "Key", value: auth.orgId, enabled: true },
     { key: "Content-Type", value: "application/json", enabled: true },
   ]);
@@ -131,12 +131,12 @@ export function HttpClient({
   useEffect(() => {
     setHeaders((prev) =>
       prev.map((h) => {
-        if (h.key === "Authorization") return { ...h, value: `Bearer ${auth.accessToken}` };
+        if (h.key === "Authorization") return { ...h, value: `Bearer ${auth.idToken}` };
         if (h.key === "Key") return { ...h, value: auth.orgId };
         return h;
       })
     );
-  }, [auth.accessToken, auth.orgId]);
+  }, [auth.idToken, auth.orgId]);
 
   // Load history on mount
   useEffect(() => {

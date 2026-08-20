@@ -14,44 +14,61 @@ orbs:
 # Reusable commands
 # ---------------------------------------------------------------------------
 commands:
-  install-k8s-tools:
-    description: "Install kops, kubectl, and Helm 3"
+  install-yq:
+    description: "Install yq YAML processor"
     steps:
       - run:
-          name: Install kops
+          name: Install yq
           command: |
-            KOPS_VERSION=1.22.6
-            wget -O kops https://github.com/kubernetes/kops/releases/download/v${KOPS_VERSION}/kops-linux-amd64
-            chmod +x ./kops
-            sudo mv ./kops /usr/local/bin/kops
-            echo "export KOPS_CLUSTER_NAME=${KOPS_CLUSTER_NAME}" >> $BASH_ENV
-            echo "export KOPS_STATE_STORE=s3://${KOPS_STATE_STORE}" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> $BASH_ENV
-            echo "export AWS_REGION=${AWS_ECR_REGION}" >> $BASH_ENV
+            sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+            sudo chmod +x /usr/local/bin/yq
+
+  clone-gitops-repo:
+    description: "Clone k8s-infra GitOps repository at the target branch"
+    parameters:
+      branch:
+        type: string
+        default: "master"
+    steps:
       - run:
-          name: Install kubectl
+          name: Clone GitOps Repository (<< parameters.branch >>)
           command: |
-            wget -O kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-            chmod +x ./kubectl
-            sudo mv ./kubectl /usr/local/bin/kubectl
+            git config --global user.email "circleci@mediajel.com"
+            git config --global user.name "CircleCI Bot"
+            git clone --branch << parameters.branch >> \
+              https://${GITOPS_PAT}@github.com/MediaJel/k8s-infra.git
+
+  commit-and-push:
+    description: "Commit updated manifests and push to the target branch"
+    parameters:
+      app_name:
+        type: string
+      branch:
+        type: string
+        default: "master"
+      commit_action:
+        type: string
+        default: "update image tag to"
+    steps:
       - run:
-          name: Install Helm 3
+          name: Commit and Push (<< parameters.branch >>)
           command: |
-            wget https://get.helm.sh/helm-v3.5.2-linux-amd64.tar.gz
-            tar -xf helm-v3.5.2-linux-amd64.tar.gz
-            chmod +x ./linux-amd64/helm
-            sudo mv ./linux-amd64/helm /usr/local/bin/helm3
-            kops export kubecfg --admin
-            helm3 version
+            cd k8s-infra
+            git commit -m "chore(<< parameters.app_name >>): << parameters.commit_action >> ${CIRCLE_SHA1}
+
+            Built by CircleCI build #${CIRCLE_BUILD_NUM}
+            Commit: ${CIRCLE_SHA1}
+            Branch: ${CIRCLE_BRANCH}
+            Author: $(git log -1 --pretty=format:'%an <%ae>')"
+
+            git push origin << parameters.branch >>
 
 jobs:
-  build-dojo:
+  build:
     executor: docker-executor
     parameters:
       app_env:
         type: string
-        default: dojo
     steps:
       - checkout
       - setup_remote_docker:
@@ -65,33 +82,7 @@ jobs:
           create_repo: false
           region: 'us-east-1'
           repo: gql-docs
-          tag: "$CIRCLE_SHA1,latest"
-          platform: linux/amd64
-          attach_workspace: true
-          workspace_root: .
-          dockerfile: ./Dockerfile
-          extra_build_args: '--build-arg APP_ENV=<< parameters.app_env >> --build-arg AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} --build-arg AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}'
-
-  build-prod:
-    executor: docker-executor
-    parameters:
-      app_env:
-        type: string
-        default: production
-    steps:
-      - checkout
-      - setup_remote_docker:
-            version: docker24
-      - aws-ecr/build_and_push_image:
-          account_id: ${AWS_ACCOUNT_ID}
-          auth:
-              - aws-cli/setup:
-                region: ${AWS_ECR_REGION}
-          repo_scan_on_push: true
-          create_repo: false
-          region: 'us-east-1'
-          repo: gql-docs
-          tag: "$CIRCLE_SHA1,latest"
+          tag: $CIRCLE_SHA1
           platform: linux/amd64
           attach_workspace: true
           workspace_root: .
@@ -101,44 +92,35 @@ jobs:
   # ===========================================================================
   # Deploy Jobs
   # ===========================================================================
-  deploy-dojo:
-    executor: docker-executor
+  # GitOps Deploy Job Worfklow
+  deploy:
+    parameters:
+      app_name:
+        type: string
+      update_script:
+        type: string
+      target_branch:
+        type: string
+        default: "master"
+      commit_action:
+        type: string
+        default: "update image tag to"
+    docker:
+      - image: cimg/base:stable
     steps:
       - checkout
-      - install-k8s-tools
+      - install-yq
+      - clone-gitops-repo:
+          branch: << parameters.target_branch >>
       - run:
-          name: Deploy Graphql Docs to Staging (Helm)
+          name: Update Manifests
           command: |
-            kops export kubecfg --admin
-            helm3 upgrade --install gql-docs charts/ --set \
-            commitSha=${CIRCLE_SHA1} -f charts/stages/dojo.yaml \
-            --history-max=1 -n public-apps
-      - run:
-          name: Rollout Graphql Docs Staging
-          command: |
-            kops export kubecfg --admin
-            kubectl rollout restart deployment gql-docs -n public-apps
-            kubectl rollout status deployment/gql-docs -n public-apps -w
-
-  deploy-production:
-    executor: docker-executor
-    steps:
-      - checkout
-      - install-k8s-tools
-      - run:
-          name: Deploy Graphql Docs to Production (Helm)
-          command: |
-            kops export kubecfg --admin
-            helm3 upgrade --install gql-docs charts/ --set \
-            commitSha=${CIRCLE_SHA1} -f charts/stages/production.yaml \
-            --history-max=1 -n public-apps
-      - run:
-          name: Rollout Graphql Docs Production
-          command: |
-            kops export kubecfg --admin
-            kubectl rollout restart deployment gql-docs -n public-apps
-            kubectl rollout status deployment/gql-docs -n public-apps -w
-
+            cd k8s-infra
+            << parameters.update_script >>
+      - commit-and-push:
+          app_name: << parameters.app_name >>
+          branch: << parameters.target_branch >>
+          commit_action: << parameters.commit_action >>
 # ---------------------------------------------------------------------------
 # Workflows
 # ---------------------------------------------------------------------------
@@ -146,33 +128,46 @@ workflows:
   staging:
     jobs:
       # Build
-      - build-dojo:
-          name: Build-Graphql-Docs-Staging
+      - build:
+          name: build-staging
+          app_env: dojo
           context: STAGING
           filters:
             branches:
               only: dojo
-      # Deploy
-      - deploy-dojo:
-          name: Deploy-Graphql-Docs-Staging
+      - deploy:
+          name: deploy-staging
+          app_name: mediajel-gql-docs
+          target_branch: staging
+          update_script: |
+            yq eval '.spec.values.tag = env(CIRCLE_SHA1)' -i \
+              fluxcd/clusters/staging/apps/mediajel-gql-docs/mediajel-gql-docs.yaml
+            git add fluxcd/clusters/staging/apps/mediajel-gql-docs/mediajel-gql-docs.yaml
           context: STAGING
           filters:
             branches:
               only: dojo
-          requires: [ Build-Graphql-Docs-Staging ]
+          requires: [build-staging]
 
   production:
     jobs:
       # Build
-      - build-prod:
+      - build:
           name: Build-Graphql-Docs-Production
+          app_env: prod
           context: PRODUCTION
           filters:
             branches:
               only: master
-      # Deploy
-      - deploy-production:
+      # GitOps deploy → k8s-infra master
+      - deploy:
           name: Deploy-Graphql-Docs-Production
+          app_name: mediajel-gql-docs
+          target_branch: master
+          update_script: |
+            yq eval '.spec.values.tag = env(CIRCLE_SHA1)' -i \
+              fluxcd/clusters/production/apps/mediajel-gql-docs/mediajel-gql-docs.yaml
+            git add fluxcd/clusters/production/apps/mediajel-gql-docs/mediajel-gql-docs.yaml
           context: PRODUCTION
           filters:
             branches:

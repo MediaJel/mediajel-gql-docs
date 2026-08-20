@@ -154,7 +154,7 @@ workflows:
       # Build
       - build:
           name: Build-Graphql-Docs-Production
-          app_env: prod
+          app_env: production
           context: PRODUCTION
           filters:
             branches:

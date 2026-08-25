@@ -11,18 +11,26 @@ import {
   buildAdditionalInstructions,
 } from "@/lib/schema-context-builder";
 import { loadGlossary, DomainGlossary } from "@/lib/domain-glossary";
+import { getPublicSchemaSDL } from "@/lib/schema";
+import { isPublicOperation } from "@/lib/public-operations";
 
-// Load GraphQL schema for context
-const schemaSDL = fs.readFileSync(
-  path.join(process.cwd(), "src/content/public-schema.graphql"),
-  "utf-8"
-);
+// Load GraphQL schema for context, narrowed to the operations the docs publish.
+const schemaSDL = getPublicSchemaSDL();
 
 const apiConfig = JSON.parse(
   fs.readFileSync(
     path.join(process.cwd(), "src/content/public-api-config.json"),
     "utf-8"
   )
+);
+
+// This file is re-synced from S3 at container start, so it still holds all 300
+// generated operations regardless of what the build produced. Filter here too.
+const publicQueryNames = Object.keys(apiConfig.operations.queries).filter((n) =>
+  isPublicOperation(n, "query")
+);
+const publicMutationNames = Object.keys(apiConfig.operations.mutations).filter(
+  (n) => isPublicOperation(n, "mutation")
 );
 
 // Load domain glossary for intent classification
@@ -42,7 +50,7 @@ ${apiConfig.description}
 
 ## Authentication
 - Authenticate via the \`authSignIn\` mutation with username and password
-- Use the returned \`accessToken\` in the \`Authorization: Bearer <token>\` header
+- Use the returned \`idToken\` in the \`Authorization: Bearer <token>\` header — the API validates the app client ID audience, which only the ID token carries; the access token is rejected with "Not Authorised!"
 - Send the organization ID in the \`Key\` header
 - Tokens expire after ~1 hour; use \`refreshToken\` to obtain new tokens
 
@@ -56,8 +64,8 @@ ${schemaSDL}
 \`\`\`
 
 ## Available Operations
-${JSON.stringify(Object.keys(apiConfig.operations.queries))} (queries)
-${JSON.stringify(Object.keys(apiConfig.operations.mutations))} (mutations)
+${JSON.stringify(publicQueryNames)} (queries)
+${JSON.stringify(publicMutationNames)} (mutations)
 
 ## Guidelines
 - Only generate queries/mutations that exist in the public schema above

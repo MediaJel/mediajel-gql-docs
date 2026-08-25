@@ -62,7 +62,7 @@ function SimpleAuthFlow({ className }: { className?: string }) {
           </div>
           <div className="text-xs text-muted-foreground space-y-1">
             <div className="font-mono bg-muted px-2 py-1 rounded">
-              accessToken
+              idToken
             </div>
             <div className="font-mono bg-muted px-2 py-1 rounded">
               refreshToken
@@ -189,7 +189,7 @@ function DetailedAuthFlow({ className }: { className?: string }) {
               </div>
               <div className="font-mono text-xs space-y-1">
                 <div className="bg-white/80 p-1.5 rounded text-green-800">
-                  accessToken (1h)
+                  idToken (1h)
                 </div>
                 <div className="bg-white/80 p-1.5 rounded text-green-800">
                   refreshToken (30d)
@@ -261,7 +261,7 @@ function DetailedAuthFlow({ className }: { className?: string }) {
           <div className="flex-1">
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
               <div className="text-xs text-amber-700">
-                Issues new accessToken
+                Issues new idToken
               </div>
             </div>
           </div>

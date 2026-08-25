@@ -104,12 +104,12 @@ export default function QuickstartPage() {
             code={`curl -X POST ${gqlEndpoint} \\
   -H "Content-Type: application/json" \\
   -d '{
-    "query": "mutation { authSignIn(data: { username: \\"your@email.com\\", password: \\"your-password\\" }) { accessToken idToken refreshToken } }"
+    "query": "mutation { authSignIn(data: { username: \\"your-username\\", password: \\"your-password\\" }) { idToken refreshToken } }"
   }'`}
           />
         </div>
         <p className="text-sm text-muted-foreground ml-11 mt-4">
-          The response includes three tokens:
+          The response includes the tokens you requested:
         </p>
         <div className="ml-11 mt-2">
           <CodeBlock
@@ -118,7 +118,6 @@ export default function QuickstartPage() {
             code={`{
   "data": {
     "authSignIn": {
-      "accessToken": "eyJraWQiOiJ...",
       "idToken": "eyJraWQiOiJ...",
       "refreshToken": "eyJjdHkiOiJ..."
     }
@@ -128,13 +127,13 @@ export default function QuickstartPage() {
         </div>
         <ul className="text-sm text-muted-foreground ml-11 mt-3 list-disc pl-5 space-y-1">
           <li>
-            <Term id="accessToken">accessToken</Term> — Use this in the{" "}
+            <Term id="idToken">idToken</Term> — Use this in the{" "}
             <Term id="Authorization">Authorization</Term> header for API
             requests
           </li>
           <li>
-            <Term id="idToken">idToken</Term> — Contains your user identity
-            (not needed for API calls)
+            <Term id="accessToken">accessToken</Term> — Not used by this API;
+            sending it returns <code className="font-mono">Not Authorised!</code>
           </li>
           <li>
             <Term id="refreshToken">refreshToken</Term> — Use to get new tokens
@@ -152,7 +151,7 @@ export default function QuickstartPage() {
           <h2 className="text-xl font-semibold">Make an authenticated request</h2>
         </div>
         <p className="text-sm text-muted-foreground ml-11 mb-4">
-          Use the <TermInline id="accessToken">accessToken</TermInline> and your{" "}
+          Use the <TermInline id="idToken">idToken</TermInline> and your{" "}
           <Term id="organizationId">organization ID</Term> in subsequent
           requests:
         </p>

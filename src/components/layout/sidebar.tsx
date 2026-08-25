@@ -41,6 +41,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import apiConfig from "@/content/public-api-config.json";
+import { getPublicCategoryIds } from "@/lib/public-operations";
+import { PUBLISHED_RECIPES } from "@/lib/published-recipes";
 
 // Icon mapping for all category icons from public-api-config.json
 const iconMap: Record<string, React.ReactNode> = {
@@ -70,14 +72,31 @@ const iconMap: Record<string, React.ReactNode> = {
   sliders: <Sliders className="h-4 w-4" />,
 };
 
-// Generate API Reference items dynamically from config
+// Recipe links come from the published list so the nav cannot outlive a recipe.
+const recipeIcons: Record<string, React.ReactNode> = {
+  "list-campaigns": <List className="h-4 w-4" />,
+  organizations: <Building2 className="h-4 w-4" />,
+  "org-summary": <Building2 className="h-4 w-4" />,
+  "display-rollup": <Gauge className="h-4 w-4" />,
+};
+const recipeItems = PUBLISHED_RECIPES.map((recipe) => ({
+  label: recipe.title,
+  href: `/recipes/${recipe.slug}`,
+  icon: recipeIcons[recipe.slug] || <ChefHat className="h-4 w-4" />,
+}));
+
+// Generate API Reference items dynamically from config, skipping categories
+// whose operations are all excluded from the public docs.
+const publishedCategories = getPublicCategoryIds();
 const apiReferenceItems = [
   { label: "Schema Overview", href: "/schema", icon: <BookOpen className="h-4 w-4" /> },
-  ...apiConfig.categories.map((category) => ({
-    label: category.name,
-    href: `/schema/${category.id}`,
-    icon: iconMap[category.icon] || <BookOpen className="h-4 w-4" />,
-  })),
+  ...apiConfig.categories
+    .filter((category) => publishedCategories.has(category.id))
+    .map((category) => ({
+      label: category.name,
+      href: `/schema/${category.id}`,
+      icon: iconMap[category.icon] || <BookOpen className="h-4 w-4" />,
+    })),
 ];
 
 interface NavSection {
@@ -104,20 +123,7 @@ const sections: NavSection[] = [
     title: "Recipes",
     items: [
       { label: "All Recipes", href: "/recipes", icon: <ChefHat className="h-4 w-4" /> },
-      { label: "Campaign Performance", href: "/recipes/campaign-performance", icon: <BarChart className="h-4 w-4" /> },
-      { label: "List Campaigns", href: "/recipes/list-campaigns", icon: <List className="h-4 w-4" /> },
-      { label: "Organizations", href: "/recipes/organizations", icon: <Building2 className="h-4 w-4" /> },
-      { label: "Org Summary", href: "/recipes/org-summary", icon: <Building2 className="h-4 w-4" /> },
-      {
-        label: "Analytics",
-        icon: <TrendingUp className="h-4 w-4" />,
-        children: [
-          { label: "Campaign Analytics", href: "/recipes/campaign-attribution", icon: <TrendingUp className="h-4 w-4" /> },
-          { label: "Transaction Data", href: "/recipes/analytics", icon: <Target className="h-4 w-4" /> },
-          { label: "Pacing & Performance", href: "/recipes/display-rollup", icon: <Gauge className="h-4 w-4" /> },
-          { label: "Device Analytics", href: "/recipes/device-analytics", icon: <Sliders className="h-4 w-4" /> },
-        ],
-      },
+      ...recipeItems,
     ],
   },
   {

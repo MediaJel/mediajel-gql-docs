@@ -1,0 +1,10 @@
+{
+  "getRecommendationValue": {
+    "note": "Generator appends `{ id }` to every operation; RecommendationValue only has `value`.",
+    "exampleQuery": "query GetRecommendationValue($productId: ID!) {\n  getRecommendationValue(productId: $productId) {\n    value\n  }\n}"
+  },
+  "getRecommendedProduct": {
+    "note": "productCategory is the Category enum, but the generator emitted the string placeholder \"example-value\".",
+    "exampleVariables": { "productCategory": "FLOWER" }
+  }
+}

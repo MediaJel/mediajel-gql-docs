@@ -1,25 +1,9 @@
 import { RecipeCard } from "@/components/recipes/recipe-card";
 import { BookOpen } from "lucide-react";
 
-import campaignPerformance from "@/content/recipes/campaign-performance.json";
-import listCampaigns from "@/content/recipes/list-campaigns.json";
-import analytics from "@/content/recipes/analytics.json";
-import organizations from "@/content/recipes/organizations.json";
-import displayRollup from "@/content/recipes/display-rollup.json";
-import campaignAttribution from "@/content/recipes/campaign-attribution.json";
-import deviceAnalytics from "@/content/recipes/device-analytics.json";
-import orgSummary from "@/content/recipes/org-summary.json";
+import { PUBLISHED_RECIPES } from "@/lib/published-recipes";
 
-const recipes = [
-  campaignPerformance,
-  listCampaigns,
-  analytics,
-  organizations,
-  displayRollup,
-  campaignAttribution,
-  deviceAnalytics,
-  orgSummary,
-] as const;
+const recipes = PUBLISHED_RECIPES;
 
 export default function RecipesPage() {
   return (

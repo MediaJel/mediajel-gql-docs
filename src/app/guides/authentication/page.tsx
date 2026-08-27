@@ -22,8 +22,8 @@ export default function AuthenticationPage() {
         <AuthFlowDiagram variant="detailed" className="mb-4" />
         <p className="text-xs text-muted-foreground border-l-2 border-primary/50 pl-3">
           <strong>Summary:</strong> Sign in to get tokens, then include the{" "}
-          <Term id="accessToken">accessToken</Term> in every request. Refresh
-          when it expires (~1 hour).
+          <Term id="idToken">idToken</Term> in every request. Refresh when it
+          expires (~1 hour).
         </p>
       </section>
 
@@ -49,10 +49,11 @@ export default function AuthenticationPage() {
                   <Term id="Authorization">Authorization</Term>
                 </td>
                 <td className="px-4 py-2 font-mono text-sm text-primary">
-                  <Term id="Bearer">Bearer</Term> &lt;accessToken&gt;
+                  <Term id="Bearer">Bearer</Term> &lt;idToken&gt;
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  <Term id="JWT">JWT</Term> access token from authSignIn
+                  <Term id="JWT">JWT</Term> ID token from authSignIn — not the
+                  access token
                 </td>
               </tr>
               <tr>
@@ -62,7 +63,11 @@ export default function AuthenticationPage() {
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">
                   Your <Term id="organizationId">organization</Term>&apos;s
-                  unique ID
+                  unique ID. If your account has access to more than one
+                  organization, only the one your account is primarily assigned
+                  to is accepted — any other returns{" "}
+                  <code className="font-mono">Not Authorised!</code> even with a
+                  valid token.
                 </td>
               </tr>
             </tbody>
@@ -95,7 +100,7 @@ export default function AuthenticationPage() {
             title="Variables"
             code={`{
   "data": {
-    "username": "developer@example.com",
+    "username": "your-username",
     "password": "your-password"
   }
 }`}
@@ -126,7 +131,7 @@ export default function AuthenticationPage() {
             <tbody>
               <tr className="border-b border-border">
                 <td className="px-4 py-2 font-mono text-sm">
-                  <Term id="accessToken">accessToken</Term>
+                  <Term id="idToken">idToken</Term>
                 </td>
                 <td className="px-4 py-2">~1 hour</td>
                 <td className="px-4 py-2 text-muted-foreground">
@@ -136,11 +141,12 @@ export default function AuthenticationPage() {
               </tr>
               <tr className="border-b border-border">
                 <td className="px-4 py-2 font-mono text-sm">
-                  <Term id="idToken">idToken</Term>
+                  <Term id="accessToken">accessToken</Term>
                 </td>
                 <td className="px-4 py-2">~1 hour</td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  Contains user identity claims (not used for API auth)
+                  Not used by this API — it carries no audience claim, so the
+                  API rejects it
                 </td>
               </tr>
               <tr>
@@ -169,8 +175,11 @@ export default function AuthenticationPage() {
               Not authorized
             </code>
             <p className="text-sm text-muted-foreground mt-1">
-              Invalid or expired <Term id="accessToken">access token</Term>.
-              Re-authenticate or refresh your token.
+              Most often the wrong token: send the{" "}
+              <Term id="idToken">idToken</Term>, not the{" "}
+              <Term id="accessToken">accessToken</Term>. Otherwise the token has
+              expired, or the <code className="font-mono">Key</code> header does
+              not match an organization on your account.
             </p>
           </div>
           <div className="border border-border rounded-lg p-4">

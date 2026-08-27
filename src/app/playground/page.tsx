@@ -23,25 +23,15 @@ query ListOrgs {
 `;
 
 function PlaygroundContent() {
-  console.log("[PlaygroundContent] render", { timestamp: Date.now() });
-
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("query") || DEFAULT_QUERY;
   const initialVariables = searchParams.get("variables") || "{}";
-
-  console.log("[PlaygroundContent] searchParams:", {
-    embedded: searchParams.get("embedded"),
-    hasToken: !!searchParams.get("token"),
-    orgId: searchParams.get("orgId"),
-    query: !!searchParams.get("query"),
-    url: typeof window !== "undefined" ? window.location.href.replace(/token=[^&]+/, "token=REDACTED") : "SSR",
-  });
 
   const gqlEndpoint =
     process.env.NEXT_PUBLIC_GQL_ENDPOINT || "http://localhost:4000";
 
   const [auth, setAuth] = useState<{
-    accessToken: string;
+    idToken: string;
     orgId: string;
   } | null>(null);
   const [isRestoring, setIsRestoring] = useState(true);
@@ -55,10 +45,7 @@ function PlaygroundContent() {
   // Restore session from URL params (embedded in dashboard) or localStorage.
   // Read URL params directly from window.location to avoid Suspense re-render cycles.
   useEffect(() => {
-    console.log("[PlaygroundContent] useEffect fired, didInit:", didInit.current);
-
     if (didInit.current) {
-      console.log("[PlaygroundContent] skipping — already initialized");
       return;
     }
     didInit.current = true;
@@ -68,16 +55,9 @@ function PlaygroundContent() {
     const embeddedOrgId = params.get("orgId");
     const isEmbedded = params.get("embedded") === "true";
 
-    console.log("[PlaygroundContent] init params:", {
-      isEmbedded,
-      hasToken: !!embeddedToken,
-      orgId: embeddedOrgId,
-    });
-
     // When embedded in the dashboard, use the token and orgId from URL params
     if (isEmbedded && embeddedToken && embeddedOrgId) {
-      console.log("[PlaygroundContent] auto-auth from embedded params");
-      const authData = { accessToken: embeddedToken, orgId: embeddedOrgId };
+      const authData = { idToken: embeddedToken, orgId: embeddedOrgId };
       setAuth(authData);
       try {
         localStorage.setItem(
@@ -93,11 +73,10 @@ function PlaygroundContent() {
 
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      console.log("[PlaygroundContent] localStorage restore:", { hasStored: !!stored });
       if (stored) {
         const data = JSON.parse(stored);
-        if (data.accessToken && data.orgId) {
-          setAuth({ accessToken: data.accessToken, orgId: data.orgId });
+        if (data.idToken && data.orgId) {
+          setAuth({ idToken: data.idToken, orgId: data.orgId });
         }
       }
     } catch (err) {
@@ -117,7 +96,7 @@ function PlaygroundContent() {
       orgId: string,
       credentials?: { username: string }
     ) => {
-      const authData = { accessToken: tokens.accessToken, orgId };
+      const authData = { idToken: tokens.idToken as string, orgId };
       setAuth(authData);
       try {
         localStorage.setItem(
@@ -144,10 +123,7 @@ function PlaygroundContent() {
     }
   }, []);
 
-  console.log("[PlaygroundContent] render state:", { isRestoring, hasAuth: !!auth, authOrgId: auth?.orgId });
-
   if (isRestoring) {
-    console.log("[PlaygroundContent] showing: Loading spinner");
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
         Loading playground...
@@ -156,7 +132,6 @@ function PlaygroundContent() {
   }
 
   if (!auth) {
-    console.log("[PlaygroundContent] showing: Auth form");
     return (
       <div className="flex flex-col h-full">
         <AuthForm onAuthenticated={handleAuthenticated} gqlEndpoint={gqlEndpoint} />
@@ -174,8 +149,6 @@ function PlaygroundContent() {
       </div>
     );
   }
-
-  console.log("[PlaygroundContent] showing: Authenticated playground");
 
   return (
     <div className="flex flex-col h-full">

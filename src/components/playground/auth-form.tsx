@@ -70,8 +70,8 @@ export function AuthForm({ onAuthenticated, gqlEndpoint }: AuthFormProps) {
       }
 
       const tokens = result.data?.authSignIn;
-      if (!tokens?.accessToken) {
-        setError("No access token received. Check your credentials.");
+      if (!tokens?.idToken) {
+        setError("No ID token received. Check your credentials.");
         return;
       }
 
@@ -99,7 +99,7 @@ export function AuthForm({ onAuthenticated, gqlEndpoint }: AuthFormProps) {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="email@example.com"
+          placeholder="your-username"
           className="w-full px-3 py-1.5 text-sm border border-input rounded-md bg-background"
           required
         />

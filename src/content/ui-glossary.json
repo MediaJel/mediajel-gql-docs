@@ -1,11 +1,11 @@
 {
   "accessToken": {
-    "simple": "A temporary password that proves you're logged in",
-    "detail": "Expires after ~1 hour. Get it from authSignIn."
+    "simple": "A Cognito token this API does not accept",
+    "detail": "Returned by authSignIn but not used here — it carries no audience claim, so the API answers \"Not Authorised!\". Send the idToken instead."
   },
   "idToken": {
-    "simple": "A token containing your user identity information",
-    "detail": "Contains claims about who you are. Not used for API auth."
+    "simple": "The token you send to the API to prove who you are",
+    "detail": "Use this in the Authorization header. It carries the app client ID audience the API validates against."
   },
   "refreshToken": {
     "simple": "A long-lived token to get new access tokens",

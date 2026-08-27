@@ -38,7 +38,7 @@ export function PlaygroundDrawer({
     process.env.NEXT_PUBLIC_GQL_ENDPOINT || "http://localhost:4000";
 
   const [auth, setAuth] = useState<{
-    accessToken: string;
+    idToken: string;
     orgId: string;
   } | null>(null);
   const [isRestoring, setIsRestoring] = useState(true);
@@ -71,8 +71,8 @@ export function PlaygroundDrawer({
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const data = JSON.parse(stored);
-        if (data.accessToken && data.orgId) {
-          setAuth({ accessToken: data.accessToken, orgId: data.orgId });
+        if (data.idToken && data.orgId) {
+          setAuth({ idToken: data.idToken, orgId: data.orgId });
         }
       }
     } catch (err) {
@@ -92,7 +92,7 @@ export function PlaygroundDrawer({
       orgId: string,
       credentials?: { username: string }
     ) => {
-      const authData = { accessToken: tokens.accessToken, orgId };
+      const authData = { idToken: tokens.idToken as string, orgId };
       setAuth(authData);
       try {
         localStorage.setItem(

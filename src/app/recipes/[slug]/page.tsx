@@ -4,14 +4,7 @@ import { ArrowLeft, Clock, Lightbulb } from "lucide-react";
 import { RecipeStep } from "@/components/recipes/recipe-step";
 import { TryInPlaygroundButton } from "@/components/recipes/try-in-playground-button";
 
-import campaignPerformance from "@/content/recipes/campaign-performance.json";
-import listCampaigns from "@/content/recipes/list-campaigns.json";
-import analytics from "@/content/recipes/analytics.json";
-import organizations from "@/content/recipes/organizations.json";
-import displayRollup from "@/content/recipes/display-rollup.json";
-import campaignAttribution from "@/content/recipes/campaign-attribution.json";
-import deviceAnalytics from "@/content/recipes/device-analytics.json";
-import orgSummary from "@/content/recipes/org-summary.json";
+import { PUBLISHED_RECIPES } from "@/lib/published-recipes";
 
 interface RecipeStep {
   title: string;
@@ -34,16 +27,11 @@ interface Recipe {
   relatedRecipes: string[];
 }
 
-const recipesMap: Record<string, Recipe> = {
-  "campaign-performance": campaignPerformance as Recipe,
-  "list-campaigns": listCampaigns as Recipe,
-  analytics: analytics as Recipe,
-  organizations: organizations as Recipe,
-  "display-rollup": displayRollup as Recipe,
-  "campaign-attribution": campaignAttribution as Recipe,
-  "device-analytics": deviceAnalytics as Recipe,
-  "org-summary": orgSummary as Recipe,
-};
+// Built from the published list, so an unpublished recipe 404s here and its
+// related-recipe links elsewhere resolve to nothing.
+const recipesMap: Record<string, Recipe> = Object.fromEntries(
+  PUBLISHED_RECIPES.map((r) => [r.slug, r as unknown as Recipe])
+);
 
 const difficultyColors = {
   beginner: "bg-green-100 text-green-700",

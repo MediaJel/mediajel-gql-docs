@@ -31,8 +31,10 @@ export default function SchemaOverviewPage() {
     <div className="max-w-4xl mx-auto px-8 py-10">
       <h1 className="text-3xl font-bold mb-2">API Reference</h1>
       <p className="text-muted-foreground mb-8">
-        The MediaJel GraphQL API provides {queryCount} queries and{" "}
-        {mutationCount} mutations organized into the following categories.
+        The MediaJel GraphQL API provides {queryCount}{" "}
+        {queryCount === 1 ? "query" : "queries"} and {mutationCount}{" "}
+        {mutationCount === 1 ? "mutation" : "mutations"} organized into the
+        following categories.
       </p>
 
       {/* Stats */}
@@ -45,7 +47,9 @@ export default function SchemaOverviewPage() {
           <div className="text-2xl font-bold text-purple-600">
             {mutationCount}
           </div>
-          <div className="text-sm text-muted-foreground">Mutations</div>
+          <div className="text-sm text-muted-foreground">
+            {mutationCount === 1 ? "Mutation" : "Mutations"}
+          </div>
         </div>
         <div className="border border-border rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-amber-600">
@@ -86,7 +90,8 @@ export default function SchemaOverviewPage() {
                 </div>
               </div>
               <div className="text-sm text-muted-foreground flex-shrink-0">
-                {catOps.length} operations
+                {catOps.length}{" "}
+                {catOps.length === 1 ? "operation" : "operations"}
               </div>
             </Link>
           );

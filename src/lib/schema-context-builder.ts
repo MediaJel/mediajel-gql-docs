@@ -167,7 +167,7 @@ function buildSchemaQueryContext(
   // Authentication info
   context += "### Authentication\n";
   context += "1. Authenticate via `authSignIn` mutation with username and password\n";
-  context += "2. Use returned `accessToken` in `Authorization: Bearer <token>` header\n";
+  context += "2. Use returned `idToken` in `Authorization: Bearer <token>` header (the access token is rejected)\n";
   context += "3. Include organization ID in `Key` header\n\n";
 
   // List available operations by category
@@ -240,13 +240,23 @@ function buildHybridContext(
 
   // Add relevant operations
   if (classification.suggestedOperations.length > 0) {
-    context += "## Relevant GraphQL Operations\n\n";
-
     const ops = getOperationsByNames(classification.suggestedOperations);
-    for (const op of ops) {
-      if (context.length < maxChars - 2000) {
-        context += formatOperation(op, options.includeExamples !== false);
-        includedOperations.push(op.name);
+
+    if (ops.length === 0) {
+      // The glossary still maps this topic to operations the public API does not
+      // expose. Say so, rather than leaving an empty heading the model fills in
+      // by inventing operation names.
+      context += "## Availability\n\n";
+      context +=
+        "This topic has no operations in the public API. Tell the user it is " +
+        "not available through the API and do not suggest a query for it.\n\n";
+    } else {
+      context += "## Relevant GraphQL Operations\n\n";
+      for (const op of ops) {
+        if (context.length < maxChars - 2000) {
+          context += formatOperation(op, options.includeExamples !== false);
+          includedOperations.push(op.name);
+        }
       }
     }
   }

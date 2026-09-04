@@ -316,15 +316,20 @@ Edit `.env.local`:
 ```env
 # Required
 NEXT_PUBLIC_GQL_ENDPOINT=http://localhost:4000
+
+# Assistant LLM. Any OpenAI-compatible provider; these two only take effect
+# as a pair. Leave both unset to fall back to OPENAI_API_KEY with gpt-4o.
+LLM_API_KEY=your-provider-key
+LLM_BASE_URL=https://api.z.ai/api/coding/paas/v4
+LLM_MODEL=glm-5.3
+LLM_PICKER_MODEL=glm-5.3-flash
 OPENAI_API_KEY=sk-your-api-key
 
-# From Phase 2 (required for AI assistant)
-OPENAI_ASSISTANT_ID=asst_xxxxx
-OPENAI_VECTOR_STORE_ID=vs_xxxxx
-
-# Optional - for KB sync scripts
+# Optional - for KB sync scripts only (see Phase 2)
 NOTION_SECRET=secret_xxxxx
 NOTION_ROOT_PAGE_ID=xxxxx
+OPENAI_ASSISTANT_ID=asst_xxxxx
+OPENAI_VECTOR_STORE_ID=vs_xxxxx
 ```
 
 Sync the schema from S3:
@@ -355,7 +360,7 @@ yarn dev
 |-------------|---------|----------|
 | Node.js | 18+ | mediajel-gql-service & mediajel-gql-docs (use `nvm use 18`) |
 | Yarn | 1.x | Package manager for all projects |
-| OpenAI API Key | - | AI assistant feature |
+| LLM API Key | - | AI assistant (Z.AI, OpenRouter, or OpenAI) |
 | Notion API Key | - | Knowledge Base sync (optional) |
 | AWS Credentials | - | S3 schema sync (read access to mj-creatives bucket) |
 
@@ -368,9 +373,14 @@ yarn dev
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
 | `NEXT_PUBLIC_GQL_ENDPOINT` | Yes | GraphQL API URL for playground | `http://localhost:4000` |
-| `OPENAI_API_KEY` | Yes | OpenAI API key for AI assistant | `sk-...` |
-| `OPENAI_ASSISTANT_ID` | For AI | Assistant ID from knowledge-sync | `asst_...` |
-| `OPENAI_VECTOR_STORE_ID` | For AI | Vector store ID from knowledge-sync | `vs_...` |
+| `LLM_API_KEY` | For AI | Key for the OpenAI-compatible provider below | `sk-...` |
+| `LLM_BASE_URL` | For AI | Provider endpoint. Pairs with `LLM_API_KEY` — set one alone and the override is ignored | `https://api.z.ai/api/coding/paas/v4` |
+| `LLM_MODEL` | No | Chat model (default `gpt-4o`) | `glm-5.3` |
+| `LLM_PICKER_MODEL` | No | Cheaper model for operation routing | `glm-5.3-flash` |
+| `LLM_PROVIDER_ORDER` | No | OpenRouter only: pins the serving host | `Z.AI` |
+| `OPENAI_API_KEY` | Yes | Fallback when no `LLM_*` override is set | `sk-...` |
+| `OPENAI_ASSISTANT_ID` | KB sync only | Assistant ID from knowledge-sync | `asst_...` |
+| `OPENAI_VECTOR_STORE_ID` | KB sync only | Vector store ID from knowledge-sync | `vs_...` |
 | `NOTION_SECRET` | For KB sync | Notion integration API key | `secret_...` |
 | `NOTION_ROOT_PAGE_ID` | For KB sync | Root KB page ID in Notion | Page ID |
 | `NOTION_PARENT_PAGE_ID` | For KB build | Parent page for new KB creation | Page ID |
@@ -396,7 +406,11 @@ yarn dev
 
 ## Knowledge Base Integration
 
-The AI assistant uses a Knowledge Base synced from Notion to OpenAI for contextual, accurate responses.
+A Knowledge Base synced from Notion to OpenAI, kept for reference.
+
+> **Note**: the chat no longer reads this. It answers from the generated schema
+> context (`src/lib/schema-context-builder.ts`) instead, and the sync job still
+> targets OpenAI's Assistants API, which OpenAI retired in Aug 2026.
 
 ### How It Works
 
@@ -563,11 +577,15 @@ yarn dev
 ### AI Assistant not working
 
 **Check**:
-1. `OPENAI_API_KEY` is set in `.env.local`
-2. `OPENAI_ASSISTANT_ID` is set (from Phase 2)
-3. `OPENAI_VECTOR_STORE_ID` is set (from Phase 2)
-4. API key has sufficient credits
+1. `LLM_API_KEY` and `LLM_BASE_URL` are **both** set, or both unset with a funded `OPENAI_API_KEY`
+2. Server logs for `[llm-provider] Ignoring partial override` — that means only one of the pair is set
+3. `LLM_MODEL` is a name the configured provider actually serves
+4. API key has sufficient credits or quota
 5. Browser console for specific errors
+
+**Z.AI returning `code 1113`**: coding-plan keys only work on
+`https://api.z.ai/api/coding/paas/v4`. The general `/api/paas/v4` endpoint
+rejects them with an error that looks like an empty balance.
 
 ### Port 3006 already in use
 
@@ -587,7 +605,7 @@ kill -9 <PID>
 | shadcn/ui | UI components |
 | GraphiQL v3 | Interactive playground |
 | Vercel AI SDK | AI chat integration |
-| OpenAI GPT-4 | AI assistant |
+| GLM-5.3 (Z.AI) | AI assistant; any OpenAI-compatible provider works |
 | graphql | Schema parsing |
 
 ---
@@ -598,9 +616,13 @@ kill -9 <PID>
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `OPENAI_API_KEY` | Yes | OpenAI API key for AI assistant |
-| `OPENAI_ASSISTANT_ID` | Yes | Required for AI features |
-| `OPENAI_VECTOR_STORE_ID` | Yes | Required for AI features |
+| `LLM_API_KEY` | For AI | Provider key. Set in the `one-pass-ai-microservice` secret; the chart marks it optional, so a missing key silently falls back to OpenAI |
+| `LLM_BASE_URL` | For AI | Provider endpoint, from `charts/stages/<env>.yaml` |
+| `LLM_MODEL` | No | Chat model (default `gpt-4o`) |
+| `LLM_PICKER_MODEL` | No | Cheaper model for operation routing |
+| `OPENAI_API_KEY` | Yes | Fallback when no `LLM_*` override is set |
+| `OPENAI_ASSISTANT_ID` | No | Knowledge-sync cronjob only |
+| `OPENAI_VECTOR_STORE_ID` | No | Knowledge-sync cronjob only |
 | `NEXT_PUBLIC_GQL_ENDPOINT` | Yes | GraphQL API endpoint for target environment |
 | `CREATIVE_BUCKET_NAME` | Yes | S3 bucket name (`mj-creatives` for dojo, `mj-creatives-production` for prod) |
 | `CREATIVE_BUCKET_REGION` | Yes | AWS region (e.g., `us-east-1`) |

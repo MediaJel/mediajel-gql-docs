@@ -84,6 +84,25 @@ spec:
                 secretKeyRef:
                   name: one-pass-ai-microservice
                   key: OPENAI_API_KEY
+            # OpenAI-compatible override (Z.AI, OpenRouter); unset falls back to OpenAI.
+            - name: LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: one-pass-ai-microservice
+                  key: {{ .Values.llmApiKeySecretKey | default "LLM_API_KEY" }}
+                  optional: true
+            - name: LLM_BASE_URL
+              value: |-
+                {{ .Values.llmBaseUrl }}
+            - name: LLM_MODEL
+              value: |-
+                {{ .Values.llmModel }}
+            - name: LLM_PROVIDER_ORDER
+              value: |-
+                {{ .Values.llmProviderOrder }}
+            - name: LLM_PICKER_MODEL
+              value: |-
+                {{ .Values.llmPickerModel }}
             - name: NOTION_SECRET
               valueFrom:
                 secretKeyRef:

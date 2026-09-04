@@ -13,6 +13,9 @@ import {
   isInputObjectType,
   isListType,
   isNonNullType,
+  isInputType,
+  typeFromAST,
+  coerceInputValue,
 } from "graphql";
 import fs from "fs";
 import path from "path";
@@ -282,6 +285,110 @@ function validateExample(
   } catch (err) {
     return [err instanceof Error ? err.message : String(err)];
   }
+}
+
+/**
+ * Validates a query against the real schema, returning validator messages.
+ *
+ * The same check that hides operations with broken examples at build time,
+ * exposed so the assistant can be held to it too: a query the docs would
+ * refuse to publish should never reach a user from the chat either.
+ */
+export function validateQueryDocument(query: string): string[] {
+  return validateExample(getPublicSchema(), query);
+}
+
+let _publicSchemaObject: GraphQLSchema | null = null;
+
+/**
+ * The schema narrowed to the published operations.
+ *
+ * Validating against the full schema accepts operations the docs deliberately
+ * do not publish — `task` and `users` both came back valid — which let the
+ * assistant present an unpublished operation as usable. Validation has to use
+ * the same allowlist the docs do.
+ */
+function getPublicSchema(): GraphQLSchema {
+  if (!_publicSchemaObject) {
+    _publicSchemaObject = buildSchema(getPublicSchemaSDL());
+  }
+  return _publicSchemaObject;
+}
+
+/**
+ * Checks example variables against the query's own variable definitions.
+ *
+ * Document validation alone misses the most common mistake here: the document
+ * is fine and the *values* are wrong. `{ orgs: { some: … } }` is Prisma 2
+ * syntax that this Prisma 1 API rejects, and nothing in the query text says so.
+ */
+export function validateQueryVariables(
+  query: string,
+  variables: Record<string, unknown> | undefined
+): string[] {
+  if (!variables) return [];
+  const schema = getPublicSchema();
+  const errors: string[] = [];
+
+  let doc;
+  try {
+    doc = parse(query);
+  } catch {
+    return []; // Document errors are already reported by validateQueryDocument.
+  }
+
+  for (const def of doc.definitions) {
+    if (def.kind !== "OperationDefinition" || !def.variableDefinitions) continue;
+    for (const varDef of def.variableDefinitions) {
+      const name = varDef.variable.name.value;
+      if (!(name in variables)) continue;
+      const type = typeFromAST(schema, varDef.type);
+      if (!type || !isInputType(type)) continue;
+      coerceInputValue(variables[name], type, (path, _value, error) => {
+        const where = path.length ? ` at \`${name}.${path.join(".")}\`` : ` for \`$${name}\``;
+        errors.push(`${error.message}${where}`);
+      });
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * Field names on any type in the schema, or null if there is no such type.
+ *
+ * The per-operation context can only ever show the return type's own fields.
+ * That leaves every relation opaque — `Task.createdBy` is a `User`, and nothing
+ * in the context says what a `User` has — and it leaves Connection types
+ * showing only `pageInfo/edges/aggregate`. Rather than inline the whole type
+ * graph, let the assistant look a type up when it needs one.
+ */
+export function describeTypeFields(
+  typeName: string
+): { name: string; kind: string; fields: string[] } | null {
+  const bare = typeName.replace(/[![\]]/g, "");
+  // The published schema, so a lookup of Query or Mutation lists only the
+  // operations the docs publish rather than all 300.
+  const type = getPublicSchema().getType(bare);
+  if (!type) return null;
+
+  if (isEnumType(type)) {
+    return {
+      name: bare,
+      kind: "ENUM",
+      fields: type.getValues().map((v) => v.name),
+    };
+  }
+  if (isObjectType(type) || isInputObjectType(type)) {
+    return {
+      name: bare,
+      kind: isObjectType(type) ? "OBJECT" : "INPUT_OBJECT",
+      fields: Object.entries(type.getFields()).map(
+        ([name, field]) => `${name}: ${unwrapType(field.type)}`
+      ),
+    };
+  }
+  return { name: bare, kind: "SCALAR", fields: [] };
 }
 
 /** Operations hidden from the docs because their example cannot execute. */

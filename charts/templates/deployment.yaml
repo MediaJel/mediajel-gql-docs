@@ -88,8 +88,8 @@ spec:
             - name: LLM_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: one-pass-ai-microservice
-                  key: {{ .Values.llmApiKeySecretKey | default "LLM_API_KEY" }}
+                  name: one-pass-devops
+                  key: LLM_API_KEY
                   optional: true
             - name: LLM_BASE_URL
               value: |-

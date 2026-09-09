@@ -108,7 +108,7 @@ export default function HomePage() {
             <strong>Required headers:</strong>
           </p>
           <code className="bg-muted px-2 py-1 rounded text-xs block">
-            Authorization: Bearer &lt;accessToken&gt;
+            Authorization: Bearer &lt;idToken&gt;
           </code>
           <code className="bg-muted px-2 py-1 rounded text-xs block">
             Key: &lt;organizationId&gt;

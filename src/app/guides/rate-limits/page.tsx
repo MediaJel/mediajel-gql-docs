@@ -25,21 +25,25 @@ export default function RateLimitsPage() {
           Rate limits are keyed by the{" "}
           <code className="bg-muted px-1 rounded">Key</code> header (your
           organization ID). All requests from the same organization share a
-          single rate limit window.
+          single rate limit window, so several scripts running at once draw
+          down the same budget.
         </p>
       </section>
 
       <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-4">Response Headers</h2>
+        <h2 className="text-xl font-semibold mb-4">Handling 429 Responses</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          Every API response includes rate limit information in the headers:
+          Exceed the limit and the API returns{" "}
+          <code className="bg-muted px-1 rounded">429 Too Many Requests</code>.
+          Authenticated responses carry your remaining budget, so you can read
+          it rather than guess:
         </p>
-        <div className="border border-border rounded-lg overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden mb-4">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/50 border-b border-border">
                 <th className="text-left px-4 py-2 font-medium">Header</th>
-                <th className="text-left px-4 py-2 font-medium">Description</th>
+                <th className="text-left px-4 py-2 font-medium">Meaning</th>
               </tr>
             </thead>
             <tbody>
@@ -48,7 +52,7 @@ export default function RateLimitsPage() {
                   X-RateLimit-Limit
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  Maximum requests allowed per window (60)
+                  Requests allowed per minute (60)
                 </td>
               </tr>
               <tr className="border-b border-border">
@@ -56,7 +60,7 @@ export default function RateLimitsPage() {
                   X-RateLimit-Remaining
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  Number of requests remaining in the current window
+                  Requests left in the current window
                 </td>
               </tr>
               <tr className="border-b border-border">
@@ -64,45 +68,60 @@ export default function RateLimitsPage() {
                   X-RateLimit-Reset
                 </td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  Unix timestamp when the rate limit window resets
+                  Unix timestamp when the window resets
                 </td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-mono text-sm">Retry-After</td>
                 <td className="px-4 py-2 text-muted-foreground">
-                  Seconds until you can retry (only present on 429 responses)
+                  On a 429 only: seconds to wait before retrying. Prefer this
+                  over guessing a delay
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-      </section>
-
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-4">Handling 429 Responses</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          When you exceed the rate limit, the API returns a{" "}
-          <code className="bg-muted px-1 rounded">429 Too Many Requests</code>{" "}
-          response:
+          These appear whenever both an{" "}
+          <code className="bg-muted px-1 rounded">Authorization</code> and a{" "}
+          <code className="bg-muted px-1 rounded">Key</code> header are sent —
+          the limiter reads the headers without verifying the token, so the
+          budget is consumed per organization rather than per user. A request
+          missing either header returns none of them.
+        </p>
+        <p className="text-sm text-muted-foreground mb-4">
+          On a 429, wait for the number of seconds in the{" "}
+          <code className="bg-muted px-1 rounded">Retry-After</code> header, or
+          until <code className="bg-muted px-1 rounded">X-RateLimit-Reset</code>.
+          The example below falls back to an increasing delay when no header is
+          present:
         </p>
         <CodeBlock
-          language="json"
-          title="429 Response"
-          code={`{
-  "errors": [
-    {
-      "message": "Rate limit exceeded. Maximum 60 requests per 60 seconds. Try again in 45 seconds.",
-      "extensions": {
-        "code": "RATE_LIMITED",
-        "retryAfter": 45
-      }
-    }
-  ]
+          language="javascript"
+          title="Retry with exponential backoff"
+          code={`async function query(body, attempt = 0) {
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: \`Bearer \${idToken}\`,
+      Key: orgId,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (res.status === 429 && attempt < 5) {
+    await new Promise((r) => setTimeout(r, 2 ** attempt * 1000));
+    return query(body, attempt + 1);
+  }
+
+  return res.json();
 }`}
         />
         <p className="text-sm text-muted-foreground mt-4">
-          Best practice: Implement exponential backoff and respect the{" "}
-          <code className="bg-muted px-1 rounded">Retry-After</code> header.
+          Running requests sequentially rather than in parallel avoids most rate
+          limiting. If you are pulling a large result set, prefer paginating one
+          page at a time over firing concurrent requests.
         </p>
       </section>
 

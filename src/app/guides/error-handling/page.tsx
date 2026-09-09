@@ -39,17 +39,24 @@ export default function ErrorHandlingPage() {
           <div className="border border-border rounded-lg p-5">
             <div className="flex items-center gap-3 mb-2">
               <span className="font-mono text-sm font-medium bg-red-100 text-red-800 px-2 py-0.5 rounded">
-                401
+                200
               </span>
-              <h3 className="font-semibold">Not Authorized</h3>
+              <h3 className="font-semibold">Not Authorised!</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-2">
-              Your access token is missing, invalid, or expired.
+              Returned with HTTP 200 and{" "}
+              <code className="bg-muted px-1 rounded">data: null</code> — check
+              the <code className="bg-muted px-1 rounded">errors</code> array,
+              not the status code.
             </p>
             <p className="text-sm text-muted-foreground">
-              <strong>Fix:</strong> Re-authenticate using{" "}
-              <code className="bg-muted px-1 rounded">authSignIn</code> or
-              refresh your token.
+              <strong>Fix:</strong> Most often the wrong token — send the{" "}
+              <code className="bg-muted px-1 rounded">idToken</code>, not the{" "}
+              <code className="bg-muted px-1 rounded">accessToken</code>.
+              Otherwise the token has expired (re-authenticate with{" "}
+              <code className="bg-muted px-1 rounded">authSignIn</code>), or the{" "}
+              <code className="bg-muted px-1 rounded">Key</code> header does not
+              match an organization on your account.
             </p>
           </div>
 
@@ -61,12 +68,24 @@ export default function ErrorHandlingPage() {
               <h3 className="font-semibold">Rate Limited</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-2">
-              You&apos;ve exceeded 60 requests per minute.
+              You&apos;ve exceeded 60 requests per minute for your organization.
+              This is a real HTTP status, unlike the errors above.
             </p>
             <p className="text-sm text-muted-foreground">
-              <strong>Fix:</strong> Wait for the{" "}
-              <code className="bg-muted px-1 rounded">Retry-After</code> period
-              and implement exponential backoff.
+              <strong>Fix:</strong> The 429 carries a{" "}
+              <code className="bg-muted px-1 rounded">Retry-After</code> header
+              giving the exact seconds to wait; responses also carry{" "}
+              <code className="bg-muted px-1 rounded">X-RateLimit-Remaining</code>{" "}
+              and{" "}
+              <code className="bg-muted px-1 rounded">X-RateLimit-Reset</code>.
+              Wait for those rather than guessing — see{" "}
+              <Link
+                href="/guides/rate-limits"
+                className="text-primary hover:underline"
+              >
+                Rate Limits
+              </Link>
+              .
             </p>
           </div>
 
@@ -89,17 +108,21 @@ export default function ErrorHandlingPage() {
           <div className="border border-border rounded-lg p-5">
             <div className="flex items-center gap-3 mb-2">
               <span className="font-mono text-sm font-medium bg-gray-100 text-gray-800 px-2 py-0.5 rounded">
-                404
+                200
               </span>
-              <h3 className="font-semibold">Not Found</h3>
+              <h3 className="font-semibold">Null result</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-2">
-              The requested resource doesn&apos;t exist or you don&apos;t have
-              permission to access it.
+              A single-record lookup that matches nothing returns HTTP 200 with
+              that field set to{" "}
+              <code className="bg-muted px-1 rounded">null</code> and no{" "}
+              <code className="bg-muted px-1 rounded">errors</code> array. There
+              is no 404 — a missing record and a record outside your
+              organization look identical.
             </p>
             <p className="text-sm text-muted-foreground">
               <strong>Fix:</strong> Verify the ID and ensure your organization
-              has access.
+              has access to it.
             </p>
           </div>
         </div>
@@ -113,7 +136,7 @@ export default function ErrorHandlingPage() {
             array in GraphQL responses — the HTTP status may still be 200.
           </li>
           <li>
-            Implement token refresh logic that detects &quot;Not Authorised&quot;
+            Implement token refresh logic that detects &quot;Not Authorised!&quot;
             errors and automatically re-authenticates.
           </li>
           <li>

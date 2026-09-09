@@ -10,11 +10,11 @@ COPY src/ src/
 COPY next.config.js .
 COPY postcss.config.js .
 COPY tailwind.config.ts .
-ARG APP_ENV=prod
+ARG APP_ENV=production
 COPY entrypoint-dojo.sh .
-COPY entrypoint-prod.sh .
+COPY entrypoint-production.sh .
 
-RUN chmod +x entrypoint-dojo.sh entrypoint-prod.sh
+RUN chmod +x entrypoint-dojo.sh entrypoint-production.sh
 RUN cp entrypoint-${APP_ENV}.sh entrypoint.sh
 RUN yarn install --ignore-engines
 

@@ -28,7 +28,7 @@ export function RequestFlowDiagram({ className }: RequestFlowDiagramProps) {
               </div>
               <div className="flex-1">
                 <code className="text-xs font-mono bg-muted px-2 py-1 rounded block">
-                  POST https://api.mediajel.com/graphql
+                  POST https://graphql.dmp.cnna.io/
                 </code>
               </div>
             </div>

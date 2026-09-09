@@ -35,7 +35,7 @@ interface GraphiQLWrapperProps {
   variables?: string;
   onEditQuery?: (query: string) => void;
   onEditVariables?: (variables: string) => void;
-  auth: { accessToken: string; orgId: string };
+  auth: { idToken: string; orgId: string };
   gqlEndpoint: string;
 }
 
@@ -84,7 +84,7 @@ export function GraphiQLWrapper({
     const baseFetcher = createGraphiQLFetcher({
       url: gqlEndpoint,
       headers: {
-        Authorization: `Bearer ${auth.accessToken}`,
+        Authorization: `Bearer ${auth.idToken}`,
         Key: auth.orgId,
       },
     });

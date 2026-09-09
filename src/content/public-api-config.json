@@ -153,10 +153,10 @@
     "mutations": {
       "authSignIn": {
         "category": "auth",
-        "description": "Authenticate with your Cognito credentials to obtain JWT tokens. The returned `accessToken` is used in the `Authorization: Bearer <token>` header, and your organization ID is sent in the `Key` header for all subsequent requests.",
+        "description": "Authenticate with your Cognito credentials to obtain JWT tokens. The returned `idToken` is used in the `Authorization: Bearer <token>` header — the access token is rejected with \"Not Authorised!\" because only the ID token carries the app client ID audience. Your organization ID is sent in the `Key` header for all subsequent requests.",
         "exampleVariables": {
           "data": {
-            "username": "developer@example.com",
+            "username": "your-username",
             "password": "your-password"
           }
         },

@@ -22,8 +22,8 @@ interface GoalCard {
 const goals: GoalCard[] = [
   {
     title: "Track Campaign Performance",
-    description: "Get impressions, clicks, spend, and ROAS",
-    href: "/recipes/campaign-performance",
+    description: "Get impressions, budget, CTR, ROAS, and delivery pace",
+    href: "/recipes/display-rollup",
     icon: <BarChart3 className="h-5 w-5" />,
     color: "bg-blue-500",
   },
@@ -35,9 +35,9 @@ const goals: GoalCard[] = [
     color: "bg-green-500",
   },
   {
-    title: "Get Analytics Data",
-    description: "Fetch attribution and conversion metrics",
-    href: "/recipes/analytics",
+    title: "Summarize an Organization",
+    description: "Roll up campaign counts, spend, ROAS, and walk-ins by org",
+    href: "/recipes/org-summary",
     icon: <TrendingUp className="h-5 w-5" />,
     color: "bg-purple-500",
   },

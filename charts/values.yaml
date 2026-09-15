@@ -12,6 +12,14 @@ memoryLimit: 1Gi
 environment: STAGING
 instancegroup: big-nodes
 nextPublicGqlEndpoint: https://graphql-dojo.dmp.mediajel.ninja/
+# Assistant LLM. Empty llmBaseUrl falls back to OpenAI.
+# Z.AI direct. Via OpenRouter instead, set llmProviderOrder to pin the host —
+# unpinned, one model name is served by 25 hosts at different quantizations.
+llmBaseUrl: https://api.z.ai/api/coding/paas/v4
+llmModel: glm-5.3
+llmProviderOrder: ""            # OpenRouter only; unused talking to Z.AI directly
+llmPickerModel: "glm-5.3-flash"
+llmApiKeySecretKey: LLM_API_KEY
 
 autoscaling:
   enabled: true

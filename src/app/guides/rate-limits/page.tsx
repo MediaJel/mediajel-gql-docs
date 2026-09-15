@@ -35,16 +35,66 @@ export default function RateLimitsPage() {
         <p className="text-sm text-muted-foreground mb-4">
           Exceed the limit and the API returns{" "}
           <code className="bg-muted px-1 rounded">429 Too Many Requests</code>.
-          Responses do not carry{" "}
-          <code className="bg-muted px-1 rounded">X-RateLimit-*</code> or{" "}
-          <code className="bg-muted px-1 rounded">Retry-After</code> headers, so
-          your client cannot read its remaining budget — track your own request
-          rate rather than relying on the response to tell you.
+          Authenticated responses carry your remaining budget, so you can read
+          it rather than guess:
+        </p>
+        <div className="border border-border rounded-lg overflow-hidden mb-4">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-muted/50 border-b border-border">
+                <th className="text-left px-4 py-2 font-medium">Header</th>
+                <th className="text-left px-4 py-2 font-medium">Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-border">
+                <td className="px-4 py-2 font-mono text-sm">
+                  X-RateLimit-Limit
+                </td>
+                <td className="px-4 py-2 text-muted-foreground">
+                  Requests allowed per minute (60)
+                </td>
+              </tr>
+              <tr className="border-b border-border">
+                <td className="px-4 py-2 font-mono text-sm">
+                  X-RateLimit-Remaining
+                </td>
+                <td className="px-4 py-2 text-muted-foreground">
+                  Requests left in the current window
+                </td>
+              </tr>
+              <tr className="border-b border-border">
+                <td className="px-4 py-2 font-mono text-sm">
+                  X-RateLimit-Reset
+                </td>
+                <td className="px-4 py-2 text-muted-foreground">
+                  Unix timestamp when the window resets
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 font-mono text-sm">Retry-After</td>
+                <td className="px-4 py-2 text-muted-foreground">
+                  On a 429 only: seconds to wait before retrying. Prefer this
+                  over guessing a delay
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          These appear whenever both an{" "}
+          <code className="bg-muted px-1 rounded">Authorization</code> and a{" "}
+          <code className="bg-muted px-1 rounded">Key</code> header are sent —
+          the limiter reads the headers without verifying the token, so the
+          budget is consumed per organization rather than per user. A request
+          missing either header returns none of them.
         </p>
         <p className="text-sm text-muted-foreground mb-4">
-          On a 429, back off and retry with an increasing delay. Doubling the
-          wait after each failure, starting around one second, recovers reliably
-          without stalling a batch job:
+          On a 429, wait for the number of seconds in the{" "}
+          <code className="bg-muted px-1 rounded">Retry-After</code> header, or
+          until <code className="bg-muted px-1 rounded">X-RateLimit-Reset</code>.
+          The example below falls back to an increasing delay when no header is
+          present:
         </p>
         <CodeBlock
           language="javascript"

@@ -72,10 +72,13 @@ export default function ErrorHandlingPage() {
               This is a real HTTP status, unlike the errors above.
             </p>
             <p className="text-sm text-muted-foreground">
-              <strong>Fix:</strong> Back off and retry with an increasing delay.
-              Responses carry no{" "}
-              <code className="bg-muted px-1 rounded">Retry-After</code> header,
-              so choose your own interval — see{" "}
+              <strong>Fix:</strong> The 429 carries a{" "}
+              <code className="bg-muted px-1 rounded">Retry-After</code> header
+              giving the exact seconds to wait; responses also carry{" "}
+              <code className="bg-muted px-1 rounded">X-RateLimit-Remaining</code>{" "}
+              and{" "}
+              <code className="bg-muted px-1 rounded">X-RateLimit-Reset</code>.
+              Wait for those rather than guessing — see{" "}
               <Link
                 href="/guides/rate-limits"
                 className="text-primary hover:underline"
